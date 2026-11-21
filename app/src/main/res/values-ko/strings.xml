@@ -1519,4 +1519,23 @@
     <string name="import_summary_region_hidden">%1$d곡은 내 국가에서 이용할 수 없어 서비스가 곡 이름을 알려주지 않아요</string>
     <string name="winter_night_after_sunset">해가 지면 밤하늘로</string>
     <string name="winter_night_after_sunset_subtitle">라이트 모드에서 오후 6시 이후 극야로, 오전 6시에 다시 낮으로</string>
+    <string name="theme_space">우주</string>
+    <string name="theme_space_line">공허</string>
+    <string name="space_effects">우주 효과</string>
+    <string name="space_effect_black_hole">블랙홀 애니메이션</string>
+    <string name="space_effect_infall">빨려드는 별과 조석 플레어</string>
+    <string name="space_effect_twinkle">반짝이는 별</string>
+    <string name="space_effect_galaxies">은하 이동</string>
+    <string name="space_effect_audio">오디오 반응형 원반(플레이어)</string>
+    <string name="space_effect_shooting_stars">별똥별</string>
+    <string name="space_meteor_frequency">별똥별 빈도</string>
+    <string name="space_meteor_rare">드물게</string>
+    <string name="space_meteor_occasional">가끔</string>
+    <string name="space_meteor_normal">보통</string>
+    <string name="space_meteor_frequent">자주</string>
+    <string name="space_meteor_shower">유성우</string>
+    <string name="space_moving_stars">움직이는 별</string>
+    <string name="space_moving_stars_off">끔</string>
+    <string name="space_effect_glass">유리 굴절</string>
+    <string name="space_credits">이미지 출처</string>
 </resources>

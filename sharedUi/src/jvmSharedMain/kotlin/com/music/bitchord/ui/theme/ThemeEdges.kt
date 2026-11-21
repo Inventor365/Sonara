@@ -41,9 +41,25 @@ data class ThemeEffects(
     val frost: Boolean = false,
     /** Anything shown may move. */
     val moving: Boolean = false,
+    // ---- Space ([stars] is its twinkle, [glass] its glass refraction) ----
+    /** The black hole's disk turns, slowly and differentially; off, it holds still. */
+    val blackHole: Boolean = false,
+    /** Matter spirals in, and the rare tidal flare. */
+    val infall: Boolean = false,
+    /** A meteor now and then across the upper sky. */
+    val shootingStars: Boolean = false,
+    /** Galaxies and nebulae turn and drift, minutes per noticeable change. */
+    val galaxies: Boolean = false,
+    /** The Player's disk answers the music. */
+    val audioReactive: Boolean = false,
+    /** How often a shooting star crosses: 0 rare .. 4 a meteor shower (see [MeteorRates]). */
+    val meteorRate: Int = 2,
+    /** How many stars drift slowly across the sky, all the time; 0 is none. */
+    val movingStars: Int = 0,
 ) {
     /** Something is on screen that moves: the clock has to tick. */
-    val anyAnimated: Boolean get() = moving && (aurora || snow || stars)
+    val anyAnimated: Boolean
+        get() = moving && (aurora || snow || stars || blackHole || infall || shootingStars || galaxies || audioReactive || movingStars > 0)
 
     companion object {
         val None = ThemeEffects()
@@ -145,3 +161,17 @@ fun DrawScope.crystal(center: Offset, radius: Float, color: Color) {
         }
     }
 }
+
+/** Shooting-star frequencies, rare to a meteor shower: the length of each slot one meteor falls in (s). */
+object MeteorRates {
+    const val LEVELS = 5
+    const val DEFAULT = 2
+    /** Rare (about one a minute), occasional, normal (every 8-25 s), frequent, a shower (every 1.5-4 s). */
+    val SLOT_SECONDS = floatArrayOf(62f, 32f, 16f, 7f, 2.6f)
+
+    /** The longest stretch with no meteor at [level], in seconds. */
+    fun longestGap(level: Int): Float = SLOT_SECONDS[level.coerceIn(0, LEVELS - 1)] * 1.56f
+}
+
+/** How many moving stars the slider allows. */
+const val MAX_MOVING_STARS = 300

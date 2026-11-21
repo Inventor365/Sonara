@@ -2,6 +2,21 @@ package com.music.bitchord.ui.performance
 
 import com.music.bitchord.ui.theme.ThemeEffects
 
+/** Space's effect switches; null is "not chosen", which takes the tier's default. */
+data class SpaceEffectPrefs(
+    val blackHole: Boolean? = null,
+    val infall: Boolean? = null,
+    val shootingStars: Boolean? = null,
+    val twinkle: Boolean? = null,
+    val galaxies: Boolean? = null,
+    val glass: Boolean? = null,
+    val audioReactive: Boolean? = null,
+    /** 0 rare .. 4 meteor shower. */
+    val meteorRate: Int? = null,
+    /** Stars drifting across the sky, 0 (none) to [com.music.bitchord.ui.theme.MAX_MOVING_STARS]. */
+    val movingStars: Int? = null,
+)
+
 /** The listener's Winter effect switches; null is "not chosen", which takes the tier's default. */
 data class WinterEffectPrefs(
     val aurora: Boolean? = null,
@@ -57,7 +72,36 @@ object WinterEffectsPolicy {
         )
     }
 
-    /** What is shown, and whether it may move, at [moment]. */
+    /** Space's defaults: low-end phones start with every moving effect off (a still scene) and plain bars. */
+    fun spaceDefaults(tier: DeviceTier): ThemeEffects = when (tier) {
+        DeviceTier.LOW -> ThemeEffects()
+        DeviceTier.MID -> ThemeEffects(
+            stars = true, glass = true, blackHole = true, infall = true, shootingStars = true, galaxies = true, audioReactive = false,
+            movingStars = 60,
+        )
+        DeviceTier.HIGH -> ThemeEffects(
+            stars = true, glass = true, blackHole = true, infall = true, shootingStars = true, galaxies = true, audioReactive = true,
+            movingStars = 100,
+        )
+    }
+
+    /** Space's switches, the tier filling in the ones never touched. */
+    fun chosenSpace(prefs: SpaceEffectPrefs, tier: DeviceTier): ThemeEffects {
+        val d = spaceDefaults(tier)
+        return ThemeEffects(
+            stars = prefs.twinkle ?: d.stars,
+            glass = prefs.glass ?: d.glass,
+            blackHole = prefs.blackHole ?: d.blackHole,
+            infall = prefs.infall ?: d.infall,
+            shootingStars = prefs.shootingStars ?: d.shootingStars,
+            galaxies = prefs.galaxies ?: d.galaxies,
+            audioReactive = prefs.audioReactive ?: d.audioReactive,
+            meteorRate = (prefs.meteorRate ?: d.meteorRate).coerceIn(0, com.music.bitchord.ui.theme.MeteorRates.LEVELS - 1),
+            movingStars = (prefs.movingStars ?: d.movingStars).coerceIn(0, com.music.bitchord.ui.theme.MAX_MOVING_STARS),
+        )
+    }
+
+    /** What is shown, and whether it may move, at [moment] — the same rule for every theme. */
     fun resolve(chosen: ThemeEffects, moment: EffectsMoment): ThemeEffects {
         val still = moment.modeActive || moment.savingPower || moment.animationsOff || moment.hidden
         return chosen.copy(

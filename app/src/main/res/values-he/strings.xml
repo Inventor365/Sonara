@@ -1673,4 +1673,23 @@
     <string name="import_summary_region_hidden">%1$d לא זמינים במדינה שלך, ולכן השירות לא מציין מה הם</string>
     <string name="winter_night_after_sunset">שמי לילה אחרי השקיעה</string>
     <string name="winter_night_after_sunset_subtitle">במצב בהיר, לילה קוטבי אחרי 18:00 וחזרה אחרי 6:00</string>
+    <string name="theme_space">חלל</string>
+    <string name="theme_space_line">הריק</string>
+    <string name="space_effects">אפקטים של חלל</string>
+    <string name="space_effect_black_hole">אנימציית חור שחור</string>
+    <string name="space_effect_infall">כוכבים נבלעים והתלקחויות גאות</string>
+    <string name="space_effect_twinkle">כוכבים מנצנצים</string>
+    <string name="space_effect_galaxies">סחיפת גלקסיות</string>
+    <string name="space_effect_audio">דיסק שמגיב לשמע (נגן)</string>
+    <string name="space_effect_shooting_stars">כוכבים נופלים</string>
+    <string name="space_meteor_frequency">תדירות כוכבים נופלים</string>
+    <string name="space_meteor_rare">נדיר</string>
+    <string name="space_meteor_occasional">מדי פעם</string>
+    <string name="space_meteor_normal">רגיל</string>
+    <string name="space_meteor_frequent">תכוף</string>
+    <string name="space_meteor_shower">מטר מטאורים</string>
+    <string name="space_moving_stars">כוכבים נעים</string>
+    <string name="space_moving_stars_off">כבוי</string>
+    <string name="space_effect_glass">שבירת אור בזכוכית</string>
+    <string name="space_credits">קרדיט לתמונות</string>
 </resources>

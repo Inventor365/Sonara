@@ -1645,4 +1645,23 @@
     <string name="import_summary_region_hidden">%1$d 首在你的国家/地区无法使用，因此服务未提供歌名</string>
     <string name="winter_night_after_sunset">日落后切换为夜空</string>
     <string name="winter_night_after_sunset_subtitle">在浅色模式下，18:00 后切换为极夜，6:00 后恢复白天</string>
+    <string name="theme_space">太空</string>
+    <string name="theme_space_line">虚空</string>
+    <string name="space_effects">太空效果</string>
+    <string name="space_effect_black_hole">黑洞动画</string>
+    <string name="space_effect_infall">坠落的星星与潮汐闪焰</string>
+    <string name="space_effect_twinkle">闪烁的星星</string>
+    <string name="space_effect_galaxies">星系漂移</string>
+    <string name="space_effect_audio">随音频变化的圆盘(播放器)</string>
+    <string name="space_effect_shooting_stars">流星</string>
+    <string name="space_meteor_frequency">流星频率</string>
+    <string name="space_meteor_rare">很少</string>
+    <string name="space_meteor_occasional">偶尔</string>
+    <string name="space_meteor_normal">正常</string>
+    <string name="space_meteor_frequent">频繁</string>
+    <string name="space_meteor_shower">流星雨</string>
+    <string name="space_moving_stars">移动的星星</string>
+    <string name="space_moving_stars_off">关</string>
+    <string name="space_effect_glass">玻璃折射</string>
+    <string name="space_credits">图片来源</string>
 </resources>

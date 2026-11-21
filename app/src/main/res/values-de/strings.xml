@@ -1668,4 +1668,23 @@
     <string name="import_summary_region_hidden">%1$d sind in deinem Land nicht verfügbar, daher nennt der Dienst sie nicht</string>
     <string name="winter_night_after_sunset">Nachthimmel nach Sonnenuntergang</string>
     <string name="winter_night_after_sunset_subtitle">Im hellen Modus ab 18 Uhr Polarnacht, ab 6 Uhr wieder Tag</string>
+    <string name="theme_space">Weltraum</string>
+    <string name="theme_space_line">Die Leere</string>
+    <string name="space_effects">Weltraum-Effekte</string>
+    <string name="space_effect_black_hole">Schwarzes-Loch-Animation</string>
+    <string name="space_effect_infall">Einfallende Sterne und Gezeitenblitze</string>
+    <string name="space_effect_twinkle">Funkelnde Sterne</string>
+    <string name="space_effect_galaxies">Driftende Galaxien</string>
+    <string name="space_effect_audio">Audioreaktive Scheibe (Player)</string>
+    <string name="space_effect_shooting_stars">Sternschnuppen</string>
+    <string name="space_meteor_frequency">Häufigkeit der Sternschnuppen</string>
+    <string name="space_meteor_rare">Selten</string>
+    <string name="space_meteor_occasional">Gelegentlich</string>
+    <string name="space_meteor_normal">Normal</string>
+    <string name="space_meteor_frequent">Häufig</string>
+    <string name="space_meteor_shower">Meteorschauer</string>
+    <string name="space_moving_stars">Wandernde Sterne</string>
+    <string name="space_moving_stars_off">Aus</string>
+    <string name="space_effect_glass">Glaslichtbrechung</string>
+    <string name="space_credits">Bildnachweise</string>
 </resources>

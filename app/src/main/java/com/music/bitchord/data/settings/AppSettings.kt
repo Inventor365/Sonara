@@ -460,6 +460,9 @@ object AppSettings {
 
     /** Winter in light mode turns to the polar night after sunset (off: light all day). */
     val winterNightSkyAfterSunset = MutableStateFlow(false)
+
+    /** Space's effect switches; null means never touched, so the device's tier decides. */
+    val spaceEffects = MutableStateFlow(com.music.bitchord.ui.performance.SpaceEffectPrefs())
     val appFont = MutableStateFlow(AppFont.DEFAULT)
 
     /** Keep playing similar music once the queue runs out. */
@@ -1162,6 +1165,17 @@ object AppSettings {
             glass = tri(KEY_WINTER_GLASS),
             frost = tri(KEY_WINTER_FROST),
         )
+        spaceEffects.value = com.music.bitchord.ui.performance.SpaceEffectPrefs(
+            blackHole = tri(KEY_SPACE_BLACK_HOLE),
+            infall = tri(KEY_SPACE_INFALL),
+            shootingStars = tri(KEY_SPACE_SHOOTING_STARS),
+            twinkle = tri(KEY_SPACE_TWINKLE),
+            galaxies = tri(KEY_SPACE_GALAXIES),
+            glass = tri(KEY_SPACE_GLASS),
+            audioReactive = tri(KEY_SPACE_AUDIO),
+            meteorRate = if (prefs.contains(KEY_SPACE_METEOR_RATE)) prefs.getInt(KEY_SPACE_METEOR_RATE, 2) else null,
+            movingStars = if (prefs.contains(KEY_SPACE_MOVING_STARS)) prefs.getInt(KEY_SPACE_MOVING_STARS, 0) else null,
+        )
         appFont.value = runCatching {
             AppFont.valueOf(prefs.getString(KEY_APP_FONT, null) ?: AppFont.DEFAULT.name)
         }.getOrDefault(AppFont.DEFAULT)
@@ -1616,6 +1630,25 @@ object AppSettings {
     fun setWinterNightSkyAfterSunset(value: Boolean) {
         winterNightSkyAfterSunset.value = value
         prefs.edit().putBoolean(KEY_WINTER_NIGHT_AFTER_SUNSET, value).apply()
+    }
+
+    /** Sets Space's switches; the ones still null keep following the tier. */
+    fun setSpaceEffects(value: com.music.bitchord.ui.performance.SpaceEffectPrefs) {
+        spaceEffects.value = value
+        val editor = prefs.edit()
+        fun put(key: String, v: Boolean?) {
+            if (v == null) editor.remove(key) else editor.putBoolean(key, v)
+        }
+        put(KEY_SPACE_BLACK_HOLE, value.blackHole)
+        put(KEY_SPACE_INFALL, value.infall)
+        put(KEY_SPACE_SHOOTING_STARS, value.shootingStars)
+        put(KEY_SPACE_TWINKLE, value.twinkle)
+        put(KEY_SPACE_GALAXIES, value.galaxies)
+        put(KEY_SPACE_GLASS, value.glass)
+        put(KEY_SPACE_AUDIO, value.audioReactive)
+        value.meteorRate?.let { editor.putInt(KEY_SPACE_METEOR_RATE, it) } ?: editor.remove(KEY_SPACE_METEOR_RATE)
+        value.movingStars?.let { editor.putInt(KEY_SPACE_MOVING_STARS, it) } ?: editor.remove(KEY_SPACE_MOVING_STARS)
+        editor.apply()
     }
 
     /** Sets one Winter effect switch; the others keep following the tier until touched. */
@@ -2622,6 +2655,15 @@ object AppSettings {
     private const val KEY_THEME_ICON = "theme_icon"
     private const val KEY_APP_OPENS = "app_opens"
     private const val KEY_WINTER_AURORA = "winter_aurora"
+    private const val KEY_SPACE_BLACK_HOLE = "space_black_hole"
+    private const val KEY_SPACE_INFALL = "space_infall"
+    private const val KEY_SPACE_TWINKLE = "space_twinkle"
+    private const val KEY_SPACE_GALAXIES = "space_galaxies"
+    private const val KEY_SPACE_GLASS = "space_glass_refraction"
+    private const val KEY_SPACE_SHOOTING_STARS = "space_shooting_stars"
+    private const val KEY_SPACE_AUDIO = "space_audio_reactive"
+    private const val KEY_SPACE_METEOR_RATE = "space_meteor_rate"
+    private const val KEY_SPACE_MOVING_STARS = "space_moving_stars"
     private const val KEY_WINTER_SNOW = "winter_snow"
     private const val KEY_WINTER_STARS = "winter_stars"
     private const val KEY_WINTER_GLASS = "winter_glass"

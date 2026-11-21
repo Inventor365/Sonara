@@ -1547,4 +1547,24 @@
     <string name="import_summary_region_hidden">%1$d aren’t available in your country, so the service doesn’t say what they are</string>
     <string name="winter_night_after_sunset">Night sky after sunset</string>
     <string name="winter_night_after_sunset_subtitle">In light mode, switch to the polar night after 6 pm and back after 6 am</string>
+    <string name="theme_space">Space</string>
+    <string name="theme_space_line">The void</string>
+    <string name="space_effects">Space effects</string>
+    <string name="space_effect_black_hole">Black hole animation</string>
+    <string name="space_effect_infall">Infalling stars and tidal flares</string>
+    <string name="space_effect_twinkle">Twinkling stars</string>
+    <string name="space_effect_galaxies">Galaxy drift</string>
+    <string name="space_effect_audio">Audio-reactive disk (Player)</string>
+    <string name="space_effect_shooting_stars">Shooting stars</string>
+    <string name="space_meteor_frequency">Shooting star frequency</string>
+    <string name="space_meteor_rare">Rare</string>
+    <string name="space_meteor_occasional">Occasional</string>
+    <string name="space_meteor_normal">Normal</string>
+    <string name="space_meteor_frequent">Frequent</string>
+    <string name="space_meteor_shower">Meteor shower</string>
+    <string name="space_moving_stars">Moving stars</string>
+    <string name="space_moving_stars_off">Off</string>
+    <string name="space_effect_glass">Glass refraction</string>
+    <string name="space_credits">Image credits</string>
+    <string name="space_credits_body" translatable="false">Milky Way panorama: ESO/S. Brunier (CC BY 4.0)\nWhirlpool Galaxy (M51): NASA, ESA, S. Beckwith (STScI) and the Hubble Heritage Team (STScI/AURA) (CC BY 4.0)\nHubble Ultra Deep Field: NASA, ESA, S. Beckwith (STScI) and the HUDF Team (CC BY 4.0)\nCosmic Cliffs, Carina Nebula: NASA, ESA, CSA, STScI (CC BY 4.0)\n\nRegraded and composited for Sonara. The black hole is Sonara\'s own ray-traced render.</string>
 </resources>

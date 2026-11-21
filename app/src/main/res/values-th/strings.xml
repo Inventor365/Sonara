@@ -1652,4 +1652,23 @@
     <string name="import_summary_region_hidden">%1$d เพลงไม่มีให้บริการในประเทศของคุณ บริการจึงไม่บอกชื่อเพลง</string>
     <string name="winter_night_after_sunset">ท้องฟ้ายามค่ำหลังพระอาทิตย์ตก</string>
     <string name="winter_night_after_sunset_subtitle">ในโหมดสว่าง เปลี่ยนเป็นคืนขั้วโลกหลัง 18:00 และกลับหลัง 6:00</string>
+    <string name="theme_space">อวกาศ</string>
+    <string name="theme_space_line">ความว่างเปล่า</string>
+    <string name="space_effects">เอฟเฟกต์อวกาศ</string>
+    <string name="space_effect_black_hole">แอนิเมชันหลุมดำ</string>
+    <string name="space_effect_infall">ดาวที่ตกลงไปและแสงวาบน้ำขึ้นลง</string>
+    <string name="space_effect_twinkle">ดาวระยิบระยับ</string>
+    <string name="space_effect_galaxies">กาแล็กซีเคลื่อนที่</string>
+    <string name="space_effect_audio">ดิสก์ตอบสนองเสียง (เครื่องเล่น)</string>
+    <string name="space_effect_shooting_stars">ดาวตก</string>
+    <string name="space_meteor_frequency">ความถี่ของดาวตก</string>
+    <string name="space_meteor_rare">นานๆ ครั้ง</string>
+    <string name="space_meteor_occasional">บางครั้ง</string>
+    <string name="space_meteor_normal">ปกติ</string>
+    <string name="space_meteor_frequent">บ่อย</string>
+    <string name="space_meteor_shower">ฝนดาวตก</string>
+    <string name="space_moving_stars">ดาวเคลื่อนที่</string>
+    <string name="space_moving_stars_off">ปิด</string>
+    <string name="space_effect_glass">การหักเหของกระจก</string>
+    <string name="space_credits">เครดิตภาพ</string>
 </resources>

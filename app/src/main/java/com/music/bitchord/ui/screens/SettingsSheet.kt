@@ -187,6 +187,7 @@ import com.music.bitchord.playback.AudioCache
 import com.music.bitchord.ui.player.fullBleedArtworkAvailable
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import androidx.compose.material.icons.rounded.Grain
 import java.util.Locale
 import com.music.bitchord.ui.sonara.MonoStyle
 import com.music.bitchord.ui.components.pressScale
@@ -1619,6 +1620,105 @@ fun SettingsScreen(
                             IosSwitch(checked = nightAfterSunset, onCheckedChange = AppSettings::setWinterNightSkyAfterSunset)
                         },
                         onClick = { AppSettings.setWinterNightSkyAfterSunset(!nightAfterSunset) },
+                    )
+                }
+            }
+        }
+
+        // Space's effects, one switch each, only while Space is the theme. Each shows what is in
+        // force — the listener's choice, or the device tier's default — and takes effect live.
+        if (shows(SettingsCategory.APPEARANCE) && appTheme == com.music.bitchord.ui.theme.ThemeId.SPACE) {
+            val tier = remember { com.music.bitchord.ui.performance.DeviceTier.of(context) }
+            val spacePrefs by AppSettings.spaceEffects.collectAsStateWithLifecycle()
+            val inForce = com.music.bitchord.ui.performance.WinterEffectsPolicy.chosenSpace(spacePrefs, tier)
+            SearchableSettingsGroup(
+                search,
+                header = stringResource(R.string.space_effects),
+                footer = stringResource(R.string.winter_effects_footer),
+                keepHeaderInPage = true,
+            ) {
+                @Composable
+                fun effectRow(title: String, on: Boolean, subtitle: String? = null, set: (Boolean) -> com.music.bitchord.ui.performance.SpaceEffectPrefs) {
+                    SettingsRow(
+                        title = title,
+                        subtitle = subtitle,
+                        trailing = { IosSwitch(checked = on, onCheckedChange = { AppSettings.setSpaceEffects(set(it)) }) },
+                        onClick = { AppSettings.setSpaceEffects(set(!on)) },
+                    )
+                }
+                val lowTierNote = if (tier == com.music.bitchord.ui.performance.DeviceTier.LOW) stringResource(R.string.winter_effects_low_tier) else null
+                val holeTitle = stringResource(R.string.space_effect_black_hole)
+                row(holeTitle, "black hole", "disk", "space") {
+                    effectRow(holeTitle, inForce.blackHole, lowTierNote) { spacePrefs.copy(blackHole = it) }
+                }
+                val infallTitle = stringResource(R.string.space_effect_infall)
+                row(infallTitle, "matter", "flare", "space") { effectRow(infallTitle, inForce.infall) { spacePrefs.copy(infall = it) } }
+                val meteorTitle = stringResource(R.string.space_effect_shooting_stars)
+                row(meteorTitle, "meteor", "shooting", "stars", "space") {
+                    effectRow(meteorTitle, inForce.shootingStars) { spacePrefs.copy(shootingStars = it) }
+                }
+                // How often they fall: rare (about one a minute) to a meteor shower. Live.
+                val rateTitle = stringResource(R.string.space_meteor_frequency)
+                val rateNames = listOf(
+                    stringResource(R.string.space_meteor_rare),
+                    stringResource(R.string.space_meteor_occasional),
+                    stringResource(R.string.space_meteor_normal),
+                    stringResource(R.string.space_meteor_frequent),
+                    stringResource(R.string.space_meteor_shower),
+                )
+                if (inForce.shootingStars) {
+                    row(rateTitle, "meteor", "frequency", "shower", "shooting", "space") {
+                        SliderRow(
+                            icon = androidx.compose.material.icons.Icons.Rounded.AutoAwesome,
+                            title = rateTitle,
+                            value = rateNames[inForce.meteorRate],
+                            sliderValue = inForce.meteorRate.toFloat(),
+                            onSliderValue = { v ->
+                                val level = v.roundToInt().coerceIn(0, com.music.bitchord.ui.theme.MeteorRates.LEVELS - 1)
+                                if (level != inForce.meteorRate) AppSettings.setSpaceEffects(spacePrefs.copy(meteorRate = level))
+                            },
+                            valueRange = 0f..(com.music.bitchord.ui.theme.MeteorRates.LEVELS - 1).toFloat(),
+                            steps = com.music.bitchord.ui.theme.MeteorRates.LEVELS - 2,
+                        )
+                    }
+                }
+                // Stars drifting slowly across the sky, all the time: how many, none to 300. Live.
+                val movingTitle = stringResource(R.string.space_moving_stars)
+                val offLabel = stringResource(R.string.space_moving_stars_off)
+                row(movingTitle, "moving", "drifting", "stars", "count", "space") {
+                    SliderRow(
+                        icon = androidx.compose.material.icons.Icons.Rounded.Grain,
+                        title = movingTitle,
+                        value = if (inForce.movingStars == 0) offLabel else inForce.movingStars.toString(),
+                        sliderValue = inForce.movingStars.toFloat(),
+                        onSliderValue = { v ->
+                            val n = (v / 10f).roundToInt() * 10
+                            if (n != inForce.movingStars) AppSettings.setSpaceEffects(spacePrefs.copy(movingStars = n))
+                        },
+                        valueRange = 0f..com.music.bitchord.ui.theme.MAX_MOVING_STARS.toFloat(),
+                        steps = com.music.bitchord.ui.theme.MAX_MOVING_STARS / 10 - 1,
+                    )
+                }
+                val twinkleTitle = stringResource(R.string.space_effect_twinkle)
+                row(twinkleTitle, "twinkle", "stars", "space") { effectRow(twinkleTitle, inForce.stars) { spacePrefs.copy(twinkle = it) } }
+                val galaxyTitle = stringResource(R.string.space_effect_galaxies)
+                row(galaxyTitle, "galaxy", "nebula", "drift", "space") { effectRow(galaxyTitle, inForce.galaxies) { spacePrefs.copy(galaxies = it) } }
+                val glassTitle = stringResource(R.string.space_effect_glass)
+                row(glassTitle, "glass", "refraction", "blur", "bar", "space") { effectRow(glassTitle, inForce.glass) { spacePrefs.copy(glass = it) } }
+                val audioTitle = stringResource(R.string.space_effect_audio)
+                row(audioTitle, "audio", "music", "player", "space") { effectRow(audioTitle, inForce.audioReactive) { spacePrefs.copy(audioReactive = it) } }
+                // The sky is real astrophotography: who took it, under which licence.
+                val creditsTitle = stringResource(R.string.space_credits)
+                var showCredits by remember { mutableStateOf(false) }
+                row(creditsTitle, "credits", "licence", "license", "eso", "hubble", "webb", "nasa", "space") {
+                    SettingsRow(title = creditsTitle, onClick = { showCredits = true })
+                }
+                if (showCredits) {
+                    AlertDialog(
+                        onDismissRequest = { showCredits = false },
+                        title = { Text(creditsTitle) },
+                        text = { Text(stringResource(R.string.space_credits_body), style = MaterialTheme.typography.bodyMedium) },
+                        confirmButton = { TextButton(onClick = { showCredits = false }) { Text(stringResource(android.R.string.ok)) } },
                     )
                 }
             }

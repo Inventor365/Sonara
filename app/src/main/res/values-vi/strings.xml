@@ -1587,4 +1587,23 @@
     <string name="import_summary_region_hidden">%1$d bài không có ở quốc gia của bạn nên dịch vụ không cho biết tên</string>
     <string name="winter_night_after_sunset">Bầu trời đêm sau hoàng hôn</string>
     <string name="winter_night_after_sunset_subtitle">Ở chế độ sáng, chuyển sang đêm vùng cực sau 18:00 và trở lại sau 6:00</string>
+    <string name="theme_space">Vũ trụ</string>
+    <string name="theme_space_line">Khoảng không</string>
+    <string name="space_effects">Hiệu ứng vũ trụ</string>
+    <string name="space_effect_black_hole">Hoạt ảnh hố đen</string>
+    <string name="space_effect_infall">Sao rơi vào và chớp thủy triều</string>
+    <string name="space_effect_twinkle">Sao lấp lánh</string>
+    <string name="space_effect_galaxies">Thiên hà trôi</string>
+    <string name="space_effect_audio">Đĩa phản ứng âm thanh (trình phát)</string>
+    <string name="space_effect_shooting_stars">Sao băng</string>
+    <string name="space_meteor_frequency">Tần suất sao băng</string>
+    <string name="space_meteor_rare">Hiếm</string>
+    <string name="space_meteor_occasional">Thỉnh thoảng</string>
+    <string name="space_meteor_normal">Bình thường</string>
+    <string name="space_meteor_frequent">Thường xuyên</string>
+    <string name="space_meteor_shower">Mưa sao băng</string>
+    <string name="space_moving_stars">Sao chuyển động</string>
+    <string name="space_moving_stars_off">Tắt</string>
+    <string name="space_effect_glass">Khúc xạ kính</string>
+    <string name="space_credits">Ghi công hình ảnh</string>
 </resources>

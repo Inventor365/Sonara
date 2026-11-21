@@ -1700,4 +1700,23 @@
     <string name="import_summary_region_hidden">%1$d недоступны в вашей стране, поэтому сервис не называет их</string>
     <string name="winter_night_after_sunset">Ночное небо после заката</string>
     <string name="winter_night_after_sunset_subtitle">В светлом режиме — полярная ночь после 18:00 и обратно после 6:00</string>
+    <string name="theme_space">Космос</string>
+    <string name="theme_space_line">Пустота</string>
+    <string name="space_effects">Космические эффекты</string>
+    <string name="space_effect_black_hole">Анимация чёрной дыры</string>
+    <string name="space_effect_infall">Падающие звёзды и приливные вспышки</string>
+    <string name="space_effect_twinkle">Мерцающие звёзды</string>
+    <string name="space_effect_galaxies">Дрейф галактик</string>
+    <string name="space_effect_audio">Диск, реагирующий на звук (плеер)</string>
+    <string name="space_effect_shooting_stars">Падающие звёзды</string>
+    <string name="space_meteor_frequency">Частота падающих звёзд</string>
+    <string name="space_meteor_rare">Редко</string>
+    <string name="space_meteor_occasional">Иногда</string>
+    <string name="space_meteor_normal">Обычно</string>
+    <string name="space_meteor_frequent">Часто</string>
+    <string name="space_meteor_shower">Метеорный поток</string>
+    <string name="space_moving_stars">Движущиеся звёзды</string>
+    <string name="space_moving_stars_off">Выкл.</string>
+    <string name="space_effect_glass">Преломление в стекле</string>
+    <string name="space_credits">Авторы изображений</string>
 </resources>

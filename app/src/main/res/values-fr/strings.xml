@@ -1669,4 +1669,23 @@
     <string name="import_summary_region_hidden">%1$d ne sont pas disponibles dans ton pays, le service ne les nomme donc pas</string>
     <string name="winter_night_after_sunset">Ciel nocturne après le coucher du soleil</string>
     <string name="winter_night_after_sunset_subtitle">En mode clair, nuit polaire après 18 h et retour après 6 h</string>
+    <string name="theme_space">Espace</string>
+    <string name="theme_space_line">Le vide</string>
+    <string name="space_effects">Effets spatiaux</string>
+    <string name="space_effect_black_hole">Animation du trou noir</string>
+    <string name="space_effect_infall">Étoiles englouties et éruptions de marée</string>
+    <string name="space_effect_twinkle">Étoiles scintillantes</string>
+    <string name="space_effect_galaxies">Dérive des galaxies</string>
+    <string name="space_effect_audio">Disque réactif au son (lecteur)</string>
+    <string name="space_effect_shooting_stars">Étoiles filantes</string>
+    <string name="space_meteor_frequency">Fréquence des étoiles filantes</string>
+    <string name="space_meteor_rare">Rare</string>
+    <string name="space_meteor_occasional">Occasionnelle</string>
+    <string name="space_meteor_normal">Normale</string>
+    <string name="space_meteor_frequent">Fréquente</string>
+    <string name="space_meteor_shower">Pluie de météores</string>
+    <string name="space_moving_stars">Étoiles en mouvement</string>
+    <string name="space_moving_stars_off">Désactivées</string>
+    <string name="space_effect_glass">Réfraction du verre</string>
+    <string name="space_credits">Crédits des images</string>
 </resources>

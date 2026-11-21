@@ -1651,4 +1651,23 @@
     <string name="import_summary_region_hidden">%1$d şarkı ülkende kullanılamıyor, bu yüzden servis adlarını vermiyor</string>
     <string name="winter_night_after_sunset">Gün batımından sonra gece gökyüzü</string>
     <string name="winter_night_after_sunset_subtitle">Açık modda 18.00\'den sonra kutup gecesi, 06.00\'da yeniden gündüz</string>
+    <string name="theme_space">Uzay</string>
+    <string name="theme_space_line">Boşluk</string>
+    <string name="space_effects">Uzay efektleri</string>
+    <string name="space_effect_black_hole">Kara delik animasyonu</string>
+    <string name="space_effect_infall">Düşen yıldızlar ve gelgit parlamaları</string>
+    <string name="space_effect_twinkle">Parıldayan yıldızlar</string>
+    <string name="space_effect_galaxies">Galaksi kayması</string>
+    <string name="space_effect_audio">Sese duyarlı disk (oynatıcı)</string>
+    <string name="space_effect_shooting_stars">Kayan yıldızlar</string>
+    <string name="space_meteor_frequency">Kayan yıldız sıklığı</string>
+    <string name="space_meteor_rare">Nadir</string>
+    <string name="space_meteor_occasional">Ara sıra</string>
+    <string name="space_meteor_normal">Normal</string>
+    <string name="space_meteor_frequent">Sık</string>
+    <string name="space_meteor_shower">Meteor yağmuru</string>
+    <string name="space_moving_stars">Hareketli yıldızlar</string>
+    <string name="space_moving_stars_off">Kapalı</string>
+    <string name="space_effect_glass">Cam kırılması</string>
+    <string name="space_credits">Görsel kaynakları</string>
 </resources>

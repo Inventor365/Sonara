@@ -1646,4 +1646,23 @@
     <string name="import_summary_region_hidden">%1$d 曲はお住まいの国で利用できないため、サービスが曲名を示しません</string>
     <string name="winter_night_after_sunset">日没後は夜空に</string>
     <string name="winter_night_after_sunset_subtitle">ライトモードでは 18 時以降は極夜、6 時に昼へ戻ります</string>
+    <string name="theme_space">スペース</string>
+    <string name="theme_space_line">虚空</string>
+    <string name="space_effects">スペースのエフェクト</string>
+    <string name="space_effect_black_hole">ブラックホールのアニメーション</string>
+    <string name="space_effect_infall">落ちる星と潮汐フレア</string>
+    <string name="space_effect_twinkle">またたく星</string>
+    <string name="space_effect_galaxies">銀河の漂流</string>
+    <string name="space_effect_audio">音に反応するディスク(プレーヤー)</string>
+    <string name="space_effect_shooting_stars">流れ星</string>
+    <string name="space_meteor_frequency">流れ星の頻度</string>
+    <string name="space_meteor_rare">まれ</string>
+    <string name="space_meteor_occasional">ときどき</string>
+    <string name="space_meteor_normal">ふつう</string>
+    <string name="space_meteor_frequent">多め</string>
+    <string name="space_meteor_shower">流星群</string>
+    <string name="space_moving_stars">動く星</string>
+    <string name="space_moving_stars_off">オフ</string>
+    <string name="space_effect_glass">ガラスの屈折</string>
+    <string name="space_credits">画像クレジット</string>
 </resources>

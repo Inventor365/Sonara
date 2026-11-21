@@ -1668,4 +1668,23 @@
     <string name="import_summary_region_hidden">%1$d आपके देश में उपलब्ध नहीं हैं, इसलिए सर्विस उनके नाम नहीं बताती</string>
     <string name="winter_night_after_sunset">सूर्यास्त के बाद रात का आसमान</string>
     <string name="winter_night_after_sunset_subtitle">लाइट मोड में शाम 6 बजे के बाद ध्रुवीय रात, सुबह 6 बजे फिर दिन</string>
+    <string name="theme_space">स्पेस</string>
+    <string name="theme_space_line">शून्य</string>
+    <string name="space_effects">स्पेस इफ़ेक्ट्स</string>
+    <string name="space_effect_black_hole">ब्लैक होल एनिमेशन</string>
+    <string name="space_effect_infall">गिरते तारे और टाइडल फ्लेयर</string>
+    <string name="space_effect_twinkle">टिमटिमाते तारे</string>
+    <string name="space_effect_galaxies">गैलेक्सी ड्रिफ़्ट</string>
+    <string name="space_effect_audio">ऑडियो-रिएक्टिव डिस्क (प्लेयर)</string>
+    <string name="space_effect_shooting_stars">टूटते तारे</string>
+    <string name="space_meteor_frequency">टूटते तारों की आवृत्ति</string>
+    <string name="space_meteor_rare">दुर्लभ</string>
+    <string name="space_meteor_occasional">कभी-कभी</string>
+    <string name="space_meteor_normal">सामान्य</string>
+    <string name="space_meteor_frequent">अक्सर</string>
+    <string name="space_meteor_shower">उल्का वर्षा</string>
+    <string name="space_moving_stars">चलते तारे</string>
+    <string name="space_moving_stars_off">बंद</string>
+    <string name="space_effect_glass">काँच में अपवर्तन</string>
+    <string name="space_credits">चित्र आभार</string>
 </resources>

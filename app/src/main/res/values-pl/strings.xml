@@ -1708,4 +1708,23 @@
     <string name="import_summary_region_hidden">%1$d nie jest dostępnych w twoim kraju, więc serwis nie podaje ich tytułów</string>
     <string name="winter_night_after_sunset">Nocne niebo po zachodzie słońca</string>
     <string name="winter_night_after_sunset_subtitle">W trybie jasnym noc polarna po 18:00 i powrót po 6:00</string>
+    <string name="theme_space">Kosmos</string>
+    <string name="theme_space_line">Pustka</string>
+    <string name="space_effects">Efekty kosmiczne</string>
+    <string name="space_effect_black_hole">Animacja czarnej dziury</string>
+    <string name="space_effect_infall">Spadające gwiazdy i rozbłyski pływowe</string>
+    <string name="space_effect_twinkle">Migoczące gwiazdy</string>
+    <string name="space_effect_galaxies">Dryf galaktyk</string>
+    <string name="space_effect_audio">Dysk reagujący na dźwięk (odtwarzacz)</string>
+    <string name="space_effect_shooting_stars">Spadające gwiazdy</string>
+    <string name="space_meteor_frequency">Częstotliwość spadających gwiazd</string>
+    <string name="space_meteor_rare">Rzadko</string>
+    <string name="space_meteor_occasional">Czasem</string>
+    <string name="space_meteor_normal">Normalnie</string>
+    <string name="space_meteor_frequent">Często</string>
+    <string name="space_meteor_shower">Deszcz meteorów</string>
+    <string name="space_moving_stars">Ruchome gwiazdy</string>
+    <string name="space_moving_stars_off">Wył.</string>
+    <string name="space_effect_glass">Załamanie światła w szkle</string>
+    <string name="space_credits">Autorzy zdjęć</string>
 </resources>
