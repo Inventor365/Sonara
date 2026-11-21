@@ -32,9 +32,10 @@ object ThemeIcons {
         ThemeId.DOOM -> AppIcon.ThemeDoom
         // Winter has a polar-night icon and a snow-day one, following the app's light or dark.
         ThemeId.WINTER -> if (dark) AppIcon.ThemeWinter else AppIcon.ThemeWinterLight
+        ThemeId.SPACE -> AppIcon.ThemeSpace
     }
 
-    private val themeIcons = setOf(AppIcon.ThemeVice, AppIcon.ThemeDoom, AppIcon.ThemeWinter, AppIcon.ThemeWinterLight)
+    private val themeIcons = setOf(AppIcon.ThemeVice, AppIcon.ThemeDoom, AppIcon.ThemeWinter, AppIcon.ThemeWinterLight, AppIcon.ThemeSpace)
 
     /** Whether the app is drawn dark right now: its own setting, or the system's under System. */
     fun appIsDark(context: Context): Boolean = when (AppSettings.themeMode.value) {

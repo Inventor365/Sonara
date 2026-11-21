@@ -43,7 +43,8 @@ enum class AppIcon(val alias: String, val iconRes: Int, val labelRes: Int, val p
     ThemeVice("LauncherVice", R.mipmap.ic_theme_vice, R.string.theme_vice, R.drawable.ic_theme_vice_preview),
     ThemeDoom("LauncherDoom", R.mipmap.ic_theme_doom, R.string.theme_doom, R.drawable.ic_theme_doom_preview),
     ThemeWinter("LauncherWinter", R.mipmap.ic_theme_winter, R.string.theme_winter, R.drawable.ic_theme_winter_preview),
-    ThemeWinterLight("LauncherWinterLight", R.mipmap.ic_theme_winter_light, R.string.theme_winter_day, R.drawable.ic_theme_winter_light_preview);
+    ThemeWinterLight("LauncherWinterLight", R.mipmap.ic_theme_winter_light, R.string.theme_winter_day, R.drawable.ic_theme_winter_light_preview),
+    ThemeSpace("LauncherSpace", R.mipmap.ic_theme_space, R.string.theme_space, R.drawable.ic_theme_space_preview);
 
     /** One of the themes' own icons rather than a style of the Sonara mark. */
     val isThemeIcon: Boolean get() = name.startsWith("Theme")
