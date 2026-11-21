@@ -36,16 +36,16 @@
 
 <table>
   <tr>
-    <td width="16%" align="center"><img src="docs/screenshots/app/home-sonara.jpg" alt="Home in the Sonara theme" width="100%" /><br/><sub><b>Sonara</b><br/>the original</sub></td>
-    <td width="16%" align="center"><img src="docs/screenshots/app/home-vice.jpg" alt="Home in the Vice theme: a synthwave sunset and palms behind the page" width="100%" /><br/><sub><b>Vice</b><br/>neon dusk</sub></td>
-    <td width="16%" align="center"><img src="docs/screenshots/app/home-doom.jpg" alt="Home in the Doom theme: forged steel, an engraved dial and an emerald glow" width="100%" /><br/><sub><b>Doom</b><br/>cold steel</sub></td>
-    <td width="16%" align="center"><img src="docs/screenshots/app/home-winter-night.jpg" alt="Home in the Winter theme at night: a live aurora over glaciers" width="100%" /><br/><sub><b>Winter</b><br/>polar night, live aurora</sub></td>
-    <td width="16%" align="center"><img src="docs/screenshots/app/home-winter-day.jpg" alt="Home in the Winter theme by day: an arctic sky over glaciers" width="100%" /><br/><sub><b>Winter</b><br/>arctic day</sub></td>
-    <td width="16%" align="center"><img src="docs/screenshots/app/home-space.jpg" alt="Home in the Space theme: a ray-traced black hole with its lensed accretion disk" width="100%" /><br/><sub><b>Space</b><br/>a ray-traced black hole</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-sonara.jpg" alt="Home in the Sonara theme" width="100%" /><br/><img src="docs/screenshots/app/icons/icon-sonara.png" alt="Sonara app icon" width="56" /><br/><sub><b>Sonara</b><br/>the original</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-vice.jpg" alt="Home in the Vice theme: a synthwave sunset and palms behind the page" width="100%" /><br/><img src="docs/screenshots/app/icons/icon-vice.png" alt="Vice app icon" width="56" /><br/><sub><b>Vice</b><br/>neon dusk</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-doom.jpg" alt="Home in the Doom theme: forged steel, an engraved dial and an emerald glow" width="100%" /><br/><img src="docs/screenshots/app/icons/icon-doom.png" alt="Doom app icon" width="56" /><br/><sub><b>Doom</b><br/>cold steel</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-winter-night.jpg" alt="Home in the Winter theme at night: a live aurora over glaciers" width="100%" /><br/><img src="docs/screenshots/app/icons/icon-winter-night.png" alt="Winter night app icon" width="56" /><br/><sub><b>Winter</b><br/>polar night, live aurora</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-winter-day.jpg" alt="Home in the Winter theme by day: an arctic sky over glaciers" width="100%" /><br/><img src="docs/screenshots/app/icons/icon-winter-day.png" alt="Winter day app icon" width="56" /><br/><sub><b>Winter</b><br/>arctic day</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-space.jpg" alt="Home in the Space theme: a ray-traced black hole with its lensed accretion disk" width="100%" /><br/><img src="docs/screenshots/app/icons/icon-space.png" alt="Space app icon" width="56" /><br/><sub><b>Space</b><br/>a ray-traced black hole</sub></td>
   </tr>
 </table>
 
-<sub>Real screenshots from a Poco F3. Every theme is a full look: its own sky, type, colours, glass and app icon.</sub>
+<sub>Real screenshots from a Poco F3. Every theme is a full look: its own sky, type, colours, glass and app icon, which switches the moment you pick the theme.</sub>
 
 <br/><br/>
 

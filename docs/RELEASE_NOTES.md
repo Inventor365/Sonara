@@ -1,4 +1,36 @@
-# Sonara `v2.1.3` (`versionCode = 52`)
+# Sonara `v2.1.4` (`versionCode = 53`)
+
+**Two new looks: Winter, with a live aurora over the glaciers, and Space, with a ray-traced black hole. Listen Together stays in time, desktop lyrics follow the song, and big playlist imports go all the way.**
+
+![Sonara 2.1.4: the Winter and Space themes, with their app icons](https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.4/themes-strip.jpg)
+
+## What's new in 2.1.4
+
+- **Winter.** An arctic scene behind every page. At night a live aurora moves over backlit glaciers, with stars, snowfall and two penguins far out on the ice; by day a small sun crosses the sky with the time of day. Its own type (Quicksand), frosted glass, and a night icon and a day icon.
+- **Space.** A black hole in the void, ray traced through curved spacetime like a still from a space film. Its lensed disk turns faster inside than out, matter falls in and the odd star is torn apart, stars bend around it, and shooting stars cross the sky. Library has a spiral galaxy rising over a planet, Explore a nebula, Search the Hubble Ultra Deep Field, and in the player the cover floats in front of its own black hole. The skies are real ESO, Hubble and Webb images, credited in the app.
+- **Every effect is a switch.** Settings → Appearance shows Winter's and Space's effects while that theme is on, each taking effect live, plus a shooting-star frequency and a moving-stars count for Space. Low Power Mode, Data Saver, battery saver and "remove animations" hold everything still.
+- **The app icon changes the moment you pick a theme**, now for every theme, and the app stays open.
+- **Listen Together stays in sync.** Devices that started a song before it had buffered used to play about a second behind; small gaps are now closed by playing a touch faster or slower, larger ones by an aimed seek. Listen Together is also in Library now.
+- **Desktop lyrics follow the song** that is actually playing, and stay in time with it.
+- **Big playlist imports finish.** Spotify and Apple Music playlists of any length are read in full, songs are added in batches YouTube accepts, and a summary lists anything that couldn't be matched, with *Retry unmatched*.
+- **Sign in with an account on your phone** opens Google's sign-in already filled in, instead of a refused one-time link.
+- **Android Auto** gets Albums and Artists folders, and the car always shows the real title and artist, never a lyric line.
+- **Also:** a one-liner under the Home greeting that changes every visit, lyrics on the lock screen (Settings → Lyrics, off by default), and long screenshots no longer repeat the top of Home.
+
+<table>
+  <tr>
+    <td width="25%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/app/explore-space.jpg" alt="Explore in Space" width="100%" /><br/><sub>Explore · Space</sub></td>
+    <td width="25%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/app/search-space.jpg" alt="Search in Space" width="100%" /><br/><sub>Search · Space</sub></td>
+    <td width="25%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/app/library-winter.jpg" alt="Library in Winter" width="100%" /><br/><sub>Library · Winter</sub></td>
+    <td width="25%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/app/settings-space.jpg" alt="Space effects settings" width="100%" /><br/><sub>Space effects</sub></td>
+  </tr>
+</table>
+
+Installs over 2.1.3 and every earlier Sonara or BitChord PlusPC build in place: same app, same signature, same data.
+
+---
+
+## Sonara `v2.1.3` (`versionCode = 52`)
 
 **Two new looks, Vice and Doom; Data Saver and Low Power Mode; smoother motion; sign in with the accounts already on your phone.**
 

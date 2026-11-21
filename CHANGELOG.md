@@ -6,6 +6,10 @@ All notable changes to **Sonara** (`https://github.com/Inventor365/Sonara`), for
 
 ## [Unreleased]
 
+---
+
+## [2.1.4] — 2026-11-21 (`versionCode = 53`) — Winter and Space
+
 ### Added
 - **Space theme**: a black hole in the void, like a still from a space film or a NASA visualisation.
   - **The black hole is ray traced**, offline. `scripts/space/trace_blackhole.py` follows light through the spacetime around the hole (Schwarzschild). That gives the lensed band of the disk's far side over the top of the shadow, the thin ring under it, the photon ring, a pure-black shadow, and the background stars bent into arcs. The approaching side of the disk is brighter and whiter, the receding side dimmer and redder (Doppler and gravitational redshift).
