@@ -281,6 +281,7 @@ fun SettingsScreen(
     val bestPart by AppSettings.showBestPart.collectAsStateWithLifecycle()
     val listenTogetherButton by AppSettings.showListenTogetherButton.collectAsStateWithLifecycle()
     val externalLinks by AppSettings.externalLinks.collectAsStateWithLifecycle()
+    val keepScreenOn by AppSettings.keepScreenOn.collectAsStateWithLifecycle()
     val reduceAnimation by AppSettings.reduceAnimationPref.collectAsStateWithLifecycle()
     val navLabels by AppSettings.showNavLabels.collectAsStateWithLifecycle()
     val reduceDynamicBlur by AppSettings.reduceDynamicBlurPref.collectAsStateWithLifecycle()
@@ -2358,6 +2359,21 @@ fun SettingsScreen(
                         )
                     },
                     onClick = { AppSettings.setHideStatusBarAppWide(!hideStatusBarAppWide) },
+                )
+            }
+            val keepScreenOnTitle = stringResource(R.string.keep_screen_on)
+            row(keepScreenOnTitle, "screen", "awake", "display", "timeout", "player") {
+                SettingsRow(
+                    icon = SfIcons.Brightness,
+                    title = keepScreenOnTitle,
+                    subtitle = stringResource(R.string.keep_screen_on_subtitle),
+                    trailing = {
+                        IosSwitch(
+                            checked = keepScreenOn,
+                            onCheckedChange = AppSettings::setKeepScreenOn,
+                        )
+                    },
+                    onClick = { AppSettings.setKeepScreenOn(!keepScreenOn) },
                 )
             }
             val hideStatusBarTitle = stringResource(R.string.hide_status_bar_in_player)

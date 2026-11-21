@@ -539,6 +539,9 @@ object AppSettings {
     /** Open Spotify, Apple Music, Deezer and SoundCloud links here, matched on YouTube Music. */
     val externalLinks = MutableStateFlow(true)
 
+    /** Keep the screen awake while the Now Playing sheet is open. */
+    val keepScreenOn = MutableStateFlow(false)
+
     /** Freezes the main player's mesh gradient instead of letting it drift/crossfade. */
     val reduceAnimation = MutableStateFlow(false)
 
@@ -1279,6 +1282,7 @@ object AppSettings {
         showBestPart.value = prefs.getBoolean(KEY_BEST_PART, true)
         showListenTogetherButton.value = prefs.getBoolean(KEY_LISTEN_TOGETHER_BUTTON, false)
         externalLinks.value = prefs.getBoolean(KEY_EXTERNAL_LINKS, true)
+        keepScreenOn.value = prefs.getBoolean(KEY_KEEP_SCREEN_ON, false)
         reduceAnimationPref.value = prefs.getBoolean(KEY_REDUCE_ANIMATION, false)
         showNavLabels.value = prefs.getBoolean(KEY_NAV_LABELS, true)
         onboardingComplete.value = prefs.getBoolean(KEY_ONBOARDING_COMPLETE, false)
@@ -1784,6 +1788,11 @@ object AppSettings {
     fun setExternalLinks(value: Boolean) {
         externalLinks.value = value
         prefs.edit().putBoolean(KEY_EXTERNAL_LINKS, value).apply()
+    }
+
+    fun setKeepScreenOn(value: Boolean) {
+        keepScreenOn.value = value
+        prefs.edit().putBoolean(KEY_KEEP_SCREEN_ON, value).apply()
     }
 
     fun setThemeMode(value: ThemeMode) {
@@ -2844,6 +2853,7 @@ object AppSettings {
     private const val KEY_BEST_PART = "show_best_part"
     private const val KEY_LISTEN_TOGETHER_BUTTON = "show_listen_together_button"
     private const val KEY_EXTERNAL_LINKS = "external_links"
+    private const val KEY_KEEP_SCREEN_ON = "keep_screen_on"
     private const val KEY_CACHE_LIMIT = "audio_cache_limit_bytes"
     private const val KEY_REDUCE_ANIMATION = "reduce_animation"
     private const val KEY_NAV_LABELS = "show_nav_labels"
