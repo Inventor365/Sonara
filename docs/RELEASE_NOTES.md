@@ -1,4 +1,89 @@
-# Sonara `v2.1.4` (`versionCode = 53`)
+# Sonara `v2.1.5` (`versionCode = 54`)
+
+**Everything new in BitChord, merged in: AutoMix artwork transitions, a new queue, a Radio tab and much more. Plus 17 community fixes and features, a plain player again in Space, and your listening back after a reinstall.**
+
+![Sonara 2.1.5: the player with and without the black hole, the new queue, Library's new links, and the new switch](https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.5/strip.jpg)
+
+## What's new in 2.1.5
+
+### Your listening comes back after a reinstall
+- Uninstall, reinstall, and your **listening time, plays, top artists, Replay, settings, Sonara Pass name and last song** come back by themselves from the phone's own Google backup (Android Settings → Google → Backup has to be on).
+- The backup no longer carries 11 MB of player cache. Downloads and the AutoMix models are left out too, so they can never push it past Android's 25 MB limit; past that limit Android skips an app's backup entirely.
+- Your Google sign-in is not part of the backup, as before. Sign in again after reinstalling; your YouTube Music history and playlists come back with your account.
+
+### Space: the player is the normal one again
+- The black hole behind the player is now a switch, **off by default**. Under Space the player looks the same as in every other theme: full artwork over the cover's own colours.
+- To get it back: *Settings → Appearance → Space effects → Black hole behind the player*. The audio-reactive disk is only offered while it's on.
+
+### From BitChord (272 changes merged)
+- **AutoMix artwork transitions.** Covers and Spotify Canvas clips dissolve into the next song with an organic reveal, in the full player and the mini players. The seek bar glows through the mix, and the *Mixing* badge has a light sweep. Each part has its own switch under AutoMix.
+- **A new queue.**
+  - Swipe a song to remove it or to play it next.
+  - *Select* for bulk actions, *Save as playlist*, and *Undo* after any removal.
+  - It opens at what's coming up, not at history.
+- **Radio**, its own tab.
+- **Player:**
+  - Apple Music-style play/pause and skip animations.
+  - Song details slide in when the song changes.
+  - Lyrics can be shared as an animated video synced to the song.
+  - A setting to show the total duration instead of the time remaining.
+  - Song credits in *Song info*.
+  - High-res covers for video tracks.
+- **Lyrics:** YouTube Music's own timed lyrics, and a *Hide lyrics* switch for the preview.
+- **Search** can be limited to your library, and song results can be swiped into the queue while you type.
+- **Playlists:**
+  - *Add to playlist* has a search.
+  - Albums can be added to playlists.
+  - Liked songs can be kept downloaded.
+- **Also:**
+  - A sleep timer that fades out over its last 30 seconds.
+  - A Quick Settings tile that plays or pauses.
+  - Tapping the current tab scrolls to the top.
+  - YouTube Premium audio for Premium accounts.
+  - AC-4 decoding.
+  - Listening on remote speakers counts in your stats.
+  - Fixed Android Auto and notification buttons.
+  - A smaller APK.
+
+### Community pull requests (17)
+- **Library** links to *Liked songs* and *Import Spotify* (#1761).
+- **New settings:**
+  - *Keep screen on* while the player is open (#1684).
+  - *Hide the status bar everywhere* (#1760).
+  - *Disable gradient on albums and playlists* (#1744).
+  - *Auto decrease DAC volume* for USB DACs (#1776).
+- **Fixes:**
+  - "Recently added" puts a playlist's newest songs on top (#1864).
+  - Long titles scroll in the mini players and the queue header (#1815).
+  - Search keeps album and playlist results above the keyboard (#1604), and the keyboard hides when you scroll (#1602).
+  - Wi-Fi is detected correctly for download restrictions (#1628).
+  - Sign-in works with a blank channel name (#1823).
+  - Discord links for local songs (#1824).
+  - Replay keeps artists with "&" or commas in their names whole (#1826).
+  - Titles written fully in brackets are now matched (#1855).
+  - Web crossfade fixes (#1847).
+  - The total-duration setting moved to Miscellaneous (#1813).
+- **In-app updates** download the APK built for your phone's CPU, about half the size of the universal one (#1473).
+
+### Changed
+- **Search uses your signed-in account**, as BitChord does. Your searches show up in your YouTube history and results follow your taste.
+- The Diwali screen is gone; BitChord removed its festive screens.
+
+<table>
+  <tr>
+    <td width="20%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.5/player-plain.jpg" alt="The player under Space, without the black hole" width="100%" /><br/><sub>Player · Space (default)</sub></td>
+    <td width="20%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.5/player-black-hole.jpg" alt="The player with the black hole switched on" width="100%" /><br/><sub>Black hole on</sub></td>
+    <td width="20%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.5/queue.jpg" alt="The new queue" width="100%" /><br/><sub>The new queue</sub></td>
+    <td width="20%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.5/library-links.jpg" alt="Liked songs and Import Spotify in Library" width="100%" /><br/><sub>Library links</sub></td>
+    <td width="20%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.5/settings-player-hole.jpg" alt="The black hole switch in Settings" width="100%" /><br/><sub>The new switch</sub></td>
+  </tr>
+</table>
+
+Installs over 2.1.4 and every earlier Sonara or BitChord PlusPC build in place: same app, same signature, same data.
+
+---
+
+## Sonara `v2.1.4` (`versionCode = 53`)
 
 **Two new looks: Winter, with a live aurora over the glaciers, and Space, with a ray-traced black hole. Listen Together stays in time, desktop lyrics follow the song, and big playlist imports go all the way.**
 

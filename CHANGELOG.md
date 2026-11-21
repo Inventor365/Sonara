@@ -8,6 +8,32 @@ All notable changes to **Sonara** (`https://github.com/Inventor365/Sonara`), for
 
 ---
 
+## [2.1.5] — 2026-11-22 (`versionCode = 54`) — BitChord merge, community PRs, stats after a reinstall
+
+### Added
+- **Merged 272 commits from `kushagrasinghx/BitChord`** (merge `2bfc5918`): AutoMix artwork transitions (cover and Canvas dissolves with an organic reveal, seek-bar glow, *Mixing* badge sweep, per-part switches), the queue rework (swipe to remove or play next, multi-select, *Save as playlist*, undo, opening at upcoming songs), the Radio tab, Apple Music-style transport animations, the song-info slide, animated lyrics share, YouTube Music timed lyrics, *Hide lyrics*, library-only search, *Add to playlist* search, albums to playlists, keep liked songs downloaded, the sleep-timer fade, the Quick Settings tile, scroll to top on tab tap, Premium audio, AC-4 via FFmpeg, remote-speaker listening in stats and a smaller APK.
+  - Kept Sonara's own behaviour where both changed: the queue's *Save as playlist* beside *Select*, the Party continuation (#1466) plus upstream's signature check, Cast's clock plus upstream's queue restore, Lifetime-by-default Replay plus month browsing, and the five-tab bar (Radio between Explore and Library; under Space it uses the void sky).
+  - 50 English-only upstream strings translated into Sonara's 17 languages; `zh-rHK` and `b+zh+Hant` filled from `zh-rTW`.
+- **17 upstream pull requests**:
+  - Library links to Liked songs and Import Spotify (#1761).
+  - *Keep screen on* (#1684), *Hide the status bar everywhere* (#1760), *Disable gradient on albums and playlists* (#1744), *Auto decrease DAC volume* (#1776).
+  - Newest-first "Recently added" (#1864), scrolling credits in the mini players and queue header (#1815), search results above the keyboard (#1604) and keyboard hiding on scroll (#1602), Wi-Fi detection (#1628), blank channel names (#1823), Discord links for local tracks (#1824), Replay artist names with `&` or commas (#1826), fully bracketed titles (#1855), web crossfade handoff (#1847), the total-duration toggle under Miscellaneous (#1813).
+  - The updater picks the APK for the device's ABI (#1473).
+  - Their new strings are translated into every locale.
+- **Space → *Black hole behind the player*** (`SpaceEffectPrefs.playerHole`, key `space_player_hole`), off by default. Off, the player is the app's usual one; the audio-reactive disk is only offered with it on and no longer keeps the effects clock running by itself.
+
+### Fixed
+- **A reinstall restores listening stats, settings and the last song** from Android's own backup. `backup_rules.xml` and `data_extraction_rules.xml` now exclude the InnerTubeX player cache (11 MB), downloads, offline HLS/DASH, download artwork and the AutoMix models, which could push the backup past Android's 25 MB limit; past that limit Android drops the whole backup. `bitchord_last_played` and `bitchord_bounded_context` are now included. Verified with `bmgr` backup, uninstall and reinstall: `listening/`, `bitchord_settings.xml` and the last song came back byte for byte.
+
+### Changed
+- Search runs signed in, as upstream does (`SearchSession` `anonymous = false`).
+- The festive (Diwali) screen was removed, following upstream.
+
+### Skipped upstream PRs
+- #1859 (sleep-timer fade rewrite; conflicts with the fade upstream already ships), #1779 (written against player code since restructured for AutoMix), #1720 (SponsorBlock; changes the silence thresholds), #1880 (custom DNS with a Cloudflare DoH fallback).
+
+---
+
 ## [2.1.4] — 2026-11-21 (`versionCode = 53`) — Winter and Space
 
 ### Added
