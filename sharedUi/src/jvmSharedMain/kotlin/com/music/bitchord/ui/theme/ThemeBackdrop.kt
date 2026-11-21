@@ -39,8 +39,14 @@ class ThemeBackdropPainter {
         background: Color,
         effects: ThemeEffects = ThemeEffects.None,
         art: WinterArt? = null,
+        spaceStill: SpaceStill? = null,
     ) = with(scope) {
         drawRect(background)
+        if (tokens.motif == ThemeMotif.VOID) {
+            // Space is plates and live layers (SpaceScene). For previews: the still Home scene.
+            spaceStill?.let { drawSpaceStill(it) }
+            return@with
+        }
         if (tokens.motif == ThemeMotif.AURORA || tokens.motif == ThemeMotif.GLACIER) {
             // Winter's sky is a painted plate and live layers (WinterScene), not vectors: the
             // plate's foot fades out, so the page colour carries on beneath with no seam.
@@ -72,7 +78,7 @@ class ThemeBackdropPainter {
         when (tokens.motif) {
             ThemeMotif.SUNSET -> drawSunset(tokens, hero)
             ThemeMotif.CREST -> drawCrest(tokens, hero)
-            ThemeMotif.AURORA, ThemeMotif.GLACIER, ThemeMotif.NONE -> Unit
+            ThemeMotif.AURORA, ThemeMotif.GLACIER, ThemeMotif.VOID, ThemeMotif.NONE -> Unit
         }
         // Into the page: the motif is gone before the first row of content.
         drawRect(
@@ -118,8 +124,8 @@ class ThemeBackdropPainter {
                     crestInner.lineTo(p.x, p.y + d); crestInner.lineTo(p.x - d * 0.6f, p.y); crestInner.close()
                 }
             }
-            // Winter is painted plates, drawn above.
-            ThemeMotif.AURORA, ThemeMotif.GLACIER -> Unit
+            // Winter and Space are painted plates, drawn above.
+            ThemeMotif.AURORA, ThemeMotif.GLACIER, ThemeMotif.VOID -> Unit
             ThemeMotif.NONE -> Unit
         }
     }
@@ -266,6 +272,59 @@ private fun palm(path: Path, baseX: Float, baseY: Float, height: Float, lean: Fl
  * Faint by design; it reads as material, not pattern.
  */
 fun DrawScope.drawThemeTexture(tokens: ThemeTokens, effects: ThemeEffects = ThemeEffects.None) {
+    // Space's Pass: black anodised metal with a nebula foil sheen — teal, violet, faint rose — and a
+    // fine glitter of starlight in the foil. The sheen slides as the page scrolls, like a card tilted.
+    if (tokens.id == ThemeId.SPACE) {
+        val shift = ((SpacePageScroll.floatValue / 900f) % 2f).let { if (it > 1f) 2f - it else it } * 0.5f - 0.25f
+        val w = size.width
+        val h = size.height
+        // Brushed: hairlines across the metal, barely there. One repeating gradient, not a hundred
+        // lines: the card is redrawn with every frame of the sky behind it.
+        val hair = 2.dp.toPx()
+        drawRect(
+            Brush.verticalGradient(
+                0f to Color.White.copy(alpha = 0.012f),
+                0.5f to Color.Transparent,
+                1f to Color.Transparent,
+                startY = 0f,
+                endY = hair,
+                tileMode = androidx.compose.ui.graphics.TileMode.Repeated,
+            ),
+        )
+        val c = 0.62f + shift
+        drawRect(
+            Brush.linearGradient(
+                0f to Color.Transparent,
+                (c - 0.22f).coerceIn(0.01f, 0.97f) to Color.Transparent,
+                (c - 0.10f).coerceIn(0.02f, 0.98f) to Color(0xFF1C7C84).copy(alpha = 0.16f),
+                c.coerceIn(0.03f, 0.985f) to Color(0xFF5B4BB0).copy(alpha = 0.18f),
+                (c + 0.10f).coerceIn(0.04f, 0.99f) to Color(0xFFA0607A).copy(alpha = 0.12f),
+                (c + 0.22f).coerceIn(0.05f, 0.995f) to Color.Transparent,
+                1f to Color.Transparent,
+                start = Offset(0f, 0f),
+                end = Offset(w, h * 1.6f),
+            ),
+        )
+        val rnd = java.util.Random(53)
+        repeat(40) {
+            val px = rnd.nextFloat() * w
+            val py = rnd.nextFloat() * h
+            // Glitter only shows within the sheen's band, as foil does.
+            val along = (px / w * 0.62f + py / (h * 1.6f) * 0.38f * 1.6f)
+            val k = (1f - kotlin.math.abs(along - c) / 0.22f).coerceIn(0f, 1f)
+            if (k <= 0f) return@repeat
+            val r = (0.35f + rnd.nextFloat() * rnd.nextFloat() * 0.9f).dp.toPx()
+            drawCircle(Color.White.copy(alpha = (0.25f + rnd.nextFloat() * 0.5f) * k), r, Offset(px, py))
+        }
+        // The edge: a hairline catching the light along the top.
+        drawLine(
+            Brush.horizontalGradient(listOf(Color.Transparent, Color.White.copy(alpha = 0.28f), Color.Transparent)),
+            Offset(w * 0.08f, 0.6f.dp.toPx()),
+            Offset(w * 0.92f, 0.6f.dp.toPx()),
+            strokeWidth = 0.8f.dp.toPx(),
+        )
+        return
+    }
     when (tokens.texture) {
         ThemeTexture.DOTS -> {
             val spacing = 14.dp.toPx()

@@ -1,5 +1,6 @@
 package com.music.bitchord.ui.player
 
+import com.music.bitchord.ui.theme.drawPlayerHole
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -17,6 +18,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
@@ -343,14 +346,60 @@ fun ArtworkMeshBackdrop(
     val themeTokens = com.music.bitchord.ui.theme.LocalThemeTokens.current
     val themeTint = themeTokens.playerTint
     val themeSheen = themeTokens.playerSheen
+    // Space: the album art floats in front of a black hole of its own — the art covers the shadow,
+    // the lensed band arcs over it and the ring sits under it; the album's colour faintly in the
+    // disk. Its own layer: the page's hole is a different view, and both draw while the sheet moves.
+    val space = themeTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE
+    val spaceEffects = com.music.bitchord.ui.theme.LocalThemeEffects.current
+    val spaceClock = com.music.bitchord.ui.theme.LocalWinterTime.current
+    val holeShader = remember { com.music.bitchord.ui.theme.BlackHoleShader() }
+    val holeLayer = if (space) androidx.compose.ui.graphics.rememberGraphicsLayer() else null
+    val spaceArt = if (space) com.music.bitchord.ui.theme.rememberSpacePlayerArt() else null
+    val spaceDisk = remember(spaceArt) { spaceArt?.let { com.music.bitchord.ui.theme.DiskRenderer(it.disk) } }
+    // This backdrop's own place on screen, to read the art card's (root) frame against.
+    val spaceOrigin = remember { floatArrayOf(0f, 0f) }
+    if (space) {
+        androidx.compose.runtime.SideEffect {
+            shown?.image?.let { com.music.bitchord.ui.theme.SpaceAudio.tint = averageColour(it) }
+        }
+    }
     Canvas(
         modifier = modifier
             .fillMaxSize()
+            .then(
+                if (space) {
+                    Modifier.onGloballyPositioned {
+                        val o = it.positionInRoot()
+                        spaceOrigin[0] = o.x
+                        spaceOrigin[1] = o.y
+                    }
+                } else {
+                    Modifier
+                },
+            )
             // A flat opaque floor: the player is a sheet with the app's own pages
             // behind it, and every pixel here has to be opaque.
             .background(fallback),
     ) {
         val seamY = seam().toPx().coerceIn(0f, size.height)
+        if (space && spaceArt != null && spaceDisk != null) {
+            // Right behind the album card, wherever the player has put it; until the card has
+            // been placed, where a card would be.
+            val frame = com.music.bitchord.ui.theme.SpacePlayerArtFrame.value
+            val artSide: Float
+            val centre: androidx.compose.ui.geometry.Offset
+            if (frame.width > 1f) {
+                artSide = frame.width
+                centre = androidx.compose.ui.geometry.Offset(frame.center.x - spaceOrigin[0], frame.center.y - spaceOrigin[1])
+            } else {
+                artSide = size.width * 0.72f
+                centre = androidx.compose.ui.geometry.Offset(size.width / 2f, size.height * 0.28f)
+            }
+            run {
+                drawPlayerHole(spaceArt, spaceDisk, centre, artSide, spaceEffects, spaceClock?.value ?: 0f, holeLayer, holeShader)
+            }
+            return@Canvas
+        }
         shown?.let { drawMesh(it, seamY, alpha = 1f) }
         // Read here rather than in composition: an Animatable read inside a
         // draw lambda invalidates the drawing and leaves composition out of it.
@@ -772,3 +821,23 @@ private fun Int.lifted(): Int {
 
 private const val MESH_VIBRANCE = 1.12f
 private const val MESH_FLOOR = 0.045f
+
+/** The mean colour of [image] (sampled sparsely): the album's tint for Space's disk. */
+private fun averageColour(image: ImageBitmap): Color {
+    val w = image.width
+    val h = image.height
+    if (w == 0 || h == 0) return Color.Transparent
+    val px = IntArray(w * h)
+    image.readPixels(px)
+    var r = 0L
+    var g = 0L
+    var b = 0L
+    var n = 0
+    var i = 0
+    while (i < px.size) {
+        val c = px[i]
+        r += (c shr 16) and 0xFF; g += (c shr 8) and 0xFF; b += c and 0xFF; n++
+        i += 7
+    }
+    return Color(r / (255f * n), g / (255f * n), b / (255f * n), 1f)
+}

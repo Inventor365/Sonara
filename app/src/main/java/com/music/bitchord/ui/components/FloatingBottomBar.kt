@@ -48,6 +48,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import com.music.bitchord.ui.theme.spaceBarGlow
 import com.music.bitchord.ui.theme.winterBarGlow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -286,6 +287,7 @@ fun FloatingBottomBar(
                 },
             )
             .winterBarGlow(pillShape)
+            .spaceBarGlow(pillShape)
             .border(GLASS_EDGE_WIDTH, GLASS_EDGE_COLOR, pillShape)
             .padding(horizontal = PILL_INSET, vertical = PILL_INSET),
     ) {

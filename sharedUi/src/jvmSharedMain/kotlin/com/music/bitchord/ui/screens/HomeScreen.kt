@@ -53,6 +53,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -542,13 +543,28 @@ private fun HomeTitle(
             )
         } else {
             Row(verticalAlignment = Alignment.Bottom) {
+                // Space: the mark in starlight, with a faint warm glow from within.
+                val space = themeTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE
                 Icon(
                     painter = painterResource(Res.drawable.ic_logo),
                     contentDescription = null,
                     // The mark in its own colour, not the text colour: it is the one thing on the
                     // page that is the app's and not the listener's.
-                    tint = themeTokens.accent,
-                    modifier = logoModifier,
+                    tint = if (space) com.music.bitchord.ui.theme.SpaceColors.Starlight else themeTokens.accent,
+                    modifier = if (space) {
+                        logoModifier.drawBehind {
+                            drawCircle(
+                                androidx.compose.ui.graphics.Brush.radialGradient(
+                                    listOf(com.music.bitchord.ui.theme.SpaceColors.DiskGold.copy(alpha = 0.30f), androidx.compose.ui.graphics.Color.Transparent),
+                                    center = center,
+                                    radius = size.width * 0.75f,
+                                ),
+                                radius = size.width * 0.75f,
+                            )
+                        }
+                    } else {
+                        logoModifier
+                    },
                 )
             }
         }
@@ -585,6 +601,8 @@ private fun HomeTitle(
                 modifier = Modifier.padding(top = 6.dp),
             )
         }
+        // Space: clear sky under the greeting for the black hole; the first card starts below it.
+        if (themeTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE) com.music.bitchord.ui.theme.SpaceHeroClearance()
     }
 }
 

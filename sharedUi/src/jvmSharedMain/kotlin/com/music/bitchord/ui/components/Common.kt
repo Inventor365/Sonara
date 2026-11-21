@@ -970,6 +970,15 @@ fun MessageState(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        // Space: a tiny spiral of stars falling into a point over an empty page; still when the
+        // theme's movement is paused.
+        if (com.music.bitchord.ui.theme.LocalThemeTokens.current.id == com.music.bitchord.ui.theme.ThemeId.SPACE) {
+            val clock = com.music.bitchord.ui.theme.LocalWinterTime.current
+            val starColor = com.music.bitchord.ui.theme.LocalThemeTokens.current.accent2
+            androidx.compose.foundation.Canvas(Modifier.size(56.dp)) {
+                with(com.music.bitchord.ui.theme.SpaceSpiral) { draw(clock?.value ?: 0f, starColor) }
+            }
+        }
         Text(
             text = message,
             style = MaterialTheme.typography.bodyLarge,

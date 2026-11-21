@@ -1403,9 +1403,12 @@ fun NowPlayingScreen(
     // still-art full-bleed preference. Other providers and static artwork keep
     // answering to that preference exactly as before.
     // A music video sits in the card's place at its own 16:9, never full bleed.
+    // Space floats the cover in front of its black hole, framed by the lensed ring: a card, never
+    // edge to edge, whatever the preference says.
+    val spaceTheme = com.music.bitchord.ui.theme.LocalThemeTokens.current.id == com.music.bitchord.ui.theme.ThemeId.SPACE
     val heroMode = !videoMode && (
         spotifyCanvasOnPhone ||
-            (fullBleedArt && playerFillsWindow(windowWidth))
+            (fullBleedArt && !spaceTheme && playerFillsWindow(windowWidth))
         )
 
     // Whether there's a still image to blow out — a placeholder tile is a card
@@ -3338,6 +3341,7 @@ fun NowPlayingScreen(
                             // card or it is nothing, and blown out to the banner it
                             // would only tint the top third of the screen. Under the
                             // cover, which hides it the moment there is one.
+                            val spaceCard = com.music.bitchord.ui.theme.LocalThemeTokens.current.id == com.music.bitchord.ui.theme.ThemeId.SPACE
                             Box(
                                 modifier = Modifier
                                     // As wide as the sleeve, for the same reason the
@@ -3375,6 +3379,17 @@ fun NowPlayingScreen(
                                         shape = TileShape
                                         clip = share > 0f
                                     }
+                                    // Space: tell the backdrop where the art is, so its black
+                                    // hole sits right behind it.
+                                    .then(
+                                        if (spaceCard) {
+                                            Modifier.onGloballyPositioned {
+                                                com.music.bitchord.ui.theme.SpacePlayerArtFrame.value = it.boundsInRoot()
+                                            }
+                                        } else {
+                                            Modifier
+                                        },
+                                    )
                                     .background(Color.Black.copy(alpha = 0.18f)),
                                 contentAlignment = Alignment.Center,
                             ) {

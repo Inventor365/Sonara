@@ -76,6 +76,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.abs
 import kotlin.math.sqrt
+import com.music.bitchord.ui.theme.spaceBarGlow
 import com.music.bitchord.ui.theme.winterBarGlow
 
 /**
@@ -408,6 +409,7 @@ fun MiniPlayer(
                 },
             )
             .winterBarGlow(shape)
+            .spaceBarGlow(shape)
             .border(0.5.dp, Color.White.copy(alpha = 0.10f), shape)
             // Deliberately silent: the whole bar is the target, so it catches
             // stray taps meant for the page behind it, and the sheet rising is

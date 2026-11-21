@@ -502,6 +502,7 @@ class MainActivity : AppCompatActivity() {
             // sky after sunset: then the whole app turns to the polar night until sunrise.
             val nightSkyAfterSunset by AppSettings.winterNightSkyAfterSunset.collectAsStateWithLifecycle()
             val minuteOfDay = rememberMinuteOfDay()
+            // Space is the void, dark whatever the system says (its tokens are dark-only).
             val darkTheme = modeDark || (
                 appTheme == com.music.bitchord.ui.theme.ThemeId.WINTER &&
                     com.music.bitchord.ui.performance.WinterScenePolicy.night(modeDark, nightSkyAfterSunset, minuteOfDay)
@@ -558,10 +559,34 @@ class MainActivity : AppCompatActivity() {
                 val pageMoving = com.music.bitchord.ui.components.ScrollMotion.scrolling
                 val winterTime = if (themeTokens.animated) {
                     com.music.bitchord.ui.theme.rememberWinterTime(
-                        running = themeEffects.anyAnimated && !skyCovered.value && !pageMoving,
+                        // Space keeps its clock under the full Player: the hole is behind the art.
+                        running = themeEffects.anyAnimated && !pageMoving &&
+                            (!skyCovered.value || themeTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE),
                     )
                 } else {
                     null
+                }
+                // Space's audio-reactive disk: the playback level, smoothed, while the switch is on.
+                val spaceAudio = themeTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE && themeEffects.audioReactive && themeEffects.moving
+                LaunchedEffect(spaceAudio) {
+                    com.music.bitchord.playback.AudioLevel.wanted = spaceAudio
+                    if (!spaceAudio) {
+                        com.music.bitchord.ui.theme.SpaceAudio.energy = 0f
+                        return@LaunchedEffect
+                    }
+                    var e = 0f
+                    var avg = 0.2f
+                    while (true) {
+                        kotlinx.coroutines.delay(50)
+                        // The music's peaks against its own recent loudness, so a quiet track pulses
+                        // as much as a loud one. Fast up, slow down: a beat lifts the disk and it
+                        // settles back.
+                        val level = com.music.bitchord.playback.AudioLevel.level
+                        avg += (level - avg) * 0.03f
+                        val l = ((level / avg.coerceAtLeast(0.02f) - 0.85f) * 1.6f).coerceIn(0f, 1f)
+                        e = if (l > e) e + (l - e) * 0.5f else e + (l - e) * 0.08f
+                        com.music.bitchord.ui.theme.SpaceAudio.energy = e
+                    }
                 }
                 CompositionLocalProvider(
                     com.music.bitchord.ui.theme.LocalWinterTime provides winterTime,
@@ -681,6 +706,8 @@ private fun BitChordApp(
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
     // Explore loads the first time it's shown, not at launch beside Home.
     LaunchedEffect(selectedTab) {
+        // A new tab starts at its top: Space's backdrop with it.
+        SpaceScroll.offset.floatValue = 0f
         // Search's empty page browses the same categories, so it asks for them too.
         if (selectedTab == TAB_EXPLORE || selectedTab == TAB_SEARCH) viewModel.onExploreShown()
     }
@@ -3223,12 +3250,44 @@ private fun BitChordApp(
         val winterTime = com.music.bitchord.ui.theme.LocalWinterTime.current
         val skyCovered = LocalWinterSkyCovered.current
         SideEffect { skyCovered.value = coveredByPlayer }
-        if (floorTokens.animated && winterTime != null) {
+        val sceneRecord: Modifier = run {
+            val sceneLayer = LocalWinterSceneLayer.current
+            // Drawn here and recorded for the Liquid glass backdrop, which paints over this.
+            Modifier.drawWithContent {
+                if (sceneLayer != null) {
+                    sceneLayer.record { this@drawWithContent.drawContent() }
+                    drawLayer(sceneLayer)
+                } else {
+                    drawContent()
+                }
+            }
+        }
+        if (floorTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE && winterTime != null) {
+            val holeShader = remember { com.music.bitchord.ui.theme.BlackHoleShader() }
+            // Each tab has its own sky; a page pushed over one (an album, an artist), the void.
+            val spaceScreen = when {
+                navigator.entries.isNotEmpty() || detailStack.isNotEmpty() || selectedMoodGenre != null ->
+                    com.music.bitchord.ui.theme.SpaceScreen.VOID
+                selectedTab == TAB_HOME -> com.music.bitchord.ui.theme.SpaceScreen.HOME
+                selectedTab == TAB_EXPLORE -> com.music.bitchord.ui.theme.SpaceScreen.EXPLORE
+                selectedTab == TAB_LIBRARY -> com.music.bitchord.ui.theme.SpaceScreen.LIBRARY
+                selectedTab == TAB_SEARCH -> com.music.bitchord.ui.theme.SpaceScreen.SEARCH
+                else -> com.music.bitchord.ui.theme.SpaceScreen.VOID
+            }
+            com.music.bitchord.ui.theme.SpaceScene(
+                screen = spaceScreen,
+                effects = floorEffects,
+                time = winterTime,
+                layer = com.music.bitchord.ui.theme.LocalAuroraLayer.current,
+                shader = holeShader,
+                scroll = SpaceScroll.offset,
+                modifier = sceneRecord,
+            )
+        } else if (floorTokens.animated && winterTime != null) {
             val auroraShader = remember { com.music.bitchord.ui.theme.AuroraShader() }
             val tierSnow = remember { com.music.bitchord.ui.performance.DeviceTier.of(context).snowScale }
             val night = floorTokens.motif == com.music.bitchord.ui.theme.ThemeMotif.AURORA
             val minuteOfDay = rememberMinuteOfDay()
-            val winterSceneLayer = LocalWinterSceneLayer.current
             com.music.bitchord.ui.theme.WinterScene(
                 night = night,
                 effects = floorEffects,
@@ -3240,16 +3299,7 @@ private fun BitChordApp(
                 // By day, the sun's place along its arc from the time; it moves a minute at a time.
                 sun = if (night) null else com.music.bitchord.ui.performance.WinterScenePolicy.sunProgress(minuteOfDay),
                 background = pageFloor,
-                // Drawn here and recorded for the Liquid glass backdrop, which paints over this.
-                modifier = Modifier.drawWithContent {
-                    val sceneLayer = winterSceneLayer
-                    if (sceneLayer != null) {
-                        sceneLayer.record { this@drawWithContent.drawContent() }
-                        drawLayer(sceneLayer)
-                    } else {
-                        drawContent()
-                    }
-                },
+                modifier = sceneRecord,
             )
         }
         // A pushed page replaces the tab content but leaves the tab bar and
@@ -3353,6 +3403,8 @@ private fun BitChordApp(
                                     .nestedScroll(navBarScroll)
                                     // Tells costly effects (live blur) that a page is moving.
                                     .nestedScroll(com.music.bitchord.ui.components.ScrollMotion.connection)
+                                    // Space's backdrop drifts with the page; observed, never consumed.
+                                    .nestedScroll(SpaceScroll.connection)
                             } else {
                                 Modifier
                             },
@@ -7523,6 +7575,25 @@ private suspend fun LazyListState.scrollToTopEased() {
 /** Safely converts a nullable Float to non-null, defaulting to 0f for null. */
 private fun Float?.orZero(): Float = this ?: 0f
 
+/**
+ * How far the page under Space's sky has scrolled, for its parallax. Fed by a nested-scroll
+ * observer that consumes nothing, and read only where the scene draws, so a scroll never
+ * recomposes the scene or feeds back into layout. Reset when the page or tab changes.
+ */
+private object SpaceScroll {
+    val offset = com.music.bitchord.ui.theme.SpacePageScroll
+    val connection = object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+        override fun onPostScroll(
+            consumed: androidx.compose.ui.geometry.Offset,
+            available: androidx.compose.ui.geometry.Offset,
+            source: androidx.compose.ui.input.nestedscroll.NestedScrollSource,
+        ): androidx.compose.ui.geometry.Offset {
+            offset.floatValue = (offset.floatValue - consumed.y).coerceIn(0f, 20_000f)
+            return androidx.compose.ui.geometry.Offset.Zero
+        }
+    }
+}
+
 /** Winter's scene, recorded once for both the page floor and the Liquid glass backdrop. */
 private val LocalWinterSceneLayer = androidx.compose.runtime.staticCompositionLocalOf<androidx.compose.ui.graphics.layer.GraphicsLayer?> { null }
 
@@ -7558,6 +7629,7 @@ private fun rememberThemeEffects(tokens: com.music.bitchord.ui.theme.ThemeTokens
     if (!tokens.animated) return com.music.bitchord.ui.theme.ThemeEffects.None
     val context = LocalContext.current
     val prefs by AppSettings.winterEffects.collectAsStateWithLifecycle()
+    val spacePrefs by AppSettings.spaceEffects.collectAsStateWithLifecycle()
     val modes by com.music.bitchord.data.modes.ModeController.active.collectAsStateWithLifecycle()
     val device by com.music.bitchord.data.modes.ModeController.device.collectAsStateWithLifecycle()
     val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
@@ -7572,8 +7644,15 @@ private fun rememberThemeEffects(tokens: com.music.bitchord.ui.theme.ThemeTokens
         ) == 0f
     }
     val tier = remember { com.music.bitchord.ui.performance.DeviceTier.of(context) }
+    // Each theme's switches over its tier defaults; then the one shared rule for the moment:
+    //   effective = userToggle AND NOT (Low Power OR Data Saver OR battery saver OR animator 0 OR hidden)
+    val chosen = if (tokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE) {
+        com.music.bitchord.ui.performance.WinterEffectsPolicy.chosenSpace(spacePrefs, tier)
+    } else {
+        com.music.bitchord.ui.performance.WinterEffectsPolicy.chosen(prefs, tier)
+    }
     return com.music.bitchord.ui.performance.WinterEffectsPolicy.resolve(
-        com.music.bitchord.ui.performance.WinterEffectsPolicy.chosen(prefs, tier),
+        chosen,
         com.music.bitchord.ui.performance.EffectsMoment(
             modeActive = modes.dataSaver != null || modes.lowPower != null,
             savingPower = modes.lowPower != null || device.systemPowerSave,
