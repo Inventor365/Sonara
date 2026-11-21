@@ -200,9 +200,11 @@ class LyricClockTest {
         clock.hold(10_000, 0.0, discontinuity = 0)
         clock.restart()
         assertEquals(10_000L, clock.frame(1_000.0, 9_900, 1_000.0, 0))
+        // Two agreeing forward samples establish a new anchor, then a frame starts catch-up.
         clock.frame(1_016.0, 10_800, 1_016.0, 0)
         clock.frame(1_032.0, 10_816, 1_032.0, 0)
         clock.frame(1_048.0, 10_816, 1_032.0, 0)
+        // Ordinary noise lowers the target while that automatic glide is still active.
         var previous = clock.frame(1_064.0, 10_700, 1_064.0, 0)
         val after = clock.frame(1_080.0, 10_700, 1_064.0, 0)
         assertTrue("later resumed frame reused an obsolete glide offset", after >= previous)
@@ -223,6 +225,7 @@ class LyricClockTest {
             clock.frame(16.0, landing, 16.0, 1)
             clock.frame(32.0, landing, 16.0, 1)
             clock.frame(48.0, landing - 20, 48.0, 1)
+            // Both directions must still land within the existing 260 ms seek glide.
             assertEquals(landing - 20 + 252, clock.frame(300.0, landing - 20, 48.0, 1))
         }
     }
@@ -265,11 +268,13 @@ class LyricClockTest {
         assertEquals(10_016L, clock.frame(60_016.0, 10_000, 0.0, 0))
     }
 
+    /** The captured resume sample reached the old paused callback before recomposition removed it. */
     @Test fun resumedSampleCannotOverwriteThePausedClockBeforeRecomposition() {
         val position = PlaybackPosition()
         val playhead = LyricPlayhead(position, mutableStateOf(0))
         val clock = LyricClock(30_867)
         var shown = 30_867L
+        // Keep the old compositional false throughout, just as in the captured callback race.
         fun pausedObserver(nowMs: Double) {
             clock.observe(playhead.reading(isPlaying = false), nowMs)?.let { shown = it }
         }
@@ -281,6 +286,7 @@ class LyricClockTest {
         assertEquals(30_867L, shown)
         assertEquals(30_867.0, clock.displayedMs, 0.0)
 
+        // The first running frame must not reintroduce the rejected handoff regression.
         clock.restart()
         assertEquals(30_867L, clock.frame(5_002.0, playhead.reading(isPlaying = false)))
         position.report(30_992, sampledAtNanos = 5_034_000_000L, isPlaying = true)
@@ -319,6 +325,7 @@ class LyricClockTest {
         assertEquals(35_000L, clock.frame(5_000.0, playhead.reading(isPlaying = true)))
     }
 
+    /** A seek can land after the last paused callback, immediately before the resumed frame. */
     @Test fun seekDuringTheResumeHandoffIsNotSuppressed() {
         val position = PlaybackPosition()
         val playhead = LyricPlayhead(position, mutableStateOf(0))
@@ -355,6 +362,7 @@ class LyricClockTest {
         position.report(30_867, sampledAtNanos = 1_000_000_000L, isPlaying = true)
         clock.frame(1_000.0, playhead.reading(isPlaying = true))
 
+        // Both pause and Media3 buffering publish isPlaying=false, before the UI effect stops.
         position.report(30_880, sampledAtNanos = 1_100_000_000L, isPlaying = false)
         assertEquals(30_867L, clock.frame(1_116.0, playhead.reading(isPlaying = true)))
         assertEquals(30_867L, clock.frame(1_132.0, playhead.reading(isPlaying = true)))
@@ -405,6 +413,7 @@ class LyricClockTest {
         assertEquals(30_867L, clock.frame(5_000.0, playhead.reading(isPlaying = true)))
         val resumed = clock.frame(5_016.0, playhead.reading(isPlaying = true))
 
+        // A real subsequent stopped sample is not the stale-UI race fixed by 8302fec2.
         position.report(30_762, sampledAtNanos = 5_020_000_000L, isPlaying = false)
         assertEquals(resumed, clock.frame(5_032.0, playhead.reading(isPlaying = true)))
         assertEquals(resumed, clock.observe(playhead.reading(isPlaying = true), 5_033.0))
@@ -431,6 +440,7 @@ class LyricClockTest {
         position.report(10_000, sampledAtNanos = 1_000_000_000L, isPlaying = false)
         clock.observe(playhead.reading(isPlaying = false), 1_000.0)
         position.report(10_000, sampledAtNanos = 2_000_000_000L, isPlaying = true)
+        // Covers both an inactive panel and the same foreground gate used while backgrounded.
         assertEquals(10_000L, clock.observe(playhead.reading(isPlaying = false), 2_000.0, active = false))
         clock.restart()
         assertEquals(40_000L, clock.frame(32_000.0, playhead.reading(isPlaying = true)))
@@ -442,6 +452,7 @@ class LyricClockTest {
         val clock = LyricClock(10_000)
         position.report(10_000, sampledAtNanos = 1_000_000_000L, isPlaying = false)
         clock.observe(playhead.reading(isPlaying = false), 1_000.0)
+        // Even if background observations were conflated, a forward target is accepted on return.
         position.report(40_000, sampledAtNanos = 32_000_000_000L, isPlaying = true)
         clock.restart()
         assertEquals(40_000L, clock.frame(32_000.0, playhead.reading(isPlaying = true)))
@@ -469,6 +480,7 @@ class LyricClockTest {
         for (cycle in 1..5) {
             val stopped = 30_867L + cycle * 1_000L
             val stoppedAt = cycle * 60_000_000_000L
+            // Each cycle starts at a new landing, not an unannounced change to a frozen clock.
             position.seeks++
             position.report(stopped, sampledAtNanos = stoppedAt, isPlaying = false)
             clock.observe(playhead.reading(isPlaying = true), stoppedAt / 1_000_000.0)

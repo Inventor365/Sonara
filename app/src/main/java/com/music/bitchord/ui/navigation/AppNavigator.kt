@@ -29,6 +29,12 @@ sealed interface AppRoute {
     data object Downloads : AppRoute
 
     data class CollabPlaylist(val playlistId: String) : AppRoute
+    /** Settings → Backup and Restore → Google Drive backup. */
+    data object DriveBackup : AppRoute
+
+    /** Google Drive backup → which device this phone backs up or restores as. */
+    data object DriveDevices : AppRoute
+
     /** A Library shelf's "Show all" — its own cards laid out again as a grid. */
     data class LibraryShowAll(val shelf: HomeShelf) : AppRoute
 

@@ -108,6 +108,7 @@ object SongInfoRepository {
     }
 
     private suspend fun fetchCredits(videoId: String): List<SongCredit> {
+        // Direct credits browse: reliable for catalog tracks on YouTube Music.
         val direct = runCatching { parseCreditsPage(Innertube.browse("MPTC$videoId")) }.getOrDefault(emptyList())
         if (direct.isNotEmpty()) return direct
         val next = Innertube.next(videoId)
@@ -118,6 +119,11 @@ object SongInfoRepository {
         return parseCreditsPage(page)
     }
 
+    /**
+     * Finds the credits browse endpoint in a `next` response. Prefers an endpoint
+     * whose page type marks it as track credits, falling back to any menu
+     * navigation whose text suggests credits.
+     */
     internal fun findCreditsEndpoint(root: JsonElement, videoId: String): JsonObject? {
         fun JsonObject.pageType(): String =
             this["browseEndpointContextSupportedConfigs"]
@@ -153,12 +159,14 @@ object SongInfoRepository {
 
     internal fun parseCreditsPage(root: JsonElement): List<SongCredit> {
         val credits = mutableListOf<SongCredit>()
+        // dismissableDialogContentSectionRenderer: the song credits browse page (MPTC*)
         for (section in objectsNamed(root, "dismissableDialogContentSectionRenderer")) {
             val role = section["title"]?.runsText()?.trim().orEmpty()
             val names = splitNames(listOf(section["subtitle"]?.runsText().orEmpty()))
             if (role.isNotBlank() && names.isNotEmpty()) credits += SongCredit(role, names)
         }
         if (credits.isNotEmpty()) return credits.distinctBy { it.role.lowercase() to it.text.lowercase() }
+        // musicResponsiveListItemRenderer rows: flex column 0 = role, 1+ = names
         for (item in objectsNamed(root, "musicResponsiveListItemRenderer")) {
             val flex = ((item["flexColumns"] as? JsonArray) ?: JsonArray(emptyList())).toList()
             val role = flex.getOrNull(0)?.rendererText()?.trim().orEmpty()
@@ -170,6 +178,7 @@ object SongInfoRepository {
             if (role.isNotBlank() && names.isNotEmpty()) credits += SongCredit(role, names)
         }
         if (credits.isNotEmpty()) return credits.distinctBy { it.role.lowercase() to it.text.lowercase() }
+        // Fallback: shelf-based layouts
         for (shelf in objectsNamed(root, "musicShelfRenderer") + objectsNamed(root, "musicCarouselShelfRenderer")) {
             val header = shelf["header"] as? JsonObject
             val role = header?.runsText()?.trim().orEmpty()

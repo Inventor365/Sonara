@@ -92,6 +92,7 @@ object LrcLib {
         val all = lrc.lineSequence().flatMap { line ->
             // `[00:12.00][00:45.00]Chorus` is one line sung at each stamp: the
             // compressed form many LRC files use for a repeated chorus.
+            // Some writers put a space between the stamps; only words end the run.
             val stamps = generateSequence(STAMP.find(line)) { previous ->
                 STAMP.find(line, previous.range.last + 1)?.takeIf {
                     line.substring(previous.range.last + 1, it.range.first).isBlank()

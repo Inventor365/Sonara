@@ -176,6 +176,9 @@ internal class LyricClock(startMs: Long) {
             }
             anchor(takenAt, reportedMs)
             val target = targetAt(nowMs)
+            // A newer resume estimate can be behind the stopped position without a seek. Keep the
+            // held display for this handoff; subsequent frames steer towards the new anchor using
+            // the normal correction path. A changed discontinuity still lands at its actual target.
             if (!resuming || target >= displayedMs) displayedMs = target
             return displayedMs.toLong()
         }
@@ -195,6 +198,9 @@ internal class LyricClock(startMs: Long) {
             val previousTarget = targetAt(nowMs)
             if (takenAt >= anchorAtMs || jumpPending) take(nowMs, takenAt, reportedMs)
             if (correctionGlide && !glideStartMs.isNaN() && targetAt(nowMs) < previousTarget) {
+                // An automatic forward glide's offset belongs to its old target. A lower anchor
+                // would pull the next frame back; return to steering without replacing the display.
+                // Announced seek glides are deliberate position changes and retain their timing.
                 glideStartMs = Double.NaN
             }
         }

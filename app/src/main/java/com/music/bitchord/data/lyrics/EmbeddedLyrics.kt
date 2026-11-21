@@ -76,14 +76,26 @@ object EmbeddedLyrics {
             linesOf(raw)?.withBackgroundVocals()
         }
 
+    /**
+     * [raw] as lines: LRC where it is stamped, else the words as plain,
+     * unsynced lines — which is how most taggers store lyrics, and what an
+     * MP3's `USLT` usually holds (#1020). Null when there is nothing to show.
+     */
     internal fun linesOf(raw: String): List<LyricLine>? {
         val synced = LrcLib.parseLrc(raw).takeIf { lines -> lines.any { it.text.isNotBlank() } }
         if (synced != null) return synced
+        // An LRC header with no stamped lines under it (`[ar:…]`, `[ti:…]`,
+        // `[length:…]`) is metadata, not words to sing.
         return raw.lineSequence().map { it.trim() }
             .filter { it.isNotEmpty() && !LRC_ID_TAG.matches(it) }
             .map { LyricLine(0L, it) }.toList().ifEmpty { null }
     }
 
+    /**
+     * Whether [lines] carry timing. Only timed lyrics from the file end the
+     * lookup; plain ones are a fallback a network source may still beat with
+     * synced lines, as every MP3 got before its `USLT` was read.
+     */
     fun isSynced(lines: List<LyricLine>): Boolean = lines.any { it.timeMs > 0L }
 
     /** The raw LRC text for the file, preferring this app's word-timed field. */
@@ -342,126 +354,7 @@ object EmbeddedLyrics {
         return Vint(value, width)
     }
 
-        // ---- ID3v2 (MP3) ----------------------------------------------------------
-
-    /**
-     * The `USLT` (unsynchronized lyrics) frame out of an ID3v2 tag.
-     *
-     * v2.2 uses 3-byte frame IDs (`USL`) and 6-byte frame headers; v2.3 and v2.4
-     * use 4-byte IDs (`USLT`) and 10-byte headers. Tags or frames that use
-     * unsynchronisation, compression or encryption are not supported.
-     */
-    private fun id3(bytes: ByteArray): String? = runCatching { readId3Lyrics(bytes) }.getOrNull()
-
-    private fun readId3Lyrics(bytes: ByteArray): String? {
-        if (bytes.size < 10) return null
-        val version = bytes[3].toInt() and 0xFF
-        if (version !in 2..4) return null
-        val tagSize = syncsafe(bytes, 6)
-        if (tagSize <= 0 || tagSize > MAX_TAG_BYTES) return null
-        // Frames start right after the 10-byte tag header; the file head may cut the tag short.
-        val tag = bytes.copyOfRange(10, minOf(10 + tagSize, bytes.size))
-
-        // Extended header (v2.3/v2.4, flag 0x40): skip it to reach the first frame.
-        // v2.3 stores its size without the 4 size bytes themselves, v2.4 includes them.
-        var pos = 0
-        if (version >= 3 && (bytes[5].toInt() and 0x40) != 0) {
-            val declared = if (version == 4) syncsafe(tag, 0) else u32(tag, 0)
-            if (declared < 0) return null
-            pos = if (version == 4) declared else declared + 4
-            if (pos < 0 || pos > tag.size) return null
-        }
-
-        val idLen = if (version == 2) 3 else 4
-        val headLen = if (version == 2) 6 else 10
-        while (pos + headLen <= tag.size) {
-            val id = tag.decodeToString(pos, pos + idLen)
-            // Frame IDs are upper-case letters or digits; anything else means padding.
-            if (!id.all { it in 'A'..'Z' || it in '0'..'9' }) break
-            val size = when (version) {
-                2 -> u24(tag, pos + 3)
-                4 -> syncsafe(tag, pos + 4)
-                else -> u32(tag, pos + 4)
-            }
-            if (size <= 0 || size > tag.size - pos - headLen) break
-            if (id == "USLT" || id == "ULT" || id == "USL") {
-                val text = usltPayload(tag.copyOfRange(pos + headLen, pos + headLen + size))
-                if (text != null) return text
-            }
-            pos += headLen + size
-        }
-        return null
-    }
-
-    /**
-     * Decode a USLT frame's payload.
-     *
-     * Layout: encoding(1) + language(3) + content descriptor (null-terminated) + lyrics text.
-     */
-    private fun usltPayload(payload: ByteArray): String? {
-        if (payload.size < 5) return null
-        val encoding = payload[0].toInt() and 0xFF
-        val charset = when (encoding) {
-            0 -> Charsets.ISO_8859_1
-            1 -> Charsets.UTF_16 // honours the BOM
-            2 -> Charsets.UTF_16BE
-            3 -> Charsets.UTF_8
-            else -> return null
-        }
-        // The descriptor terminator is 1 null byte, or 2 for the UTF-16 encodings.
-        val width = if (encoding == 1 || encoding == 2) 2 else 1
-        val textAt = skipNull(payload, 4, width)
-        if (textAt < 0 || textAt >= payload.size) return null
-        return String(payload, textAt, payload.size - textAt, charset)
-            .replace("\r\n", "\n")
-            .replace('\r', '\n')
-            .trim { it == '\uFEFF' || it == '\u0000' }
-            .takeIf { it.isNotBlank() }
-    }
-
-    /** Index just past the first null terminator at or after [from], stepping by [width]; -1 if none. */
-    private fun skipNull(b: ByteArray, from: Int, width: Int): Int {
-        var i = from
-        while (i + width <= b.size) {
-            var zero = true
-            for (k in 0 until width) {
-                if (b[i + k] != 0.toByte()) zero = false
-            }
-            if (zero) return i + width
-            i += width
-        }
-        return -1
-    }
-
-    // ---- ID3 helpers ----------------------------------------------------------
-
-    /** 4-byte syncsafe integer (7 significant bits per byte), or -1 if out of range. */
-    private fun syncsafe(b: ByteArray, off: Int): Int {
-        if (off < 0 || off + 4 > b.size) return -1
-        return ((b[off].toInt() and 0x7F) shl 21) or
-            ((b[off + 1].toInt() and 0x7F) shl 14) or
-            ((b[off + 2].toInt() and 0x7F) shl 7) or
-            (b[off + 3].toInt() and 0x7F)
-    }
-
-    /** Unsigned 24-bit big-endian, or -1 if out of range. */
-    private fun u24(b: ByteArray, off: Int): Int {
-        if (off < 0 || off + 3 > b.size) return -1
-        return ((b[off].toInt() and 0xFF) shl 16) or
-            ((b[off + 1].toInt() and 0xFF) shl 8) or
-            (b[off + 2].toInt() and 0xFF)
-    }
-
-    /** Unsigned 32-bit big-endian, saturated at Int.MAX_VALUE, or -1 if out of range. */
-    private fun u32(b: ByteArray, off: Int): Int {
-        if (off < 0 || off + 4 > b.size) return -1
-        val v = ((b[off].toLong() and 0xFF) shl 24) or
-            ((b[off + 1].toLong() and 0xFF) shl 16) or
-            ((b[off + 2].toLong() and 0xFF) shl 8) or
-            (b[off + 3].toLong() and 0xFF)
-        return if (v > Int.MAX_VALUE) Int.MAX_VALUE else v.toInt()
-    }
-
+    // ---- Bytes --------------------------------------------------------------
 
     /** Reads up to [max] bytes, which is all of a normal file and a prefix of a huge one. */
     private fun InputStream.readAtMost(max: Int): ByteArray {
@@ -473,6 +366,83 @@ object EmbeddedLyrics {
             if (read <= 0) break
             out.write(buffer, 0, read)
             total += read
+        }
+        return out.toByteArray()
+    }
+
+    // ---- MP3 (ID3v2) ---------------------------------------------------------
+
+    /**
+     * The first `USLT` frame's text (`ULT` in ID3v2.2): the lyrics field every
+     * MP3 tagger writes, and the one other players read (#1020).
+     *
+     * ponytail: v2.4's per-frame unsynchronisation and compression flags are
+     * not undone; such a frame reads as no lyrics, as every MP3 did before.
+     */
+    private fun id3(head: ByteArray): String? {
+        if (head.size < 10) return null
+        val major = head[3].toInt()
+        if (major !in 2..4) return null
+        val flags = head[5].toInt()
+        val tagEnd = minOf(head.size, 10 + syncsafe(head, 6))
+        // v2.2 and v2.3 may unsynchronise the whole tag: FF 00 stands for FF.
+        val bytes = if (flags and 0x80 != 0 && major < 4) deUnsync(head, 10, tagEnd) else head.copyOfRange(10, tagEnd)
+        var at = 0
+        if (flags and 0x40 != 0 && major >= 3 && bytes.size >= 4) {
+            at += if (major == 4) syncsafe(bytes, 0) else readU32(bytes, 0).toInt() + 4
+        }
+        val idLength = if (major == 2) 3 else 4
+        val headerLength = if (major == 2) 6 else 10
+        val wanted = if (major == 2) "ULT" else "USLT"
+        while (at in 0..bytes.size - headerLength) {
+            if (bytes[at] == 0.toByte()) break // padding
+            val id = String(bytes, at, idLength, Charsets.ISO_8859_1)
+            val size = when (major) {
+                2 -> ((bytes[at + 3].toInt() and 0xFF) shl 16) or ((bytes[at + 4].toInt() and 0xFF) shl 8) or
+                    (bytes[at + 5].toInt() and 0xFF)
+                4 -> syncsafe(bytes, at + 4)
+                else -> readU32(bytes, at + 4).toInt()
+            }
+            val body = at + headerLength
+            if (size <= 0 || body + size > bytes.size) break
+            if (id == wanted) usltText(bytes, body, body + size)?.let { return it }
+            at = body + size
+        }
+        return null
+    }
+
+    /** encoding, three-letter language, a terminated description, then the lyrics. */
+    private fun usltText(bytes: ByteArray, from: Int, until: Int): String? {
+        if (until - from < 5) return null
+        val charset = when (bytes[from].toInt()) {
+            0 -> Charsets.ISO_8859_1
+            1 -> Charsets.UTF_16
+            2 -> Charsets.UTF_16BE
+            3 -> Charsets.UTF_8
+            else -> return null
+        }
+        val wide = charset == Charsets.UTF_16 || charset == Charsets.UTF_16BE
+        var at = from + 4
+        // Skip the description up to and past its terminator.
+        while (at < until) {
+            if (!wide && bytes[at] == 0.toByte()) { at += 1; break }
+            if (wide && at + 1 < until && bytes[at] == 0.toByte() && bytes[at + 1] == 0.toByte()) { at += 2; break }
+            at += if (wide) 2 else 1
+        }
+        if (at >= until) return null
+        return String(bytes, at, until - at, charset).trimEnd('\u0000').takeIf { it.isNotBlank() }
+    }
+
+    private fun syncsafe(b: ByteArray, off: Int): Int =
+        ((b[off].toInt() and 0x7F) shl 21) or ((b[off + 1].toInt() and 0x7F) shl 14) or
+            ((b[off + 2].toInt() and 0x7F) shl 7) or (b[off + 3].toInt() and 0x7F)
+
+    private fun deUnsync(b: ByteArray, from: Int, until: Int): ByteArray {
+        val out = ByteArrayOutputStream(until - from)
+        var i = from
+        while (i < until) {
+            out.write(b[i].toInt())
+            i += if (b[i] == 0xFF.toByte() && i + 1 < until && b[i + 1] == 0.toByte()) 2 else 1
         }
         return out.toByteArray()
     }
@@ -515,9 +485,9 @@ object EmbeddedLyrics {
 
     private const val FLAC_VORBIS_COMMENT = 4
     private val FLAC_MAGIC = "fLaC".toByteArray(Charsets.US_ASCII)
-    private val MATROSKA_MAGIC = byteArrayOf(0x1A, 0x45, 0xDF.toByte(), 0xA3.toByte())
     private val ID3_MAGIC = "ID3".toByteArray(Charsets.US_ASCII)
     private val LRC_ID_TAG = Regex("""\[[A-Za-z#]+:[^\]]*]""")
+    private val MATROSKA_MAGIC = byteArrayOf(0x1A, 0x45, 0xDF.toByte(), 0xA3.toByte())
     private val DATA_ATOM = "data".toByteArray(Charsets.ISO_8859_1)
     private val LYR_ATOM = byteArrayOf(0xA9.toByte()) + "lyr".toByteArray(Charsets.ISO_8859_1)
     private val ID_TAGNAME = byteArrayOf(0x45, 0xA3.toByte())

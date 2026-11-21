@@ -10,6 +10,14 @@ enum class QueueTier {
     AUTOPLAY,
 }
 
+/** Identity of one occurrence in a live queue, independent of its timeline index. */
+data class QueueEntryIdentity(
+    val mediaId: String,
+    val queueEntryId: String?,
+    /** Zero-based occurrence among entries with the same media and queue-entry ids. */
+    val occurrence: Int,
+)
+
 /**
  * One credited artist, as YouTube Music itself states them.
  *
@@ -366,6 +374,10 @@ fun upgradeYouTubeThumbnail(url: String, px: Int): String {
     val target = when {
         px >= 480 -> "maxresdefault"
         px >= 240 -> "sddefault"
+        // A row keeps the small copy it came with, but an upgraded URL — one
+        // read back off the lock screen's artwork, say — comes back down to
+        // the one every video has, rather than a list row loading a 1280px
+        // cover, or nothing, where the video has no such size.
         current in YT_UPGRADED_RENDITIONS -> "hqdefault"
         else -> return url
     }
@@ -374,7 +386,10 @@ fun upgradeYouTubeThumbnail(url: String, px: Int): String {
 
 /**
  * The copy every YouTube video has, for a thumbnail [artworkAt] asked a larger
- * rendition of; null when [url] is no such thumbnail.
+ * rendition of; null when [url] is no such thumbnail. Old and low-resolution
+ * uploads have no `sddefault` or `maxresdefault` (YouTube answers 404), so
+ * whatever loads one of those needs this to fall back on — and a loader that
+ * can't fall back should be handed this instead.
  */
 fun youTubeThumbnailFallback(url: String): String? {
     if (!isYouTubeThumbnailHost(url)) return null
@@ -383,6 +398,10 @@ fun youTubeThumbnailFallback(url: String): String? {
     return withRendition(url, match, "hqdefault")
 }
 
+/**
+ * [url] naming [rendition] instead. The query (`sqp=…&rs=…`) is dropped: it
+ * signs the rendition it came with, and the bare path serves any of them.
+ */
 private fun withRendition(url: String, match: MatchResult, rendition: String): String =
     (url.substring(0, match.range.first) + "/$rendition.${match.groupValues[2]}" + url.substring(match.range.last + 1))
         .substringBefore('?')
@@ -422,6 +441,9 @@ const val NOTIFICATION_ART_PX = 544
  * track had artwork at all.
  */
 const val PLAYER_ART_PX = 1200
+
+/** Memory-cache namespace shared by the player and same-resolution widgets. */
+const val PLAYER_ART_MEMORY_CACHE_KEY_EXTRA = "bitchord_player_art_px"
 
 enum class BrowseType { ALBUM, ARTIST, PLAYLIST, OTHER }
 
@@ -491,6 +513,13 @@ data class ShelfItem(
      */
     val artist: String? = null,
 )
+
+/**
+ * A "Mixed for you" card and its English title, which is what says what kind
+ * of mix it is whatever language [item] is shown in — see
+ * [com.music.bitchord.data.YtMusicRepository.mixedForYouKeyed].
+ */
+data class KeyedMix(val item: ShelfItem, val englishTitle: String)
 
 /** How a shelf's items are laid out — the web player's `ShelfLayout`, by the same rules. */
 enum class ShelfLayout {

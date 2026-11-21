@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.YearMonth
@@ -61,14 +62,27 @@ class ReplayState(
  *   costing a file merge on every cold start for a page most launches never
  *   open. It also means reopening Replay re-reads: whatever has been played
  *   since is on it.
+ * @param pageOpen whether the Replay page is open (on the stack, or showing
+ *   its stories or share sheet). Only there can a tab other than Lifetime be
+ *   picked: everywhere else, the Library cards above all, the period is
+ *   Lifetime, and the page opens on Lifetime again each time.
  */
 @Composable
-fun rememberReplayState(active: Boolean): Pair<ReplayState, (ReplayPeriod) -> Unit> {
-    var period by rememberSaveable { mutableStateOf(ReplayPeriod.THIS_YEAR) }
+fun rememberReplayState(active: Boolean, pageOpen: Boolean): Pair<ReplayState, (ReplayPeriod) -> Unit> {
+    var picked by rememberSaveable { mutableStateOf(ReplayPeriod.ALL_TIME) }
     // Null is the current month, so a page left open past midnight on the
     // last day moves on with the calendar.
     var month by rememberSaveable { mutableStateOf<YearMonth?>(null) }
     var months by remember { mutableStateOf(emptyList<YearMonth>()) }
+    LaunchedEffect(pageOpen) {
+        if (!pageOpen) {
+            picked = ReplayPeriod.ALL_TIME
+            month = null
+        }
+    }
+    // Read straight off [pageOpen] rather than waiting for the reset above, so
+    // the frame the page closes on already asks for Lifetime.
+    val period = if (pageOpen) picked else ReplayPeriod.ALL_TIME
     var summary by remember { mutableStateOf<ReplaySummary?>(null) }
     var loading by remember { mutableStateOf(true) }
     var memberSince by remember { mutableStateOf<String?>(null) }
@@ -76,7 +90,8 @@ fun rememberReplayState(active: Boolean): Pair<ReplayState, (ReplayPeriod) -> Un
     LaunchedEffect(active) {
         if (!active) return@LaunchedEffect
         // A directory listing, so off the composition's thread.
-        val all = withContext(Dispatchers.IO) { ListeningStats.months() }
+        // Every device's months: the stats sync brings the others' down too.
+        val all = withContext(Dispatchers.IO) { ListeningStats.allMonths() }
         months = all.reversed()
         memberSince = all.firstOrNull()?.let {
             "%02d/%02d".format(Locale.ROOT, it.monthValue, it.year % 100)
@@ -100,14 +115,19 @@ fun rememberReplayState(active: Boolean): Pair<ReplayState, (ReplayPeriod) -> Un
         // with the Replay closed. `collectLatest` gives the debounce for free —
         // a burst of lookups cancels each pending delay and only the last one
         // gets as far as a rebuild.
-        ArtistFacts.revision.drop(1).collectLatest {
+        // So do other devices' months, when a sync brings newer ones down.
+        merge(ArtistFacts.revision.drop(1), ListeningStats.peerRevision.drop(1)).collectLatest {
             delay(SETTLE_MILLIS)
             summary = withContext(Dispatchers.IO) { ListeningStats.summary(period, month) }
         }
     }
-    val onMonthChange = { picked: YearMonth -> month = picked.takeIf { it < YearMonth.now() } }
-    return ReplayState(period, summary, loading, memberSince, months, onMonthChange) to
-        { next: ReplayPeriod -> period = next }
+    // The page keeps the last tab's charts up while the next one is read (see
+    // above). Outside it they would be the wrong numbers: the tab the page was
+    // left on, shown on the Library's Lifetime cards until Lifetime arrives.
+    val shown = summary?.takeIf { pageOpen || it.period == period }
+    val onMonthChange = { chosen: YearMonth -> month = chosen.takeIf { it < YearMonth.now() } }
+    return ReplayState(period, shown, loading || (summary != null && shown == null), memberSince, months, onMonthChange) to
+        { next: ReplayPeriod -> picked = next }
 }
 
 /** How long a burst of artist lookups is allowed to settle before a rebuild. */

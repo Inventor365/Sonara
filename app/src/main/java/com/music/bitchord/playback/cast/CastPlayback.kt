@@ -143,6 +143,9 @@ class CastPlayback(
     private var anchorAt = 0L
 
     private var loadGeneration = 0
+    /** Queue-only loads must not let an old receiver frame seek the phone back. */
+    private var queueRestoreExpectedMediaId: String? = null
+    private var queueRestoreLoadAccepted = false
     private var loadJob: Job? = null
     private var reconcileJob: Job? = null
     private var reconcileAgain = false
@@ -174,7 +177,7 @@ class CastPlayback(
     private var endWasPlaying = false
 
     override val isPlaying: Boolean
-        get() = active && !loading && !finished &&
+        get() = active && !loading && !finished && queueRestoreExpectedMediaId == null &&
             client?.mediaStatus?.playerState == MediaStatus.PLAYER_STATE_PLAYING
 
     override val playWhenReady: Boolean get() = wantsPlay
@@ -182,7 +185,7 @@ class CastPlayback(
     /** In [Player]'s own terms, so the session player can answer with it directly. */
     override val playbackState: Int
         get() = when {
-            loading -> Player.STATE_BUFFERING
+            loading || !queueRestoreExpectedMediaId.isNullOrEmpty() -> Player.STATE_BUFFERING
             finished -> Player.STATE_ENDED
             else -> when (client?.mediaStatus?.playerState) {
                 MediaStatus.PLAYER_STATE_BUFFERING, MediaStatus.PLAYER_STATE_LOADING -> Player.STATE_BUFFERING
@@ -213,7 +216,8 @@ class CastPlayback(
         val now = SystemClock.elapsedRealtime()
         return castPositionMs(
             CastPositionInputs(
-                liveMs = client?.takeIf { !loading }?.approximateStreamPosition,
+                // While a queue restore is outstanding the receiver still reports the old item.
+                liveMs = client?.takeIf { !loading && queueRestoreExpectedMediaId == null }?.approximateStreamPosition,
                 askedMs = requestedPositionMs,
                 requestedAtMs = requestedAt,
                 nowMs = now,
@@ -308,6 +312,30 @@ class CastPlayback(
         requestedAt = SystemClock.elapsedRealtime()
         remote.queueJumpToItem(behind.itemId, null)
         sink?.onRemotePlaybackChanged()
+        return true
+    }
+
+    override fun restoreQueueCurrent(item: MediaItem?, positionMs: Long, playWhenReady: Boolean): Boolean {
+        val remote = client ?: return false
+        if (!active) return false
+        reconcileJob?.cancel()
+        reconcileJob = null
+        reconcileAgain = false
+        queueRestoreExpectedMediaId = item?.mediaId.orEmpty()
+        queueRestoreLoadAccepted = false
+        if (item != null) {
+            load(item, positionMs.coerceAtLeast(0L), playWhenReady)
+        } else {
+            loadJob?.cancel()
+            ++loadGeneration
+            wantsPlay = false
+            loading = false
+            finished = true
+            requestedPositionMs = 0L
+            requestedAt = SystemClock.elapsedRealtime()
+            remote.stop()
+            sink?.onRemotePlaybackChanged()
+        }
         return true
     }
 
@@ -406,6 +434,7 @@ class CastPlayback(
 
     /** Lets go of the receiver without touching the phone's player. */
     fun release() {
+        queueRestoreExpectedMediaId = null
         loadJob?.cancel()
         reconcileJob?.cancel()
         client?.unregisterCallback(callback)
@@ -425,6 +454,7 @@ class CastPlayback(
 
     /** A new track became the phone's current one. */
     override fun onLocalTransition(item: MediaItem?, reason: Int) {
+        queueRestoreExpectedMediaId = null
         if (!active || item == null) return
         val remote = client ?: return
         if (item.mediaId == remoteMediaId()) {
@@ -484,6 +514,25 @@ class CastPlayback(
         val remote = client ?: return
         val status = remote.mediaStatus ?: return
         val state = status.playerState
+        queueRestoreExpectedMediaId?.let { expected ->
+            if (expected.isEmpty()) {
+                // An explicit empty queue is a stop, never an automatic advance.
+                if (state != MediaStatus.PLAYER_STATE_IDLE) return
+                queueRestoreExpectedMediaId = null
+                sink?.onRemotePlaybackChanged()
+                return
+            }
+            if (!queueRestoreLoadAccepted || remoteMediaId() != expected) return
+            if (state == MediaStatus.PLAYER_STATE_IDLE ||
+                (state == MediaStatus.PLAYER_STATE_PAUSED && wantsPlay) ||
+                (state == MediaStatus.PLAYER_STATE_PLAYING && !wantsPlay)
+            ) return
+            val advance = remote.approximateStreamPosition - requestedPositionMs
+            val elapsed = (SystemClock.elapsedRealtime() - requestedAt).coerceAtLeast(0L)
+            if (advance < -SEEK_GRACE_MS || advance > elapsed + SEEK_GRACE_MS) return
+            queueRestoreExpectedMediaId = null
+            scheduleReconcile()
+        }
         // The receiver has moved off the track it was on before: that is the
         // handover. Until it does, a status is news about the old one, and
         // clearing the grace on it let the bar report a place on a track that was
@@ -702,8 +751,10 @@ class CastPlayback(
             // whatever the receiver was on before this load, which is the track
             // it was playing when the phone turned up.
             requestedAt = SystemClock.elapsedRealtime()
+            if (queueRestoreExpectedMediaId == item?.mediaId) queueRestoreLoadAccepted = true
             loading = false
             sink?.onRemotePlaybackChanged()
+            if (queueRestoreExpectedMediaId != null) onStatus()
             scheduleReconcile()
         }
     }
@@ -771,6 +822,7 @@ class CastPlayback(
 
     private fun scheduleReconcile() {
         if (!active) return
+        if (queueRestoreExpectedMediaId != null) return
         if (reconcileJob?.isActive == true) {
             reconcileAgain = true
             return

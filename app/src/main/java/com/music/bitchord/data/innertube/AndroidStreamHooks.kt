@@ -50,6 +50,7 @@ object AndroidStreamHooks {
             AppSettings.effectiveAudioQuality == com.music.bitchord.data.settings.AudioQuality.HIGH ||
                 AppSettings.effectiveAudioQuality == com.music.bitchord.data.settings.AudioQuality.LOSSLESS
         }
+        StreamResolver.premiumAudio = { AppSettings.youtubePremiumAudio.value }
         InnerTubeXResolver.debugLogging = BuildConfig.DEBUG
     }
 

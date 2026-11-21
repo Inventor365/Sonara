@@ -1828,6 +1828,7 @@ internal fun LyricsPanel(
     centerFocus: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
+    val panelPlaying = isPlaying && active
     val clock = rememberLyricClock(trackKey, playhead, isPlaying, active)
     val subReveal = rememberSubLyricsReveal(subLines, trackKey)
 
@@ -2641,9 +2642,9 @@ private fun PanelVoice(
         )
     } else if (line.isWordSynced) {
         // Browsing: keep the sweep so sung lines stay fully lit and unsung
-        // ones stay dim, but skip the bloom — it is a playback flourish, not
-        // a browsing aid.  Non-active lines get the same dim tail as when we
-        // are not browsing; the active line stays at full brightness.
+        // ones stay dim. The active line keeps its glow and feather while
+        // browsing or picking; only the unfocused-row blur is removed there.
+        // Non-active lines get the same dim tail as when not browsing.
         val tail by animateFloatAsState(
             targetValue = if (sung) 1f else UNSUNG_ALPHA,
             label = "lyricTail",
@@ -2654,9 +2655,9 @@ private fun PanelVoice(
             style = lyricStyle,
             dimAlpha = tail,
             modifier = modifier,
-            glowAlpha = if (picking) 0f else glowAlpha,
+            glowAlpha = glowAlpha,
             glowRoom = room,
-            feather = isActive && !picking,
+            feather = isActive,
             rise = rise,
             alignEnd = alignEnd,
             laneLocked = laneLocked,

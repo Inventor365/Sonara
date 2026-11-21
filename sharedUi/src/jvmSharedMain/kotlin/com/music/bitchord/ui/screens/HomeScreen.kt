@@ -7,7 +7,6 @@ import com.music.bitchord.ui.components.contextClick
 import com.music.bitchord.ui.AppUi
 import com.music.bitchord.sharedui.resources.*
 import org.jetbrains.compose.resources.painterResource
-import com.music.bitchord.ui.festive.GoldenLogo
 import org.jetbrains.compose.resources.DrawableResource
 import androidx.compose.foundation.Image
 import org.jetbrains.compose.resources.stringResource
@@ -134,10 +133,6 @@ fun HomeScreen(
     contentPadding: PaddingValues,
     /** The page's heading, or null for none — the desktop's pages carry no heading. */
     title: String?,
-    /** Casts the wordmark above the heading in glowing gold, for a festival. */
-    festiveLogo: Boolean = false,
-    /** Tapping the festive wordmark, e.g. to bring its greeting back. */
-    onFestiveLogoClick: (() -> Unit)? = null,
     /**
      * Moves on each time the app is opened: picks which greeting of the hour and which line under
      * it, so the page says something a little different every visit.
@@ -177,6 +172,8 @@ fun HomeScreen(
     onMoodsShowAll: () -> Unit = {},
     /** Whether the Top Picks and mood artwork may animate — see [LocalArtworkMotion]. */
     artworkMotion: Boolean = true,
+    /** The Replay year story's button beside the wordmark, or null for none. See [ReplayYearButton]. */
+    replayYear: ReplayYearBadge? = null,
 ) {
     // Top Picks' pictures and motion wait for the feed — see LocalArtworkImages.
     val feedReady = state !is UiState.Loading
@@ -215,9 +212,8 @@ fun HomeScreen(
                 item {
                     HomeTitle(
                         title,
+                        replayYear = replayYear,
                         listenerName = listenerName,
-                        festiveLogo = festiveLogo,
-                        onFestiveLogoClick = onFestiveLogoClick,
                         seed = greetingSeed,
                     )
                 }
@@ -510,10 +506,9 @@ fun CompactTrackRow(
 @Composable
 private fun HomeTitle(
     title: String,
+    replayYear: ReplayYearBadge? = null,
     modifier: Modifier = Modifier,
     listenerName: String? = null,
-    festiveLogo: Boolean = false,
-    onFestiveLogoClick: (() -> Unit)? = null,
     seed: Int = 0,
 ) {
     val themeTokens = com.music.bitchord.ui.theme.LocalThemeTokens.current
@@ -532,17 +527,13 @@ private fun HomeTitle(
     val logoHeight = with(LocalDensity.current) { (style.fontSize * LOGO_TO_FONT).toDp() }
     Column(modifier = modifier.padding(horizontal = PAGE_GUTTER, vertical = 8.dp)) {
         val logoModifier = Modifier
-            .padding(bottom = 14.dp)
             .height(logoHeight)
             .aspectRatio(LOGO_ASPECT)
-        if (festiveLogo) {
-            GoldenLogo(
-                painter = painterResource(Res.drawable.ic_logo),
-                modifier = logoModifier,
-                onClick = onFestiveLogoClick,
-            )
-        } else {
-            Row(verticalAlignment = Alignment.Bottom) {
+        // The wordmark, and the year story's button right after it when there is a year to tell.
+        // Sized off the wordmark so the two keep their proportion under the system font scale.
+        Row(modifier = Modifier.padding(bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+        run {
+            run {
                 // Space: the mark in starlight, with a faint warm glow from within.
                 val space = themeTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE
                 Icon(
@@ -566,6 +557,11 @@ private fun HomeTitle(
                         logoModifier
                     },
                 )
+            }
+        }
+            if (replayYear != null) {
+                Spacer(Modifier.width(14.dp))
+                ReplayYearButton(replayYear, height = logoHeight * 0.68f)
             }
         }
         // The page greets whoever opened it, by the hour and by name when it knows one — in one of

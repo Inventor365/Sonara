@@ -129,6 +129,9 @@ fun PlaylistPickerSheet(
     // Find a playlist: narrows the list as it's typed. Ticks on playlists it
     // hides are kept, so a search can't quietly drop one already chosen.
     var query by remember { mutableStateOf("") }
+    // A keyed list holds on to the row it was showing, so narrowing or clearing
+    // the search left the list wherever that row now sits — mid-way down the
+    // full list after a clear. Each new query starts the list from its top.
     val listState = rememberLazyListState()
     LaunchedEffect(query) { listState.scrollToItem(0) }
 

@@ -55,6 +55,8 @@ class ModelsTest {
 
     @Test
     fun anUpgradedYouTubeCoverComesBackDownForARow() {
+        // Read back off the lock screen's artwork, the URL already names the
+        // large copy; a row must not load it.
         assertEquals(
             "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
             "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg".artworkAt(160),
@@ -71,6 +73,7 @@ class ModelsTest {
             "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
             "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg?sqp=-oaymwEj&rs=AOn4CL".artworkAt(720),
         )
+        // Nothing renamed, nothing dropped.
         assertEquals(
             "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg?sqp=-oaymwEj&rs=AOn4CL",
             "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg?sqp=-oaymwEj&rs=AOn4CL".artworkAt(160),
