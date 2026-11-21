@@ -36,11 +36,26 @@
 
 <table>
   <tr>
-    <td width="20%" align="center"><img src="docs/screenshots/2.1.3/welcome-vice.jpg" alt="Welcome to Sonara, in the Vice theme" width="100%" /><br/><sub><b>Welcome</b> — pick a theme first</sub></td>
-    <td width="20%" align="center"><img src="docs/screenshots/2.1.3/home-sonara.jpg" alt="Home in the Sonara theme" width="100%" /><br/><sub><b>Sonara</b> — the original</sub></td>
-    <td width="20%" align="center"><img src="docs/screenshots/2.1.3/home-vice.jpg" alt="Home in the Vice theme: a synthwave sunset behind the page" width="100%" /><br/><sub><b>Vice</b> — neon dusk</sub></td>
-    <td width="20%" align="center"><img src="docs/screenshots/2.1.3/home-doom.jpg" alt="Home in the Doom theme: steel, a crest and an emerald glow" width="100%" /><br/><sub><b>Doom</b> — cold steel</sub></td>
-    <td width="20%" align="center"><img src="docs/screenshots/2.1.3/library-doom.jpg" alt="Library as your profile, with the Sonara Pass and listening time" width="100%" /><br/><sub><b>Library & Sonara Pass</b></sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-sonara.jpg" alt="Home in the Sonara theme" width="100%" /><br/><sub><b>Sonara</b><br/>the original</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-vice.jpg" alt="Home in the Vice theme: a synthwave sunset and palms behind the page" width="100%" /><br/><sub><b>Vice</b><br/>neon dusk</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-doom.jpg" alt="Home in the Doom theme: forged steel, an engraved dial and an emerald glow" width="100%" /><br/><sub><b>Doom</b><br/>cold steel</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-winter-night.jpg" alt="Home in the Winter theme at night: a live aurora over glaciers" width="100%" /><br/><sub><b>Winter</b><br/>polar night, live aurora</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-winter-day.jpg" alt="Home in the Winter theme by day: an arctic sky over glaciers" width="100%" /><br/><sub><b>Winter</b><br/>arctic day</sub></td>
+    <td width="16%" align="center"><img src="docs/screenshots/app/home-space.jpg" alt="Home in the Space theme: a ray-traced black hole with its lensed accretion disk" width="100%" /><br/><sub><b>Space</b><br/>a ray-traced black hole</sub></td>
+  </tr>
+</table>
+
+<sub>Real screenshots from a Poco F3. Every theme is a full look: its own sky, type, colours, glass and app icon.</sub>
+
+<br/><br/>
+
+<table>
+  <tr>
+    <td width="20%" align="center"><img src="docs/screenshots/app/explore-space.jpg" alt="Explore in the Space theme, under a nebula field" width="100%" /><br/><sub><b>Explore</b><br/>featured card, moods and genres</sub></td>
+    <td width="20%" align="center"><img src="docs/screenshots/app/library-space.jpg" alt="Library in the Space theme: a spiral galaxy rising over a planet, the Sonara Pass and listening time" width="100%" /><br/><sub><b>Library</b><br/>your Sonara Pass and listening time</sub></td>
+    <td width="20%" align="center"><img src="docs/screenshots/app/search-space.jpg" alt="Search in the Space theme over the Hubble Ultra Deep Field" width="100%" /><br/><sub><b>Search</b><br/>recent searches and categories</sub></td>
+    <td width="20%" align="center"><img src="docs/screenshots/app/player-space.jpg" alt="Now Playing in the Space theme: the cover floating in front of a black hole" width="100%" /><br/><sub><b>Now Playing</b><br/>the cover in front of its own black hole</sub></td>
+    <td width="20%" align="center"><img src="docs/screenshots/app/settings-space.jpg" alt="Space effects settings: switches and sliders for every effect" width="100%" /><br/><sub><b>Space effects</b><br/>every effect a live switch</sub></td>
   </tr>
 </table>
 
@@ -48,10 +63,9 @@
 
 <table>
   <tr>
-    <td width="25%" align="center"><img src="docs/screenshots/2.1.3/explore-vice.jpg" alt="Explore with a featured card and numbered mood tiles" width="100%" /><br/><sub><b>Explore</b> — featured card, moods and genres</sub></td>
-    <td width="25%" align="center"><img src="docs/screenshots/2.1.3/player-vice.jpg" alt="Now Playing with word-synced lyrics and the themed progress bar" width="100%" /><br/><sub><b>Now Playing</b> — lyrics line and a themed progress bar</sub></td>
-    <td width="25%" align="center"><img src="docs/screenshots/2.1.3/modes.jpg" alt="The modes panel: Data Saver, Low Power and High Performance" width="100%" /><br/><sub><b>Modes</b> — Data Saver, Low Power, High Performance</sub></td>
-    <td width="25%" align="center"><img src="docs/screenshots/2.1.3/settings-doom.jpg" alt="Settings as a grid of tiles, in the Doom theme" width="100%" /><br/><sub><b>Settings</b> — a grid of tiles</sub></td>
+    <td width="33%" align="center"><img src="docs/screenshots/app/explore-winter.jpg" alt="Explore in the Winter theme under the aurora" width="100%" /><br/><sub><b>Explore</b> in Winter</sub></td>
+    <td width="33%" align="center"><img src="docs/screenshots/app/library-winter.jpg" alt="Library and the Sonara Pass in the Winter theme" width="100%" /><br/><sub><b>Library</b> in Winter</sub></td>
+    <td width="33%" align="center"><img src="docs/screenshots/app/player-winter.jpg" alt="Now Playing in the Winter theme with the cover edge to edge" width="100%" /><br/><sub><b>Now Playing</b>, cover edge to edge</sub></td>
   </tr>
 </table>
 
@@ -95,26 +109,6 @@
 </table>
 
 <br/>
-
-<table>
-  <tr>
-    <td width="33%" align="center">
-      <img src="docs/screenshots/2.1.3/library-vice.jpg" alt="Library and the Sonara Pass in the Vice theme" width="100%" />
-      <br/>
-      <sub><b>Library</b> — your Pass, listening time and playlists</sub>
-    </td>
-    <td width="33%" align="center">
-      <img src="docs/screenshots/2.1.3/explore-doom.jpg" alt="Explore in the Doom theme, with chamfered tiles" width="100%" />
-      <br/>
-      <sub><b>Explore</b> — every tile in the theme's own shape</sub>
-    </td>
-    <td width="33%" align="center">
-      <img src="docs/screenshots/2.1.3/welcome-doom.jpg" alt="The welcome screen in the Doom theme" width="100%" />
-      <br/>
-      <sub><b>Welcome</b> — redrawn in whichever theme you pick</sub>
-    </td>
-  </tr>
-</table>
 
 </div>
 
@@ -206,6 +200,7 @@ corepack pnpm --filter @bitchord/app dev           # Launch Web player at http:/
 - **Automix & Loop Mix**: Beat-grid, phrase, vocal, and harmonic key transitions powered by Beat This! (`final0`) ONNX + Signalsmith stretch.
 - **Word-Synced Lyrics**: 12 providers, syllable glow sweep, duet alignment, live translation, 18-script romanization, and local MP3 (`USLT`) / FLAC / M4A / WebM embedded tag support.
 - **Animated Album Canvas**: Apple Music editorial motion artwork and Spotify Canvas with smooth swipe crossfades.
+- **Themes**: Sonara, Vice (synthwave dusk), Doom (forged steel), Winter (a live aurora at night, glaciers by day) and Space, a black hole ray traced through curved spacetime, with its lensed disk turning, matter falling in, and real ESO, Hubble and Webb skies. Each theme brings its own type, colours, glass and app icon, and every effect has a switch.
 - **Scrobbling & Presence**: Last.fm, ListenBrainz, and Discord Rich Presence across Android, Desktop, and Web.
 
 ---
