@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-   Backup and device-transfer rules for Android 12 and newer; see
-   backup_rules.xml for why these files are excluded.
+   Android 12 and newer; backup_rules.xml is the same for Android 11 and older.
+   What comes back after a reinstall, from the phone's own Google backup: the listening stats
+   (listening time, plays, artists, Replay), settings, the Sonara Pass name, and the last song
+   and queue. Sign-in and source credentials never travel: their keysets are wrapped by an
+   Android Keystore key that never leaves the device, so restored anywhere they can't be read
+   (see EncryptedPrefs). History from YouTube Music comes back with the account itself.
 -->
 <data-extraction-rules>
     <cloud-backup>
@@ -11,15 +15,26 @@
         <exclude domain="sharedpref" path="bitchord_sources_plain.xml" />
         <!-- Tester code: a credential for this phone's owner (see AddonAuth). -->
         <exclude domain="sharedpref" path="bitchord_tester.xml" />
-        <!-- Playback queues are local session state; do not resurrect them after reinstall. -->
-        <exclude domain="sharedpref" path="bitchord_last_played.xml" />
-        <exclude domain="sharedpref" path="bitchord_bounded_context.xml" />
+        <!-- A Listen Together party's stash belongs to that party, not to the next install. -->
         <exclude domain="sharedpref" path="bitchord_party_queue_stash.xml" />
         <!-- Drive backup: the account grant belongs to this phone (see DriveBackup). -->
         <exclude domain="sharedpref" path="bitchord_drive_backup.xml" />
         <!-- Other devices' listening and what this one last uploaded: Drive sync's, and re-fetched from Drive. -->
         <exclude domain="file" path="listening-peers/" />
         <exclude domain="file" path="listening-synced/" />
+        <!--
+          Big things the app fetches again by itself. Android skips an app's whole backup once it
+          passes 25 MB, so any of these would cost the listening stats and settings with it.
+        -->
+        <exclude domain="file" path="innertubex_players/" />
+        <exclude domain="file" path="downloads/" />
+        <exclude domain="file" path="offline-hls/" />
+        <exclude domain="file" path="download-artwork/" />
+        <exclude domain="file" path="beat_this_final0_q8.onnx" />
+        <exclude domain="file" path="beat_this_final0_q8.onnx.part" />
+        <exclude domain="file" path="vocals_umxhq_int8.onnx" />
+        <exclude domain="file" path="vocals_umxhq_int8.onnx.part" />
+        <exclude domain="file" path="beat_this_int8.onnx" />
     </cloud-backup>
     <device-transfer>
         <exclude domain="sharedpref" path="bitchord_auth.xml" />
@@ -28,14 +43,25 @@
         <exclude domain="sharedpref" path="bitchord_sources_plain.xml" />
         <!-- Tester code: a credential for this phone's owner (see AddonAuth). -->
         <exclude domain="sharedpref" path="bitchord_tester.xml" />
-        <!-- Playback queues are local session state; do not resurrect them after reinstall. -->
-        <exclude domain="sharedpref" path="bitchord_last_played.xml" />
-        <exclude domain="sharedpref" path="bitchord_bounded_context.xml" />
+        <!-- A Listen Together party's stash belongs to that party, not to the next install. -->
         <exclude domain="sharedpref" path="bitchord_party_queue_stash.xml" />
         <!-- Drive backup: the account grant belongs to this phone (see DriveBackup). -->
         <exclude domain="sharedpref" path="bitchord_drive_backup.xml" />
         <!-- Other devices' listening and what this one last uploaded: Drive sync's, and re-fetched from Drive. -->
         <exclude domain="file" path="listening-peers/" />
         <exclude domain="file" path="listening-synced/" />
+        <!--
+          Big things the app fetches again by itself. Android skips an app's whole backup once it
+          passes 25 MB, so any of these would cost the listening stats and settings with it.
+        -->
+        <exclude domain="file" path="innertubex_players/" />
+        <exclude domain="file" path="downloads/" />
+        <exclude domain="file" path="offline-hls/" />
+        <exclude domain="file" path="download-artwork/" />
+        <exclude domain="file" path="beat_this_final0_q8.onnx" />
+        <exclude domain="file" path="beat_this_final0_q8.onnx.part" />
+        <exclude domain="file" path="vocals_umxhq_int8.onnx" />
+        <exclude domain="file" path="vocals_umxhq_int8.onnx.part" />
+        <exclude domain="file" path="beat_this_int8.onnx" />
     </device-transfer>
 </data-extraction-rules>
