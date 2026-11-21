@@ -276,6 +276,7 @@ class TransitionFilterProcessor : BaseAudioProcessor() {
         val frameCount = inputBuffer.remaining() / bytesPerFrame
         if (frameCount == 0) return
         val outputBuffer = replaceOutputBuffer(frameCount * bytesPerFrame)
+        if (AudioLevel.wanted) AudioLevel.sample(inputBuffer, frameCount * channelCount)
 
         val targetLow = targetLowPassHz
         val targetHigh = targetHighPassHz
@@ -580,5 +581,30 @@ interface TransitionFilters {
     object None : TransitionFilters {
         override fun incoming(lowPassHz: Float, highPassHz: Float) = Unit
         override fun outgoing(lowPassHz: Float, highPassHz: Float) = Unit
+    }
+}
+
+/**
+ * A cheap loudness reading of what is playing, for visuals that answer the music (Space's disk).
+ * Off unless something asks ([wanted]); then every 16th sample of each buffer is squared and
+ * averaged into [level] (0..1, RMS). No allocation, no copy; the buffer's position is untouched.
+ */
+object AudioLevel {
+    @Volatile var wanted: Boolean = false
+    @Volatile var level: Float = 0f
+        private set
+
+    fun sample(buffer: java.nio.ByteBuffer, samples: Int) {
+        val start = buffer.position()
+        var sum = 0.0
+        var n = 0
+        var i = 0
+        while (i < samples) {
+            val v = buffer.getShort(start + i * 2) / 32768.0
+            sum += v * v
+            n++
+            i += 16
+        }
+        if (n > 0) level = kotlin.math.sqrt(sum / n).toFloat().coerceIn(0f, 1f)
     }
 }

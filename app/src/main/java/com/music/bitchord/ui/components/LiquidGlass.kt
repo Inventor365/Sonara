@@ -223,6 +223,13 @@ fun Modifier.liquidGlass(
         return background(MaterialTheme.colorScheme.surface, shape)
             .border(GLASS_EDGE_WIDTH, GLASS_EDGE_COLOR, shape)
     }
+    // A theme with its own glass switch (Winter's Glass, Space's Glass refraction) turned off — or
+    // taken away by battery saver — gets a plain translucent tint here too, as the frosted path
+    // does: no backdrop sampled, no blur to pay for.
+    if (com.music.bitchord.ui.theme.LocalThemeTokens.current.animated && !com.music.bitchord.ui.theme.LocalThemeEffects.current.glass) {
+        return background(MaterialTheme.colorScheme.surface.copy(alpha = 0.88f), shape)
+            .border(GLASS_EDGE_WIDTH, GLASS_EDGE_COLOR, shape)
+    }
     val glassPerformance by AppSettings.glassPerformance.collectAsStateWithLifecycle()
     val backdrop = LocalAppBackdrop.current
     val exportedBackdrop = LocalGlassExport.current

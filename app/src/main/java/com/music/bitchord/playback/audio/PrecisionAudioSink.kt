@@ -316,6 +316,11 @@ class PrecisionAudioSink(
         val bytesPerFrame = inEncoding.bytesPerFrame(channelCount)
         if (bytesPerFrame <= 0) return true
         streaming = true
+        // Space's audio-reactive disk reads the level here too: this path bypasses the processor
+        // chain where it is otherwise taken. 16-bit only; read by absolute position, nothing moved.
+        if (com.music.bitchord.playback.AudioLevel.wanted && bytesPerFrame == 2 * channelCount) {
+            com.music.bitchord.playback.AudioLevel.sample(inputBuffer, inputBuffer.remaining() / 2)
+        }
 
         val port = loop
         if (port.generation != loopGeneration) adoptLoopGeneration(port)

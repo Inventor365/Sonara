@@ -475,7 +475,8 @@ private fun DrawScope.drawSun(progress: Float) {
 @Composable
 fun Modifier.winterBarGlow(shape: Shape): Modifier {
     val tokens = LocalThemeTokens.current
-    if (!tokens.animated) return this
+    // Winter's touch only: Space has its own (spaceBarGlow).
+    if (!tokens.animated || tokens.id != ThemeId.WINTER) return this
     val effects = LocalThemeEffects.current
     if (!effects.glass) return this
     val night = tokens.motif == ThemeMotif.AURORA
