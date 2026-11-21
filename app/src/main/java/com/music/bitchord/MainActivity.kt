@@ -412,6 +412,7 @@ import com.music.bitchord.ui.replay.ReplayStories
 import com.music.bitchord.ui.replay.ReplayStoryPage
 import com.music.bitchord.ui.replay.rememberReplayState
 import com.music.bitchord.ui.theme.BitChordTheme
+import com.music.bitchord.ui.theme.HideStatusBar
 import com.music.bitchord.ui.theme.rememberArtworkPalette
 import com.music.bitchord.data.canvas.AppleArtistArtRepository
 import com.music.bitchord.data.canvas.keyColors
@@ -496,6 +497,8 @@ class MainActivity : AppCompatActivity() {
             val appFont by AppSettings.appFont.collectAsStateWithLifecycle()
             val highPerformance by AppSettings.highPerformanceMode.collectAsStateWithLifecycle()
             val liquidGlassEnabled by AppSettings.liquidGlass.collectAsStateWithLifecycle()
+            val hideStatusBarAppWide by AppSettings.hideStatusBarAppWide.collectAsStateWithLifecycle()
+            HideStatusBar(hideStatusBarAppWide)
             val iosOverscrollFactory = rememberIosOverscrollFactory()
             val refreshPreference by AppSettings.refreshRatePreference.collectAsStateWithLifecycle()
             val refreshOverride by RefreshRateRuntime.override.collectAsStateWithLifecycle()
