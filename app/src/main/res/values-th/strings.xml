@@ -1826,4 +1826,13 @@
     </plurals>
     <string name="space_effect_player_hole">หลุมดำหลังเพลเยอร์</string>
     <string name="space_effect_player_hole_subtitle">เมื่อปิด เพลเยอร์จะเหมือนในธีมอื่น ๆ</string>
+    <string name="liked_songs_subtitle">เพลงโปรดของคุณ</string>
+    <string name="hide_status_bar_app_wide">ซ่อนแถบสถานะทั้งแอป</string>
+    <string name="hide_status_bar_app_wide_subtitle">แถบสถานะของอุปกรณ์จะถูกซ่อนไว้ตลอดทั้งแอป</string>
+    <string name="disable_detail_gradients">ปิดการไล่สีในอัลบั้มและเพลย์ลิสต์</string>
+    <string name="disable_detail_gradients_subtitle">หน้าอัลบั้มและเพลย์ลิสต์ใช้พื้นหลังปกติแทนสีจากภาพปก</string>
+    <string name="keep_screen_on">เปิดหน้าจอค้างไว้</string>
+    <string name="keep_screen_on_subtitle">หน้าจอจะเปิดค้างไว้ขณะที่เพลเยอร์เปิดอยู่ โดยไม่เปลี่ยนเวลาปิดหน้าจอของอุปกรณ์</string>
+    <string name="usb_attenuate_startup_volume">ลดเสียง DAC อัตโนมัติ</string>
+    <string name="usb_attenuate_startup_volume_subtitle">ลดเสียงของฮาร์ดแวร์เป็น -40 dB เมื่อเชื่อมต่อเพื่อถนอมการได้ยิน ปิดเพื่อคงระดับเสียง DAC ปัจจุบัน</string>
 </resources>

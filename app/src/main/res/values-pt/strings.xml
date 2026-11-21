@@ -1853,4 +1853,13 @@
     </plurals>
     <string name="space_effect_player_hole">Buraco negro atrás do player</string>
     <string name="space_effect_player_hole_subtitle">Desativado, o player fica como em qualquer tema</string>
+    <string name="liked_songs_subtitle">Suas músicas favoritas</string>
+    <string name="hide_status_bar_app_wide">Ocultar a barra de status em todo o app</string>
+    <string name="hide_status_bar_app_wide_subtitle">A barra de status do aparelho fica oculta em todo o app</string>
+    <string name="disable_detail_gradients">Sem degradê em álbuns e playlists</string>
+    <string name="disable_detail_gradients_subtitle">As páginas de álbuns e playlists usam o fundo normal em vez das cores da capa</string>
+    <string name="keep_screen_on">Manter a tela ligada</string>
+    <string name="keep_screen_on_subtitle">A tela fica ligada enquanto o player estiver aberto; o tempo limite do aparelho não muda</string>
+    <string name="usb_attenuate_startup_volume">Baixar o volume do DAC automaticamente</string>
+    <string name="usb_attenuate_startup_volume_subtitle">Baixa o volume do hardware para -40 dB ao conectar para proteger sua audição. Desative para manter o volume atual do DAC.</string>
 </resources>

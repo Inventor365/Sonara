@@ -1853,4 +1853,13 @@
     </plurals>
     <string name="space_effect_player_hole">חור שחור מאחורי הנגן</string>
     <string name="space_effect_player_hole_subtitle">כבוי – הנגן נראה כמו בכל ערכת נושא</string>
+    <string name="liked_songs_subtitle">השירים האהובים עליך</string>
+    <string name="hide_status_bar_app_wide">הסתרת שורת המצב בכל האפליקציה</string>
+    <string name="hide_status_bar_app_wide_subtitle">שורת המצב של המכשיר נשארת מוסתרת בכל האפליקציה</string>
+    <string name="disable_detail_gradients">ללא מעבר צבע באלבומים ובפלייליסטים</string>
+    <string name="disable_detail_gradients_subtitle">דפי אלבומים ופלייליסטים משתמשים ברקע הרגיל במקום בצבעי העטיפה</string>
+    <string name="keep_screen_on">השארת המסך דלוק</string>
+    <string name="keep_screen_on_subtitle">המסך נשאר דלוק כל עוד הנגן פתוח; זמן הכיבוי של המכשיר לא משתנה</string>
+    <string name="usb_attenuate_startup_volume">הנמכה אוטומטית של עוצמת ה-DAC</string>
+    <string name="usb_attenuate_startup_volume_subtitle">מוריד את עוצמת החומרה ל-‎-40 dB בחיבור כדי להגן על השמיעה. כבוי – עוצמת ה-DAC נשארת כפי שהיא.</string>
 </resources>

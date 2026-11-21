@@ -1837,4 +1837,13 @@
     </plurals>
     <string name="space_effect_player_hole">播放器背後的黑洞</string>
     <string name="space_effect_player_hole_subtitle">關閉時，播放器與其他主題相同</string>
+    <string name="liked_songs_subtitle">你喜歡的歌曲</string>
+    <string name="hide_status_bar_app_wide">在整個應用程式中隱藏狀態列</string>
+    <string name="hide_status_bar_app_wide_subtitle">在整個應用程式中保持裝置狀態列隱藏</string>
+    <string name="disable_detail_gradients">專輯和播放清單不使用漸層</string>
+    <string name="disable_detail_gradients_subtitle">專輯和播放清單頁面使用預設背景，而不是封面的顏色</string>
+    <string name="keep_screen_on">保持螢幕開啟</string>
+    <string name="keep_screen_on_subtitle">播放器開啟時螢幕保持開啟；裝置的螢幕逾時設定不變</string>
+    <string name="usb_attenuate_startup_volume">自動降低 DAC 音量</string>
+    <string name="usb_attenuate_startup_volume_subtitle">連接時將硬體音量降至 -40 dB 以保護聽力。關閉則保留 DAC 目前音量。</string>
 </resources>

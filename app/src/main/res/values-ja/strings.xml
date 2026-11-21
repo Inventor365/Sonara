@@ -1820,4 +1820,13 @@
     </plurals>
     <string name="space_effect_player_hole">プレーヤーの背景にブラックホール</string>
     <string name="space_effect_player_hole_subtitle">オフのときは、ほかのテーマと同じプレーヤーです</string>
+    <string name="liked_songs_subtitle">お気に入りの曲</string>
+    <string name="hide_status_bar_app_wide">アプリ全体でステータスバーを隠す</string>
+    <string name="hide_status_bar_app_wide_subtitle">アプリ内のどこでも端末のステータスバーを隠したままにします</string>
+    <string name="disable_detail_gradients">アルバムとプレイリストのグラデーションをオフ</string>
+    <string name="disable_detail_gradients_subtitle">アルバムとプレイリストのページは、アートワークの色ではなく通常の背景になります</string>
+    <string name="keep_screen_on">画面をオンのままにする</string>
+    <string name="keep_screen_on_subtitle">プレーヤーを開いている間は画面がオンのまま。端末のスリープ設定は変わりません</string>
+    <string name="usb_attenuate_startup_volume">DACの音量を自動で下げる</string>
+    <string name="usb_attenuate_startup_volume_subtitle">接続時にハードウェア音量を-40 dBまで下げて耳を守ります。オフにすると今のDAC音量のままです。</string>
 </resources>

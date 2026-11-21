@@ -1787,4 +1787,13 @@
     </plurals>
     <string name="space_effect_player_hole">Buco nero dietro il player</string>
     <string name="space_effect_player_hole_subtitle">Disattivato, il player è quello di ogni tema</string>
+    <string name="liked_songs_subtitle">I tuoi brani preferiti</string>
+    <string name="hide_status_bar_app_wide">Nascondi la barra di stato ovunque</string>
+    <string name="hide_status_bar_app_wide_subtitle">La barra di stato del dispositivo resta nascosta in tutta l’app</string>
+    <string name="disable_detail_gradients">Nessuna sfumatura su album e playlist</string>
+    <string name="disable_detail_gradients_subtitle">Le pagine di album e playlist usano lo sfondo normale invece dei colori della copertina</string>
+    <string name="keep_screen_on">Mantieni lo schermo acceso</string>
+    <string name="keep_screen_on_subtitle">Lo schermo resta acceso finché il player è aperto; il timeout del dispositivo non cambia</string>
+    <string name="usb_attenuate_startup_volume">Abbassa automaticamente il volume del DAC</string>
+    <string name="usb_attenuate_startup_volume_subtitle">Abbassa il volume hardware a -40 dB alla connessione per proteggere l’udito. Disattivalo per mantenere il volume attuale del DAC.</string>
 </resources>

@@ -1848,4 +1848,13 @@
     </plurals>
     <string name="space_effect_player_hole">Schwarzes Loch hinter dem Player</string>
     <string name="space_effect_player_hole_subtitle">Aus: Der Player sieht aus wie in jedem anderen Design</string>
+    <string name="liked_songs_subtitle">Deine Lieblingssongs</string>
+    <string name="hide_status_bar_app_wide">Statusleiste überall ausblenden</string>
+    <string name="hide_status_bar_app_wide_subtitle">Die Statusleiste des Geräts bleibt in der ganzen App verborgen</string>
+    <string name="disable_detail_gradients">Kein Farbverlauf bei Alben und Playlists</string>
+    <string name="disable_detail_gradients_subtitle">Album- und Playlist-Seiten nutzen den normalen Hintergrund statt der Farben des Covers</string>
+    <string name="keep_screen_on">Bildschirm anlassen</string>
+    <string name="keep_screen_on_subtitle">Solange der Player offen ist, bleibt der Bildschirm an; die Bildschirmzeit des Geräts bleibt unverändert</string>
+    <string name="usb_attenuate_startup_volume">DAC-Lautstärke automatisch senken</string>
+    <string name="usb_attenuate_startup_volume_subtitle">Senkt die Hardware-Lautstärke beim Anschließen auf -40 dB, um dein Gehör zu schützen. Aus lässt die aktuelle DAC-Lautstärke.</string>
 </resources>

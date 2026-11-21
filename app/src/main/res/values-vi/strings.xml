@@ -1761,4 +1761,13 @@
     </plurals>
     <string name="space_effect_player_hole">Hố đen sau trình phát</string>
     <string name="space_effect_player_hole_subtitle">Khi tắt, trình phát giống như ở mọi chủ đề</string>
+    <string name="liked_songs_subtitle">Bài hát yêu thích của bạn</string>
+    <string name="hide_status_bar_app_wide">Ẩn thanh trạng thái trong toàn ứng dụng</string>
+    <string name="hide_status_bar_app_wide_subtitle">Thanh trạng thái của thiết bị luôn ẩn trong toàn ứng dụng</string>
+    <string name="disable_detail_gradients">Tắt chuyển màu ở album và danh sách phát</string>
+    <string name="disable_detail_gradients_subtitle">Trang album và danh sách phát dùng nền mặc định thay cho màu ảnh bìa</string>
+    <string name="keep_screen_on">Giữ màn hình luôn bật</string>
+    <string name="keep_screen_on_subtitle">Màn hình luôn bật khi trình phát đang mở; thời gian chờ của thiết bị không đổi</string>
+    <string name="usb_attenuate_startup_volume">Tự động giảm âm lượng DAC</string>
+    <string name="usb_attenuate_startup_volume_subtitle">Giảm âm lượng phần cứng xuống -40 dB khi kết nối để bảo vệ thính giác. Tắt để giữ âm lượng DAC hiện tại.</string>
 </resources>

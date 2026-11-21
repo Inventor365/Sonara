@@ -1820,4 +1820,13 @@
     </plurals>
     <string name="space_effect_player_hole">Agujero negro tras el reproductor</string>
     <string name="space_effect_player_hole_subtitle">Desactivado, el reproductor se ve como en cualquier tema</string>
+    <string name="liked_songs_subtitle">Tus canciones favoritas</string>
+    <string name="hide_status_bar_app_wide">Ocultar la barra de estado en toda la app</string>
+    <string name="hide_status_bar_app_wide_subtitle">La barra de estado del dispositivo queda oculta en toda la app</string>
+    <string name="disable_detail_gradients">Sin degradado en álbumes y playlists</string>
+    <string name="disable_detail_gradients_subtitle">Las páginas de álbumes y playlists usan el fondo normal en lugar de los colores de la portada</string>
+    <string name="keep_screen_on">Mantener la pantalla encendida</string>
+    <string name="keep_screen_on_subtitle">Mientras el reproductor está abierto la pantalla no se apaga; el tiempo de espera del dispositivo no cambia</string>
+    <string name="usb_attenuate_startup_volume">Bajar automáticamente el volumen del DAC</string>
+    <string name="usb_attenuate_startup_volume_subtitle">Baja el volumen del hardware a -40 dB al conectar para proteger tu oído. Desactívalo para mantener el volumen actual del DAC.</string>
 </resources>

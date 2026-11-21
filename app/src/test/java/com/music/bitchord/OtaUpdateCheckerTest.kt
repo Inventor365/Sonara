@@ -72,7 +72,11 @@ class OtaUpdateCheckerTest {
         )
         val phone = AppUpdateChecker.parseOtaPayload(payload, isTv = false, supportedAbis = listOf("arm64-v8a"))!!
         assertEquals("2.1.4", phone.version)
-        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.4/Sonara-v2.1.4.apk", phone.apkUrl)
+        // The APK built for the phone's own CPU, which is about half the universal one's size.
+        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.4/Sonara-v2.1.4_arm64-v8a.apk", phone.apkUrl)
+        // A CPU the release has no APK for still gets the universal one.
+        val other = AppUpdateChecker.parseOtaPayload(payload, isTv = false, supportedAbis = listOf("riscv64"))!!
+        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.4/Sonara-v2.1.4.apk", other.apkUrl)
         val tv = AppUpdateChecker.parseOtaPayload(payload, isTv = true, supportedAbis = listOf("arm64-v8a"))!!
         assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.4/SonaraTV-v2.1.4.apk", tv.apkUrl)
     }

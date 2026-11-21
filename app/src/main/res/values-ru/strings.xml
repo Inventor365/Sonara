@@ -1892,4 +1892,13 @@
     </plurals>
     <string name="space_effect_player_hole">Чёрная дыра за плеером</string>
     <string name="space_effect_player_hole_subtitle">Выключено — плеер такой же, как в других темах</string>
+    <string name="liked_songs_subtitle">Ваши любимые треки</string>
+    <string name="hide_status_bar_app_wide">Скрывать строку состояния во всём приложении</string>
+    <string name="hide_status_bar_app_wide_subtitle">Строка состояния устройства скрыта во всём приложении</string>
+    <string name="disable_detail_gradients">Без градиента в альбомах и плейлистах</string>
+    <string name="disable_detail_gradients_subtitle">Страницы альбомов и плейлистов используют обычный фон вместо цветов обложки</string>
+    <string name="keep_screen_on">Не выключать экран</string>
+    <string name="keep_screen_on_subtitle">Пока открыт плеер, экран не гаснет; тайм-аут устройства не меняется</string>
+    <string name="usb_attenuate_startup_volume">Автоматически снижать громкость ЦАП</string>
+    <string name="usb_attenuate_startup_volume_subtitle">При подключении снижает аппаратную громкость до -40 дБ, чтобы беречь слух. Выключите, чтобы сохранить текущую громкость ЦАП.</string>
 </resources>

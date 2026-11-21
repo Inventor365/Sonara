@@ -1819,4 +1819,13 @@
     </plurals>
     <string name="space_effect_player_hole">播放器背后的黑洞</string>
     <string name="space_effect_player_hole_subtitle">关闭时，播放器与其他主题相同</string>
+    <string name="liked_songs_subtitle">你喜欢的歌曲</string>
+    <string name="hide_status_bar_app_wide">在整个应用中隐藏状态栏</string>
+    <string name="hide_status_bar_app_wide_subtitle">在整个应用中保持设备状态栏隐藏</string>
+    <string name="disable_detail_gradients">专辑和歌单不使用渐变</string>
+    <string name="disable_detail_gradients_subtitle">专辑和歌单页面使用默认背景，而不是封面的颜色</string>
+    <string name="keep_screen_on">保持屏幕常亮</string>
+    <string name="keep_screen_on_subtitle">播放器打开时屏幕保持常亮；设备的息屏时间不变</string>
+    <string name="usb_attenuate_startup_volume">自动降低 DAC 音量</string>
+    <string name="usb_attenuate_startup_volume_subtitle">连接时将硬件音量降至 -40 dB 以保护听力。关闭则保留 DAC 当前音量。</string>
 </resources>

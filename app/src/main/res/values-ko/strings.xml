@@ -1693,4 +1693,13 @@
     </plurals>
     <string name="space_effect_player_hole">플레이어 뒤 블랙홀</string>
     <string name="space_effect_player_hole_subtitle">끄면 다른 테마와 같은 플레이어로 보여요</string>
+    <string name="liked_songs_subtitle">좋아하는 곡</string>
+    <string name="hide_status_bar_app_wide">앱 전체에서 상태 표시줄 숨기기</string>
+    <string name="hide_status_bar_app_wide_subtitle">앱 어디에서나 기기의 상태 표시줄을 숨긴 채로 둡니다</string>
+    <string name="disable_detail_gradients">앨범과 플레이리스트의 그라데이션 끄기</string>
+    <string name="disable_detail_gradients_subtitle">앨범과 플레이리스트 페이지가 아트워크 색 대신 기본 배경을 사용합니다</string>
+    <string name="keep_screen_on">화면 켜짐 유지</string>
+    <string name="keep_screen_on_subtitle">플레이어가 열려 있는 동안 화면이 꺼지지 않습니다. 기기의 화면 시간 제한은 그대로입니다</string>
+    <string name="usb_attenuate_startup_volume">DAC 볼륨 자동 낮추기</string>
+    <string name="usb_attenuate_startup_volume_subtitle">연결 시 청력 보호를 위해 하드웨어 볼륨을 -40dB로 낮춥니다. 끄면 현재 DAC 볼륨을 유지합니다.</string>
 </resources>

@@ -1831,4 +1831,13 @@
     </plurals>
     <string name="space_effect_player_hole">Oynatıcının arkasında kara delik</string>
     <string name="space_effect_player_hole_subtitle">Kapalıyken oynatıcı her temadaki gibi görünür</string>
+    <string name="liked_songs_subtitle">Favori şarkıların</string>
+    <string name="hide_status_bar_app_wide">Durum çubuğunu her yerde gizle</string>
+    <string name="hide_status_bar_app_wide_subtitle">Cihazın durum çubuğu uygulamanın her yerinde gizli kalır</string>
+    <string name="disable_detail_gradients">Albüm ve çalma listelerinde renk geçişi olmasın</string>
+    <string name="disable_detail_gradients_subtitle">Albüm ve çalma listesi sayfaları kapak renkleri yerine normal arka planı kullanır</string>
+    <string name="keep_screen_on">Ekranı açık tut</string>
+    <string name="keep_screen_on_subtitle">Oynatıcı açıkken ekran kapanmaz; cihazın ekran zaman aşımı değişmez</string>
+    <string name="usb_attenuate_startup_volume">DAC sesini otomatik düşür</string>
+    <string name="usb_attenuate_startup_volume_subtitle">Bağlanınca işitmeni korumak için donanım sesini -40 dB’ye indirir. Kapatırsan DAC’nin mevcut sesi korunur.</string>
 </resources>

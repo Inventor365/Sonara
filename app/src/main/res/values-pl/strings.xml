@@ -1900,4 +1900,13 @@
     </plurals>
     <string name="space_effect_player_hole">Czarna dziura za odtwarzaczem</string>
     <string name="space_effect_player_hole_subtitle">Wyłączone: odtwarzacz wygląda jak w każdym motywie</string>
+    <string name="liked_songs_subtitle">Twoje ulubione utwory</string>
+    <string name="hide_status_bar_app_wide">Ukryj pasek stanu w całej aplikacji</string>
+    <string name="hide_status_bar_app_wide_subtitle">Pasek stanu urządzenia pozostaje ukryty w całej aplikacji</string>
+    <string name="disable_detail_gradients">Bez gradientu w albumach i playlistach</string>
+    <string name="disable_detail_gradients_subtitle">Strony albumów i playlist mają zwykłe tło zamiast kolorów okładki</string>
+    <string name="keep_screen_on">Nie wygaszaj ekranu</string>
+    <string name="keep_screen_on_subtitle">Ekran nie gaśnie, gdy odtwarzacz jest otwarty; limit czasu urządzenia się nie zmienia</string>
+    <string name="usb_attenuate_startup_volume">Automatycznie ściszaj DAC</string>
+    <string name="usb_attenuate_startup_volume_subtitle">Po podłączeniu obniża głośność sprzętową do -40 dB, aby chronić słuch. Wyłącz, aby zachować obecną głośność DAC.</string>
 </resources>

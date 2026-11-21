@@ -1849,4 +1849,13 @@
     </plurals>
     <string name="space_effect_player_hole">Trou noir derrière le lecteur</string>
     <string name="space_effect_player_hole_subtitle">Désactivé, le lecteur reste celui de tous les thèmes</string>
+    <string name="liked_songs_subtitle">Tes titres préférés</string>
+    <string name="hide_status_bar_app_wide">Masquer la barre d’état partout</string>
+    <string name="hide_status_bar_app_wide_subtitle">La barre d’état de l’appareil reste masquée dans toute l’app</string>
+    <string name="disable_detail_gradients">Pas de dégradé sur les albums et playlists</string>
+    <string name="disable_detail_gradients_subtitle">Les pages d’albums et de playlists gardent le fond habituel au lieu des couleurs de la pochette</string>
+    <string name="keep_screen_on">Garder l’écran allumé</string>
+    <string name="keep_screen_on_subtitle">Tant que le lecteur est ouvert, l’écran reste allumé ; la mise en veille de l’appareil ne change pas</string>
+    <string name="usb_attenuate_startup_volume">Baisser automatiquement le volume du DAC</string>
+    <string name="usb_attenuate_startup_volume_subtitle">Baisse le volume matériel à -40 dB à la connexion pour protéger ton audition. Désactivé, le volume actuel du DAC est conservé.</string>
 </resources>

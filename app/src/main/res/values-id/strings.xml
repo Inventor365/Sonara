@@ -1819,4 +1819,13 @@
     </plurals>
     <string name="space_effect_player_hole">Lubang hitam di belakang pemutar</string>
     <string name="space_effect_player_hole_subtitle">Jika mati, pemutar tampil seperti di tema lain</string>
+    <string name="liked_songs_subtitle">Lagu favoritmu</string>
+    <string name="hide_status_bar_app_wide">Sembunyikan bilah status di seluruh aplikasi</string>
+    <string name="hide_status_bar_app_wide_subtitle">Bilah status perangkat tetap tersembunyi di seluruh aplikasi</string>
+    <string name="disable_detail_gradients">Tanpa gradien di album dan playlist</string>
+    <string name="disable_detail_gradients_subtitle">Halaman album dan playlist memakai latar biasa, bukan warna sampul</string>
+    <string name="keep_screen_on">Biarkan layar menyala</string>
+    <string name="keep_screen_on_subtitle">Layar tetap menyala selama pemutar terbuka; batas waktu layar perangkat tidak berubah</string>
+    <string name="usb_attenuate_startup_volume">Turunkan volume DAC otomatis</string>
+    <string name="usb_attenuate_startup_volume_subtitle">Menurunkan volume perangkat keras ke -40 dB saat terhubung untuk melindungi pendengaranmu. Matikan untuk mempertahankan volume DAC saat ini.</string>
 </resources>
