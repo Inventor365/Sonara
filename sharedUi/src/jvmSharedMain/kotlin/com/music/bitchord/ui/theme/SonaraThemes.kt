@@ -21,6 +21,7 @@ enum class ThemeId(val key: String) {
     VICE("vice"),
     DOOM("doom"),
     WINTER("winter"),
+    SPACE("space"),
     ;
 
     /** The theme's main look: its only one, or for Winter the polar night. */
@@ -33,6 +34,8 @@ enum class ThemeId(val key: String) {
         VICE -> ThemeTokens.Vice
         DOOM -> ThemeTokens.Doom
         WINTER -> if (dark) ThemeTokens.WinterNight else ThemeTokens.WinterDay
+        // Space is the void: dark whatever the system says (a lit sky would lose the black shadow).
+        SPACE -> ThemeTokens.Space
     }
 
     companion object {
@@ -56,6 +59,9 @@ enum class ThemeMotif {
 
     /** Winter day: a pale sky, layered glaciers and an ice shelf. */
     GLACIER,
+
+    /** Deep space: the void, a lensing black hole, galaxies and nebulae (SpaceScene). */
+    VOID,
 }
 
 /** How a theme edges its cards, tiles and bars. */
@@ -155,6 +161,7 @@ data class ThemeTokens(
 
     companion object {
         val WinterNight: ThemeTokens get() = WinterNightTokens
+        val Space: ThemeTokens get() = SpaceTokens
         val WinterDay: ThemeTokens get() = WinterDayTokens
 
         val Sonara = ThemeTokens(
@@ -349,6 +356,56 @@ private val WinterDayTokens = WinterNightTokens.copy(
     heroTitle = Color.White,
     heroSubtitle = Color(0xFFF2F8FD),
     heroShadow = Color(0xFF0B3463).copy(alpha = 0.62f),
+)
+
+/**
+ * Space's colours: a true deep void, starlight and cool silver type, smoked dark glass, and one
+ * restrained accent — the pale warm white-gold of the disk's hot side — for the selected tab,
+ * progress, switches and primary buttons only. Nothing brown, nothing amber on content.
+ */
+object SpaceColors {
+    val VoidDeep = Color(0xFF020306)
+    val Void = Color(0xFF04060B)
+    val VoidLift = Color(0xFF07090F)
+    val Surface = Color(0xFF0B0D12)
+    val SurfaceHigh = Color(0xFF161A21)
+    val Starlight = Color(0xFFF2F4F8)
+    val Silver = Color(0xFFA9B0BC)
+    val Dust = Color(0xFF6E7582)
+    val DiskGold = Color(0xFFF4E3C1)
+    val AccentInk = Color(0xFF14110B)
+    /** Smoked glass: this at a few percent over the scene, a hairline of white at ~10% around it. */
+    val Glass = Color(0xFF8C96AA)
+}
+
+/** Space: the void, a black hole and its accretion disk; a film title card, not an arcade. */
+private val SpaceTokens = ThemeTokens(
+    id = ThemeId.SPACE,
+    darkOnly = true,
+    accent = SpaceColors.DiskGold,
+    accent2 = SpaceColors.Starlight,
+    accent3 = SpaceColors.Silver,
+    accentDeep = Color(0xFF101218),
+    onAccent = SpaceColors.AccentInk,
+    ink = SpaceColors.VoidDeep,
+    // Black anodised: near-black, a breath lighter at the top-left edge.
+    passGradient = listOf(Color(0xFF15171C), Color(0xFF0A0B0F), Color(0xFF050608)),
+    backdropGradient = emptyList(),
+    heroGlow = null,
+    motif = ThemeMotif.VOID,
+    texture = ThemeTexture.DOTS,
+    playerTint = emptyList(),
+    progressColors = listOf(Color(0xFFFFF7E8), SpaceColors.DiskGold),
+    lyricGlow = Color(0xFFE6ECFF),
+    glow = null,
+    cardShape = RoundedCornerShape(24.dp),
+    controlShape = CircleShape,
+    chipShape = CircleShape,
+    playerSheen = null,
+    animated = true,
+    heroTitle = SpaceColors.Starlight,
+    heroSubtitle = SpaceColors.Silver,
+    heroShadow = Color(0xFF000000).copy(alpha = 0.60f),
 )
 
 /** The active theme's tokens. The app provides them; anything outside a theme reads Sonara's. */

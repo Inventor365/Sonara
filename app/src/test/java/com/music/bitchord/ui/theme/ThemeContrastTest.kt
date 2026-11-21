@@ -50,9 +50,35 @@ class ThemeContrastTest {
 
     @Test
     fun accentButtonsKeepTheirLabelsReadable() {
-        for (t in listOf(ThemeTokens.Vice, ThemeTokens.Doom, ThemeTokens.WinterNight, ThemeTokens.WinterDay)) {
+        for (t in listOf(ThemeTokens.Vice, ThemeTokens.Doom, ThemeTokens.WinterNight, ThemeTokens.WinterDay, ThemeTokens.Space)) {
             assertAA("${t.id}/${t.motif}", "onAccent on accent", t.onAccent, t.accent)
         }
+    }
+
+    @Test
+    fun spaceIsTheVoidWithOneRestrainedAccent() {
+        val t = ThemeTokens.Space
+        val s = themeColorScheme(ThemeId.SPACE, dark = true)
+        assertTrue("Space ignores the light setting", t.darkOnly)
+        assertEquals(Color(0xFFF4E3C1), t.accent)
+        assertEquals(t.accent, s.primary)
+        assertEquals(Color(0xFF04060B), s.background)
+        // No glow, sheen or player tint to wash the screens amber.
+        assertEquals(null, t.heroGlow)
+        assertEquals(null, t.glow)
+        assertEquals(null, t.playerSheen)
+        assertTrue(t.playerTint.isEmpty())
+        // Surfaces and containers are neutral smoked greys: no channel more than a few levels
+        // warmer than blue (the draft's brown cards are what this guards against).
+        for ((role, c) in listOf(
+            "surface" to s.surface, "surfaceVariant" to s.surfaceVariant, "primaryContainer" to s.primaryContainer,
+            "secondaryContainer" to s.secondaryContainer, "surfaceContainer" to s.surfaceContainer, "background" to s.background,
+            "surfaceTint" to s.surfaceTint,
+        )) {
+            assertTrue("$role is warm: $c", c.red - c.blue <= 0.02f)
+        }
+        // The Pass is black anodised: every stop near black.
+        assertTrue(t.passGradient.all { it.luminance() < 0.02f })
     }
 
     @Test
@@ -78,7 +104,7 @@ class ThemeContrastTest {
 
     @Test
     fun storedKeysAreStable_andAnUnknownOneFallsBackToSonara() {
-        assertEquals(listOf("sonara", "vice", "doom", "winter"), ThemeId.entries.map { it.key })
+        assertEquals(listOf("sonara", "vice", "doom", "winter", "space"), ThemeId.entries.map { it.key })
         assertEquals(ThemeId.VICE, ThemeId.fromKey("vice"))
         assertEquals(ThemeId.SONARA, ThemeId.fromKey(null))
         assertEquals(ThemeId.SONARA, ThemeId.fromKey("removed-theme"))

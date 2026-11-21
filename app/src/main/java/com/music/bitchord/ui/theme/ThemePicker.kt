@@ -80,6 +80,7 @@ fun themeName(id: ThemeId): String = stringResource(
         ThemeId.VICE -> R.string.theme_vice
         ThemeId.DOOM -> R.string.theme_doom
         ThemeId.WINTER -> R.string.theme_winter
+        ThemeId.SPACE -> R.string.theme_space
     },
 )
 
@@ -90,6 +91,7 @@ private fun themeLine(id: ThemeId): String = stringResource(
         ThemeId.VICE -> R.string.theme_vice_line
         ThemeId.DOOM -> R.string.theme_doom_line
         ThemeId.WINTER -> R.string.theme_winter_line
+        ThemeId.SPACE -> R.string.theme_space_line
     },
 )
 
@@ -109,17 +111,19 @@ fun ThemePickerRow(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val haptics = rememberHaptics()
     val current by AppSettings.appTheme.collectAsStateWithLifecycle()
-    // Three across, sharing the width: every theme in view at once, on any phone.
+    // A scrolling row of fixed cards: five themes no longer fit across a phone at a readable size,
+    // and the next card peeking at the edge says there are more.
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
             .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         for (id in ThemeId.entries) {
             ThemePreviewCard(
                 id = id,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.width(92.dp),
                 selected = id == current,
                 onClick = {
                     haptics.play(Haptic.Select)
@@ -204,10 +208,11 @@ private fun MiniHome(tokens: ThemeTokens, background: Color, surface: Color, onB
     } else {
         null
     }
+    val spaceStill = if (tokens.motif == ThemeMotif.VOID) com.music.bitchord.ui.theme.rememberSpaceStill() else null
     Box(Modifier.fillMaxSize()) {
         Canvas(Modifier.fillMaxSize()) {
             // The real hero, drawn at this size: the painter scales its motif to the canvas.
-            painter.draw(this, tokens, background, art = winterArt)
+            painter.draw(this, tokens, background, art = winterArt, spaceStill = spaceStill)
             val pad = 10.dp.toPx()
             val cardW = (size.width - pad * 3) / 2f
             val cardH = cardW * 1.25f
@@ -225,7 +230,12 @@ private fun MiniHome(tokens: ThemeTokens, background: Color, surface: Color, onB
                     drawOutline(
                         outline,
                         Brush.linearGradient(
-                            if (i == 0) listOf(tokens.accent, tokens.accentDeep) else listOf(tokens.accent2, surface),
+                            when {
+                                // Space's tiles are smoked glass: no accent on content.
+                                tokens.id == ThemeId.SPACE -> listOf(Color.White.copy(alpha = 0.11f), Color.White.copy(alpha = 0.04f))
+                                i == 0 -> listOf(tokens.accent, tokens.accentDeep)
+                                else -> listOf(tokens.accent2, surface)
+                            },
                             start = Offset.Zero,
                             end = Offset(cardW, cardH),
                         ),

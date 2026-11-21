@@ -752,8 +752,15 @@ private fun PersonalStationArt(modifier: Modifier) {
     val theme = com.music.bitchord.ui.theme.LocalThemeTokens.current
     val brushes = remember(theme) {
         val sonara = theme.id == com.music.bitchord.ui.theme.ThemeId.SONARA
+        val space = theme.id == com.music.bitchord.ui.theme.ThemeId.SPACE
         val layerTones = if (sonara) {
             PersonalLayers
+        } else if (space) {
+            // Space keeps content off its accent: the folds in smoked greys, a breath lighter inward.
+            PersonalLayers.mapIndexed { i, (rest, _, _) ->
+                val deep = androidx.compose.ui.graphics.lerp(Color(0xFF1C2028), Color(0xFF3A404C), i / (PersonalLayers.size - 1f))
+                Triple(rest, deep, androidx.compose.ui.graphics.lerp(deep, Color.White, 0.06f))
+            }
         } else {
             PersonalLayers.mapIndexed { i, (rest, _, _) ->
                 val t = i / (PersonalLayers.size - 1f)
@@ -763,7 +770,9 @@ private fun PersonalStationArt(modifier: Modifier) {
         }
         SizeCache { size ->
             PersonalBrushes(
-                background = if (sonara) {
+                background = if (space) {
+                    Brush.horizontalGradient(listOf(Color(0xFF14171D), Color(0xFF0C0E12), Color(0xFF101318)))
+                } else if (sonara) {
                     Brush.horizontalGradient(
                         0f to Color(0xFFF7334F),
                         0.38f to Color(0xFFFA6094),

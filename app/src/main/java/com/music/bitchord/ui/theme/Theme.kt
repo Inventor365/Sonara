@@ -280,6 +280,51 @@ private val WinterNightScheme = darkColorScheme(
     surfaceContainerHighest = WinterColors.NightSurfaceHigh,
 )
 
+/**
+ * Space: a true deep void, smoked-glass surfaces, starlight and cool silver type. The one accent is
+ * the disk's pale white-gold, and only where the scheme's primary shows (the selected tab, progress,
+ * switches, primary buttons); containers and tints stay neutral so nothing turns amber.
+ */
+private val SpaceScheme = darkColorScheme(
+    primary = com.music.bitchord.ui.theme.SpaceColors.DiskGold,
+    onPrimary = com.music.bitchord.ui.theme.SpaceColors.AccentInk,
+    primaryContainer = Color(0xFF1E2027),
+    onPrimaryContainer = Color(0xFFF4E8D2),
+    inversePrimary = Color(0xFF6F6248),
+    secondary = Color(0xFFC9D1E0),
+    onSecondary = Color(0xFF12151C),
+    secondaryContainer = Color(0xFF1B1F27),
+    onSecondaryContainer = Color(0xFFE3E8F2),
+    tertiary = Color(0xFFA9BBD9),
+    onTertiary = Color(0xFF0E1420),
+    tertiaryContainer = Color(0xFF18202E),
+    onTertiaryContainer = Color(0xFFDCE6F6),
+    background = com.music.bitchord.ui.theme.SpaceColors.Void,
+    onBackground = com.music.bitchord.ui.theme.SpaceColors.Starlight,
+    surface = com.music.bitchord.ui.theme.SpaceColors.Surface,
+    onSurface = com.music.bitchord.ui.theme.SpaceColors.Starlight,
+    surfaceVariant = com.music.bitchord.ui.theme.SpaceColors.SurfaceHigh,
+    onSurfaceVariant = com.music.bitchord.ui.theme.SpaceColors.Silver,
+    // Tonal elevation in neutral grey, not the accent.
+    surfaceTint = Color(0xFF8C96AA),
+    inverseSurface = Color(0xFFE6E8EE),
+    inverseOnSurface = Color(0xFF12151C),
+    error = Color(0xFFFF8A80),
+    onError = Color(0xFF2D0000),
+    errorContainer = Color(0xFF5A1A18),
+    onErrorContainer = Color(0xFFFFDAD6),
+    outline = Color(0xFF3A3F4A),
+    outlineVariant = Color(0xFF1E222A),
+    scrim = Color.Black,
+    surfaceBright = Color(0xFF1A1E26),
+    surfaceDim = com.music.bitchord.ui.theme.SpaceColors.Void,
+    surfaceContainerLowest = com.music.bitchord.ui.theme.SpaceColors.VoidDeep,
+    surfaceContainerLow = Color(0xFF080A0F),
+    surfaceContainer = com.music.bitchord.ui.theme.SpaceColors.Surface,
+    surfaceContainerHigh = Color(0xFF11141A),
+    surfaceContainerHighest = com.music.bitchord.ui.theme.SpaceColors.SurfaceHigh,
+)
+
 /** Winter day: snow and frosted-glass surfaces, glacier blues, deep navy text. */
 private val WinterDayScheme = lightColorScheme(
     primary = WinterColors.IceBlue,
@@ -347,6 +392,7 @@ fun themeColorScheme(id: ThemeId, dark: Boolean): ColorScheme = when (id) {
     ThemeId.VICE -> ViceScheme
     ThemeId.DOOM -> DoomScheme
     ThemeId.WINTER -> if (dark) WinterNightScheme else WinterDayScheme
+    ThemeId.SPACE -> SpaceScheme
 }
 
 /** The tokens for [id] in a dark or light app, with the heading face only this module can load. */
@@ -355,7 +401,9 @@ fun themeTokensFor(id: ThemeId, dark: Boolean = true): ThemeTokens = when (id) {
     ThemeId.VICE -> ThemeTokens.Vice.copy(headingFamily = RighteousFamily)
     ThemeId.DOOM -> ThemeTokens.Doom.copy(headingFamily = OswaldFamily)
     ThemeId.WINTER -> id.tokens(dark).copy(headingFamily = QuicksandFamily)
+    ThemeId.SPACE -> id.tokens(dark).copy(headingFamily = SFProDisplay)
 }
+
 
 /**
  * The page titles and greetings in the theme's own face; titles of songs, body and labels stay
@@ -367,6 +415,8 @@ private fun Typography.withHeadings(tokens: ThemeTokens): Typography {
     val (weight, spacing) = when (tokens.id) {
         ThemeId.DOOM -> FontWeight.W600 to 0.4.sp
         ThemeId.WINTER -> FontWeight.W700 to 0.sp
+        // A film title card: the regular cut, big and light-feeling, the tracking a touch open.
+        ThemeId.SPACE -> FontWeight.W400 to 0.35.sp
         else -> FontWeight.W400 to 0.2.sp
     }
     fun TextStyle.heading() = copy(fontFamily = family, fontWeight = weight, letterSpacing = spacing)
@@ -389,7 +439,7 @@ private fun shapesFor(tokens: ThemeTokens): Shapes = when {
         large = CutCornerShape(14.dp),
         extraLarge = CutCornerShape(20.dp),
     )
-    tokens.id == ThemeId.VICE || tokens.id == ThemeId.WINTER -> Shapes(
+    tokens.id == ThemeId.VICE || tokens.id == ThemeId.WINTER || tokens.id == ThemeId.SPACE -> Shapes(
         extraSmall = RoundedCornerShape(8.dp),
         small = RoundedCornerShape(12.dp),
         medium = RoundedCornerShape(18.dp),
