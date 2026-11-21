@@ -24,9 +24,9 @@ class OtaUpdateCheckerTest {
             fetchExternalText = { "Build date: 30/10/2026\n- Verified OTA" },
         )
         assertNotNull(phoneInfo)
-        assertEquals("2.1.3", phoneInfo!!.version)
-        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.3/Sonara-v2.1.3.apk", phoneInfo.apkUrl)
-        assertTrue(phoneInfo.notes.orEmpty().contains("Sonara v2.1.3"))
+        assertEquals("2.1.4", phoneInfo!!.version)
+        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.4/Sonara-v2.1.4.apk", phoneInfo.apkUrl)
+        assertTrue(phoneInfo.notes.orEmpty().contains("Sonara v2.1.4"))
         assertTrue(phoneInfo.notes.orEmpty().contains("Verified OTA"))
 
         val tvInfo = AppUpdateChecker.parseOtaPayload(
@@ -35,8 +35,8 @@ class OtaUpdateCheckerTest {
             supportedAbis = listOf("armeabi-v7a"),
         )
         assertNotNull(tvInfo)
-        assertEquals("2.1.3", tvInfo!!.version)
-        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.3/SonaraTV-v2.1.3.apk", tvInfo.apkUrl)
+        assertEquals("2.1.4", tvInfo!!.version)
+        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.4/SonaraTV-v2.1.4.apk", tvInfo.apkUrl)
     }
 
     @Test
@@ -60,29 +60,29 @@ class OtaUpdateCheckerTest {
 
     /** GitHub's releases API, used when the OTA manifest can't be reached: assets are found by name. */
     private fun releasePayload(vararg names: String) = Json.parseToJsonElement(
-        """{"tag_name":"v2.1.3","html_url":"https://github.com/Inventor365/Sonara/releases/tag/v2.1.3","assets":[""" +
-            names.joinToString(",") { """{"name":"$it","state":"uploaded","browser_download_url":"https://github.com/Inventor365/Sonara/releases/download/v2.1.3/$it"}""" } +
+        """{"tag_name":"v2.1.4","html_url":"https://github.com/Inventor365/Sonara/releases/tag/v2.1.4","assets":[""" +
+            names.joinToString(",") { """{"name":"$it","state":"uploaded","browser_download_url":"https://github.com/Inventor365/Sonara/releases/download/v2.1.4/$it"}""" } +
             "]}",
     ).jsonObject
 
     @Test
     fun `release api fallback picks Sonara APKs for phone and TV`() {
         val payload = releasePayload(
-            "Sonara-v2.1.3_arm64-v8a.apk", "Sonara-v2.1.3.apk", "SonaraTV-v2.1.3.apk", "SonaraWear-v2.1.3.apk",
+            "Sonara-v2.1.4_arm64-v8a.apk", "Sonara-v2.1.4.apk", "SonaraTV-v2.1.4.apk", "SonaraWear-v2.1.4.apk",
         )
         val phone = AppUpdateChecker.parseOtaPayload(payload, isTv = false, supportedAbis = listOf("arm64-v8a"))!!
-        assertEquals("2.1.3", phone.version)
-        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.3/Sonara-v2.1.3.apk", phone.apkUrl)
+        assertEquals("2.1.4", phone.version)
+        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.4/Sonara-v2.1.4.apk", phone.apkUrl)
         val tv = AppUpdateChecker.parseOtaPayload(payload, isTv = true, supportedAbis = listOf("arm64-v8a"))!!
-        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.3/SonaraTV-v2.1.3.apk", tv.apkUrl)
+        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.4/SonaraTV-v2.1.4.apk", tv.apkUrl)
     }
 
     @Test
     fun `release api fallback still finds APKs named before the rename`() {
-        val payload = releasePayload("BitChord-v2.1.3_arm64-v8a.apk", "BitChordTV-v2.1.3.apk")
+        val payload = releasePayload("BitChord-v2.1.4_arm64-v8a.apk", "BitChordTV-v2.1.4.apk")
         val phone = AppUpdateChecker.parseOtaPayload(payload, isTv = false, supportedAbis = listOf("arm64-v8a"))!!
-        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.3/BitChord-v2.1.3_arm64-v8a.apk", phone.apkUrl)
+        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.4/BitChord-v2.1.4_arm64-v8a.apk", phone.apkUrl)
         val tv = AppUpdateChecker.parseOtaPayload(payload, isTv = true, supportedAbis = listOf("arm64-v8a"))!!
-        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.3/BitChordTV-v2.1.3.apk", tv.apkUrl)
+        assertEquals("https://github.com/Inventor365/Sonara/releases/download/v2.1.4/BitChordTV-v2.1.4.apk", tv.apkUrl)
     }
 }
