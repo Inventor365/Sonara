@@ -109,6 +109,13 @@ details.q .a p{margin:0 0 8px}
 .foot{margin-top:40px;padding-top:22px;border-top:1px solid var(--line);color:var(--dim);font-size:14px;display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:space-between}
 .foot nav{display:flex;flex-wrap:wrap;gap:6px 14px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.path{transition:none}}
+
+/* looks */
+.looks{display:grid;gap:10px;grid-template-columns:repeat(3,1fr);margin-top:14px}
+@media (min-width:640px){.looks{grid-template-columns:repeat(6,1fr)}}
+.looks a{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:16px;border:1px solid var(--line);background:var(--panel);color:var(--text);text-decoration:none;font-size:13px;font-weight:600}
+.looks a:hover{background:var(--panel2)}
+.looks img{width:52px;height:52px}
 </style>
 </head>
 <body>
@@ -116,6 +123,7 @@ details.q .a p{margin:0 0 8px}
 <div class="bar"><div class="in">
   <img src="assets/logo.png" alt="Sonara" width="30" height="30">
   <a class="chip" href="#install">Install</a>
+  <a class="chip" href="#looks">Themes</a>
   <a class="chip" href="#source">Run from source</a>
   <a class="chip" href="#verify">Verify</a>
   <a class="chip" href="#fix">Fix it</a>
@@ -204,6 +212,20 @@ details.q .a p{margin:0 0 8px}
       </ol>
       <div class="note"><p>Packages are built on Ubuntu 22.04, so they run on that release and anything newer. They need a normal desktop session (GTK 3, X11 or XWayland, OpenGL, ALSA) — a minimal or headless install will fail at startup.</p></div>
     </div>
+  </div>
+</section>
+
+<!-- ============ LOOKS ============ -->
+<section class="s" id="looks">
+  <h2>Pick a look</h2>
+  <p>Once it's installed, open Settings → Appearance → Theme. Each theme restyles every screen and brings its own app icon; Winter and Space come with live skies whose effects you can switch one by one. <a href="./#themes">See them all</a>.</p>
+  <div class="looks">
+    <a href="./#themes"><img src="screenshots/app/icons/icon-sonara.png" alt="" loading="lazy" width="52" height="52">Sonara</a>
+    <a href="./#themes"><img src="screenshots/app/icons/icon-vice.png" alt="" loading="lazy" width="52" height="52">Vice</a>
+    <a href="./#themes"><img src="screenshots/app/icons/icon-doom.png" alt="" loading="lazy" width="52" height="52">Doom</a>
+    <a href="./#themes"><img src="screenshots/app/icons/icon-winter-night.png" alt="" loading="lazy" width="52" height="52">Winter</a>
+    <a href="./#themes"><img src="screenshots/app/icons/icon-winter-day.png" alt="" loading="lazy" width="52" height="52">Winter day</a>
+    <a href="./#themes"><img src="screenshots/app/icons/icon-space.png" alt="" loading="lazy" width="52" height="52">Space</a>
   </div>
 </section>
 

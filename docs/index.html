@@ -134,6 +134,23 @@ details[open] summary::after{content:"–"}
 .sheet .x{position:absolute;right:14px;top:8px;border:0;background:none;color:var(--dim);font-size:26px;cursor:pointer;line-height:1}
 .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,30px);opacity:0;pointer-events:none;background:#1c1426;border:1px solid var(--line);padding:10px 16px;border-radius:999px;font-size:14px;z-index:30;transition:.25s}
 .toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* themes */
+#themes{margin:0 0 40px}
+.looks{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 14px;margin:0 -2px;scrollbar-width:thin}
+.look{flex:0 0 auto;width:min(46vw,188px);scroll-snap-align:start;margin:0}
+.look img.shot{display:block;width:100%;height:auto;aspect-ratio:540/1200;object-fit:cover;border-radius:22px;border:1px solid var(--line);background:#111;box-shadow:0 18px 40px -24px rgba(0,0,0,.8)}
+.look figcaption{display:flex;align-items:center;gap:10px;margin-top:10px}
+.look figcaption img{width:38px;height:38px;flex:none}
+.look figcaption div{min-width:0}
+.look b{display:block;font-size:15px;letter-spacing:-.01em}
+.look span{display:block;font-size:12.5px;color:var(--mute);line-height:1.3}
+.look.new b::after{content:"New";margin-left:7px;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#ffd7dc;background:rgba(255,90,106,.16);border:1px solid rgba(255,90,106,.42);padding:1px 7px;border-radius:999px;vertical-align:2px}
+.tour{display:grid;gap:12px;grid-template-columns:repeat(2,1fr);margin-top:8px}
+@media (min-width:700px){.tour{grid-template-columns:repeat(4,1fr)}}
+.tour figure{margin:0}
+.tour img{display:block;width:100%;height:auto;aspect-ratio:540/1200;object-fit:cover;border-radius:18px;border:1px solid var(--line);background:#111}
+.tour figcaption{font-size:12.5px;color:var(--mute);margin-top:6px;text-align:center}
 </style>
 </head>
 <body>
@@ -162,6 +179,29 @@ details[open] summary::after{content:"–"}
       <img src="assets/sonara-qr.png" alt="QR code that opens this page" width="260" height="260">
       <p>On a computer? Scan with your phone to get the Android app.</p>
     </aside>
+  </section>
+
+  <section id="themes" aria-labelledby="th">
+    <h2 id="th">Pick your look</h2>
+    <p class="h2sub">Six looks, each with its own sky, type, glass and app icon, which changes the moment you pick it. Settings → Appearance → Theme. Real screenshots from a phone.</p>
+    <div class="looks">
+      <figure class="look"><img class="shot" src="screenshots/app/home-sonara.jpg" alt="Sonara Home in the Sonara theme" loading="lazy" width="540" height="1200"><figcaption><img src="screenshots/app/icons/icon-sonara.png" alt="Sonara app icon" loading="lazy" width="38" height="38"><div><b>Sonara</b><span>The original: clean, red on black</span></div></figcaption></figure>
+      <figure class="look"><img class="shot" src="screenshots/app/home-vice.jpg" alt="Sonara Home in the Vice theme" loading="lazy" width="540" height="1200"><figcaption><img src="screenshots/app/icons/icon-vice.png" alt="Vice app icon" loading="lazy" width="38" height="38"><div><b>Vice</b><span>Neon dusk: a synthwave sun over palms</span></div></figcaption></figure>
+      <figure class="look"><img class="shot" src="screenshots/app/home-doom.jpg" alt="Sonara Home in the Doom theme" loading="lazy" width="540" height="1200"><figcaption><img src="screenshots/app/icons/icon-doom.png" alt="Doom app icon" loading="lazy" width="38" height="38"><div><b>Doom</b><span>Cold steel and an emerald glow</span></div></figcaption></figure>
+      <figure class="look new"><img class="shot" src="screenshots/app/home-winter-night.jpg" alt="Sonara Home in the Winter theme" loading="lazy" width="540" height="1200"><figcaption><img src="screenshots/app/icons/icon-winter-night.png" alt="Winter app icon" loading="lazy" width="38" height="38"><div><b>Winter</b><span>Polar night: a live aurora over glaciers</span></div></figcaption></figure>
+      <figure class="look new"><img class="shot" src="screenshots/app/home-winter-day.jpg" alt="Sonara Home in the Winter day theme" loading="lazy" width="540" height="1200"><figcaption><img src="screenshots/app/icons/icon-winter-day.png" alt="Winter day app icon" loading="lazy" width="38" height="38"><div><b>Winter day</b><span>An arctic sky; the sun follows the clock</span></div></figcaption></figure>
+      <figure class="look new"><img class="shot" src="screenshots/app/home-space.jpg" alt="Sonara Home in the Space theme" loading="lazy" width="540" height="1200"><figcaption><img src="screenshots/app/icons/icon-space.png" alt="Space app icon" loading="lazy" width="38" height="38"><div><b>Space</b><span>A ray-traced black hole, live</span></div></figcaption></figure>
+    </div>
+    <div class="tour">
+      <figure><img src="screenshots/app/explore-space.jpg" alt="Explore · Space" loading="lazy" width="540" height="1200"><figcaption>Explore · Space</figcaption></figure>
+      <figure><img src="screenshots/app/library-space.jpg" alt="Library · Space" loading="lazy" width="540" height="1200"><figcaption>Library · Space</figcaption></figure>
+      <figure><img src="screenshots/app/search-space.jpg" alt="Search · Space" loading="lazy" width="540" height="1200"><figcaption>Search · Space</figcaption></figure>
+      <figure><img src="screenshots/app/player-space.jpg" alt="Now Playing · Space" loading="lazy" width="540" height="1200"><figcaption>Now Playing · Space</figcaption></figure>
+      <figure><img src="screenshots/app/explore-winter.jpg" alt="Explore · Winter" loading="lazy" width="540" height="1200"><figcaption>Explore · Winter</figcaption></figure>
+      <figure><img src="screenshots/app/library-winter.jpg" alt="Library · Winter" loading="lazy" width="540" height="1200"><figcaption>Library · Winter</figcaption></figure>
+      <figure><img src="screenshots/app/player-winter.jpg" alt="Now Playing · Winter" loading="lazy" width="540" height="1200"><figcaption>Now Playing · Winter</figcaption></figure>
+      <figure><img src="screenshots/app/settings-space.jpg" alt="Every effect is a switch" loading="lazy" width="540" height="1200"><figcaption>Every effect is a switch</figcaption></figure>
+    </div>
   </section>
 
   <section id="platforms" aria-labelledby="ph">
