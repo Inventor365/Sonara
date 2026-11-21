@@ -1,0 +1,32 @@
+Sonara — Space theme: image credits and licences
+================================================
+
+The Space theme's skies are built from real observatory imagery, regraded to one look (neutral
+blacks, natural star colour, restrained saturation), cut and composited for Sonara by
+scripts/space/bake_space_assets.py. Each source is licensed under the Creative Commons
+Attribution 4.0 International licence (https://creativecommons.org/licenses/by/4.0/); the
+changes made are: cropping, scaling, colour regrading, removing point stars from the panorama,
+vignetting and compositing over procedural stars.
+
+Milky Way (the sky the black hole lenses, on Home and the Player)
+  "The Milky Way panorama" (eso0932a) — ESO/S. Brunier — CC BY 4.0
+  https://www.eso.org/public/images/eso0932a/
+
+Library: the Whirlpool Galaxy (M51)
+  heic0506a — NASA, ESA, S. Beckwith (STScI) and The Hubble Heritage Team (STScI/AURA) — CC BY 4.0
+  https://esahubble.org/images/heic0506a/
+
+Search: the Hubble Ultra Deep Field
+  heic0406a — NASA, ESA, S. Beckwith (STScI) and the HUDF Team — CC BY 4.0
+  https://esahubble.org/images/heic0406a/
+
+Explore: "Cosmic Cliffs" in the Carina Nebula (regraded to teal, violet and rose)
+  weic2205a — NASA, ESA, CSA, and STScI — CC BY 4.0
+  https://esawebb.org/images/weic2205a/
+
+The black hole, its accretion disk, the photon ring, the stars over the plates, the planet's
+limb, the disk texture and the app icon are Sonara's own: rendered by an original geodesic ray
+tracer (scripts/space/trace_blackhole.py) and procedural code, and offered under CC0 1.0
+(https://creativecommons.org/publicdomain/zero/1.0/).
+
+The same credits are shown in the app: Settings > Appearance > Space effects > Image credits.
