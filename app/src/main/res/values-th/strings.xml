@@ -1824,4 +1824,6 @@
     <plurals name="replay_year_played_times">
         <item quantity="other">เล่น %1$s ครั้ง</item>
     </plurals>
+    <string name="space_effect_player_hole">หลุมดำหลังเพลเยอร์</string>
+    <string name="space_effect_player_hole_subtitle">เมื่อปิด เพลเยอร์จะเหมือนในธีมอื่น ๆ</string>
 </resources>

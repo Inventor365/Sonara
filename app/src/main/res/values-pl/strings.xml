@@ -1898,4 +1898,6 @@
         <item quantity="many">Odtworzono %1$s razy</item>
         <item quantity="other">Odtworzono %1$s razy</item>
     </plurals>
+    <string name="space_effect_player_hole">Czarna dziura za odtwarzaczem</string>
+    <string name="space_effect_player_hole_subtitle">Wyłączone: odtwarzacz wygląda jak w każdym motywie</string>
 </resources>

@@ -1246,6 +1246,7 @@ object AppSettings {
             galaxies = tri(KEY_SPACE_GALAXIES),
             glass = tri(KEY_SPACE_GLASS),
             audioReactive = tri(KEY_SPACE_AUDIO),
+            playerHole = tri(KEY_SPACE_PLAYER_HOLE),
             meteorRate = if (prefs.contains(KEY_SPACE_METEOR_RATE)) prefs.getInt(KEY_SPACE_METEOR_RATE, 2) else null,
             movingStars = if (prefs.contains(KEY_SPACE_MOVING_STARS)) prefs.getInt(KEY_SPACE_MOVING_STARS, 0) else null,
         )
@@ -1764,6 +1765,7 @@ object AppSettings {
         put(KEY_SPACE_GALAXIES, value.galaxies)
         put(KEY_SPACE_GLASS, value.glass)
         put(KEY_SPACE_AUDIO, value.audioReactive)
+        put(KEY_SPACE_PLAYER_HOLE, value.playerHole)
         value.meteorRate?.let { editor.putInt(KEY_SPACE_METEOR_RATE, it) } ?: editor.remove(KEY_SPACE_METEOR_RATE)
         value.movingStars?.let { editor.putInt(KEY_SPACE_MOVING_STARS, it) } ?: editor.remove(KEY_SPACE_MOVING_STARS)
         editor.apply()
@@ -2790,6 +2792,7 @@ object AppSettings {
     private const val KEY_SPACE_GLASS = "space_glass_refraction"
     private const val KEY_SPACE_SHOOTING_STARS = "space_shooting_stars"
     private const val KEY_SPACE_AUDIO = "space_audio_reactive"
+    private const val KEY_SPACE_PLAYER_HOLE = "space_player_hole"
     private const val KEY_SPACE_METEOR_RATE = "space_meteor_rate"
     private const val KEY_SPACE_MOVING_STARS = "space_moving_stars"
     private const val KEY_WINTER_SNOW = "winter_snow"

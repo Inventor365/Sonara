@@ -11,6 +11,8 @@ data class SpaceEffectPrefs(
     val galaxies: Boolean? = null,
     val glass: Boolean? = null,
     val audioReactive: Boolean? = null,
+    /** The black hole behind the Player. Off by default on every tier: the Player stays minimal. */
+    val playerHole: Boolean? = null,
     /** 0 rare .. 4 meteor shower. */
     val meteorRate: Int? = null,
     /** Stars drifting across the sky, 0 (none) to [com.music.bitchord.ui.theme.MAX_MOVING_STARS]. */
@@ -96,6 +98,7 @@ object WinterEffectsPolicy {
             shootingStars = prefs.shootingStars ?: d.shootingStars,
             galaxies = prefs.galaxies ?: d.galaxies,
             audioReactive = prefs.audioReactive ?: d.audioReactive,
+            playerHole = prefs.playerHole ?: false,
             meteorRate = (prefs.meteorRate ?: d.meteorRate).coerceIn(0, com.music.bitchord.ui.theme.MeteorRates.LEVELS - 1),
             movingStars = (prefs.movingStars ?: d.movingStars).coerceIn(0, com.music.bitchord.ui.theme.MAX_MOVING_STARS),
         )

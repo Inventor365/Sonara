@@ -1809,8 +1809,18 @@ fun SettingsScreen(
                 row(galaxyTitle, "galaxy", "nebula", "drift", "space") { effectRow(galaxyTitle, inForce.galaxies) { spacePrefs.copy(galaxies = it) } }
                 val glassTitle = stringResource(R.string.space_effect_glass)
                 row(glassTitle, "glass", "refraction", "blur", "bar", "space") { effectRow(glassTitle, inForce.glass) { spacePrefs.copy(glass = it) } }
-                val audioTitle = stringResource(R.string.space_effect_audio)
-                row(audioTitle, "audio", "music", "player", "space") { effectRow(audioTitle, inForce.audioReactive) { spacePrefs.copy(audioReactive = it) } }
+                // Off by default: the Player keeps the app's own minimal backdrop.
+                val playerHoleTitle = stringResource(R.string.space_effect_player_hole)
+                row(playerHoleTitle, "player", "black hole", "background", "space") {
+                    effectRow(playerHoleTitle, inForce.playerHole, stringResource(R.string.space_effect_player_hole_subtitle)) {
+                        spacePrefs.copy(playerHole = it)
+                    }
+                }
+                // The disk that answers the music is the Player's black hole: only with it on.
+                if (inForce.playerHole) {
+                    val audioTitle = stringResource(R.string.space_effect_audio)
+                    row(audioTitle, "audio", "music", "player", "space") { effectRow(audioTitle, inForce.audioReactive) { spacePrefs.copy(audioReactive = it) } }
+                }
                 // The sky is real astrophotography: who took it, under which licence.
                 val creditsTitle = stringResource(R.string.space_credits)
                 var showCredits by remember { mutableStateOf(false) }

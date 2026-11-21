@@ -581,7 +581,7 @@ class MainActivity : AppCompatActivity() {
                     null
                 }
                 // Space's audio-reactive disk: the playback level, smoothed, while the switch is on.
-                val spaceAudio = themeTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE && themeEffects.audioReactive && themeEffects.moving
+                val spaceAudio = themeTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE && themeEffects.audioReactive && themeEffects.playerHole && themeEffects.moving
                 LaunchedEffect(spaceAudio) {
                     com.music.bitchord.playback.AudioLevel.wanted = spaceAudio
                     if (!spaceAudio) {

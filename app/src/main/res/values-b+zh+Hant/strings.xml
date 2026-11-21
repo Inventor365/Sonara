@@ -1835,4 +1835,6 @@
     <plurals name="replay_year_albums_word">
         <item quantity="other">張專輯</item>
     </plurals>
+    <string name="space_effect_player_hole">播放器背後的黑洞</string>
+    <string name="space_effect_player_hole_subtitle">關閉時，播放器與其他主題相同</string>
 </resources>

@@ -1851,4 +1851,6 @@
         <item quantity="one">Tocada %1$s vez</item>
         <item quantity="other">Tocada %1$s vezes</item>
     </plurals>
+    <string name="space_effect_player_hole">Buraco negro atrás do player</string>
+    <string name="space_effect_player_hole_subtitle">Desativado, o player fica como em qualquer tema</string>
 </resources>

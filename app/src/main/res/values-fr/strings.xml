@@ -1847,4 +1847,6 @@
         <item quantity="one">Écouté %1$s fois</item>
         <item quantity="other">Écouté %1$s fois</item>
     </plurals>
+    <string name="space_effect_player_hole">Trou noir derrière le lecteur</string>
+    <string name="space_effect_player_hole_subtitle">Désactivé, le lecteur reste celui de tous les thèmes</string>
 </resources>

@@ -1759,4 +1759,6 @@
     <plurals name="replay_year_played_times">
         <item quantity="other">Đã phát %1$s lần</item>
     </plurals>
+    <string name="space_effect_player_hole">Hố đen sau trình phát</string>
+    <string name="space_effect_player_hole_subtitle">Khi tắt, trình phát giống như ở mọi chủ đề</string>
 </resources>

@@ -481,8 +481,9 @@ internal fun ArtworkMeshBackdrop(
     // Space: the album art floats in front of a black hole of its own — the art covers the shadow,
     // the lensed band arcs over it and the ring sits under it; the album's colour faintly in the
     // disk. Its own layer: the page's hole is a different view, and both draw while the sheet moves.
-    val space = themeTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE
     val spaceEffects = com.music.bitchord.ui.theme.LocalThemeEffects.current
+    // Only with "Black hole behind the player" on; otherwise Space's Player is the app's usual one.
+    val space = themeTokens.id == com.music.bitchord.ui.theme.ThemeId.SPACE && spaceEffects.playerHole
     val spaceClock = com.music.bitchord.ui.theme.LocalWinterTime.current
     val holeShader = remember { com.music.bitchord.ui.theme.BlackHoleShader() }
     val holeLayer = if (space) androidx.compose.ui.graphics.rememberGraphicsLayer() else null

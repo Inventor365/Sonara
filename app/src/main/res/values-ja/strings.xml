@@ -1818,4 +1818,6 @@
     <plurals name="replay_year_played_times">
         <item quantity="other">%1$s回再生</item>
     </plurals>
+    <string name="space_effect_player_hole">プレーヤーの背景にブラックホール</string>
+    <string name="space_effect_player_hole_subtitle">オフのときは、ほかのテーマと同じプレーヤーです</string>
 </resources>

@@ -1817,4 +1817,6 @@
     <plurals name="replay_year_played_times">
         <item quantity="other">播放 %1$s 次</item>
     </plurals>
+    <string name="space_effect_player_hole">播放器背后的黑洞</string>
+    <string name="space_effect_player_hole_subtitle">关闭时，播放器与其他主题相同</string>
 </resources>

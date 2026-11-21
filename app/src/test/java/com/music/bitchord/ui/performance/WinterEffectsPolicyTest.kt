@@ -156,8 +156,8 @@ class WinterEffectsPolicyTest {
             DeviceTier.HIGH,
         )
         assertFalse("nothing moving switched on: the clock stays off", WinterEffectsPolicy.resolve(off, EffectsMoment()).anyAnimated)
-        // The audio-reactive disk alone keeps it running: the Player's disk pulses with the disk held still.
-        assertTrue(WinterEffectsPolicy.resolve(off.copy(audioReactive = true), EffectsMoment()).anyAnimated)
+        // The audio-reactive disk alone keeps it running when the Player has its black hole.
+        assertTrue(WinterEffectsPolicy.resolve(off.copy(audioReactive = true, playerHole = true), EffectsMoment()).anyAnimated)
     }
 
     @Test
@@ -183,5 +183,20 @@ class WinterEffectsPolicyTest {
         val gaps = (0 until com.music.bitchord.ui.theme.MeteorRates.LEVELS).map { com.music.bitchord.ui.theme.MeteorRates.longestGap(it) }
         assertEquals(gaps.sortedDescending(), gaps)
         assertTrue(com.music.bitchord.ui.theme.MeteorRates.longestGap(2) in 20f..26f)
+    }
+
+    @Test
+    fun theBlackHoleBehindThePlayerIsOffUnlessTurnedOn_andTheAudioDiskNeedsIt() {
+        for (tier in DeviceTier.entries) {
+            assertFalse("$tier", WinterEffectsPolicy.chosenSpace(SpaceEffectPrefs(), tier).playerHole)
+        }
+        assertTrue(WinterEffectsPolicy.chosenSpace(SpaceEffectPrefs(playerHole = true), DeviceTier.LOW).playerHole)
+        // The audio-reactive disk alone keeps no clock running while the Player has no black hole.
+        val audioOnly = WinterEffectsPolicy.chosenSpace(
+            SpaceEffectPrefs(blackHole = false, infall = false, shootingStars = false, twinkle = false, galaxies = false, movingStars = 0, audioReactive = true),
+            DeviceTier.HIGH,
+        )
+        assertFalse(WinterEffectsPolicy.resolve(audioOnly, EffectsMoment()).anyAnimated)
+        assertTrue(WinterEffectsPolicy.resolve(audioOnly.copy(playerHole = true), EffectsMoment()).anyAnimated)
     }
 }

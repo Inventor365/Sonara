@@ -1846,4 +1846,6 @@
         <item quantity="one">%1$s-mal gespielt</item>
         <item quantity="other">%1$s-mal gespielt</item>
     </plurals>
+    <string name="space_effect_player_hole">Schwarzes Loch hinter dem Player</string>
+    <string name="space_effect_player_hole_subtitle">Aus: Der Player sieht aus wie in jedem anderen Design</string>
 </resources>

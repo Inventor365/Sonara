@@ -1851,4 +1851,6 @@
         <item quantity="one">הושמע %1$s פעם</item>
         <item quantity="other">הושמע %1$s פעמים</item>
     </plurals>
+    <string name="space_effect_player_hole">חור שחור מאחורי הנגן</string>
+    <string name="space_effect_player_hole_subtitle">כבוי – הנגן נראה כמו בכל ערכת נושא</string>
 </resources>

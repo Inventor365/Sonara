@@ -52,6 +52,8 @@ data class ThemeEffects(
     val galaxies: Boolean = false,
     /** The Player's disk answers the music. */
     val audioReactive: Boolean = false,
+    /** The Player sits in front of its own black hole; off, the Player is the app's usual one. */
+    val playerHole: Boolean = false,
     /** How often a shooting star crosses: 0 rare .. 4 a meteor shower (see [MeteorRates]). */
     val meteorRate: Int = 2,
     /** How many stars drift slowly across the sky, all the time; 0 is none. */
@@ -59,7 +61,7 @@ data class ThemeEffects(
 ) {
     /** Something is on screen that moves: the clock has to tick. */
     val anyAnimated: Boolean
-        get() = moving && (aurora || snow || stars || blackHole || infall || shootingStars || galaxies || audioReactive || movingStars > 0)
+        get() = moving && (aurora || snow || stars || blackHole || infall || shootingStars || galaxies || (audioReactive && playerHole) || movingStars > 0)
 
     companion object {
         val None = ThemeEffects()

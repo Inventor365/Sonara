@@ -1890,4 +1890,6 @@
         <item quantity="many">Прослушано %1$s раз</item>
         <item quantity="other">Прослушано %1$s раза</item>
     </plurals>
+    <string name="space_effect_player_hole">Чёрная дыра за плеером</string>
+    <string name="space_effect_player_hole_subtitle">Выключено — плеер такой же, как в других темах</string>
 </resources>

@@ -1589,7 +1589,8 @@ fun NowPlayingScreen(
     // A music video sits in the card's place at its own 16:9, never full bleed.
     // Space floats the cover in front of its black hole, framed by the lensed ring: a card, never
     // edge to edge, whatever the preference says.
-    val spaceTheme = com.music.bitchord.ui.theme.LocalThemeTokens.current.id == com.music.bitchord.ui.theme.ThemeId.SPACE
+    val spaceTheme = com.music.bitchord.ui.theme.LocalThemeTokens.current.id == com.music.bitchord.ui.theme.ThemeId.SPACE &&
+        com.music.bitchord.ui.theme.LocalThemeEffects.current.playerHole
     val heroMode = !videoMode && (
         spotifyCanvasOnPhone ||
             (fullBleedArt && !spaceTheme && playerFillsWindow(windowWidth))
@@ -3799,7 +3800,8 @@ fun NowPlayingScreen(
                             // card or it is nothing, and blown out to the banner it
                             // would only tint the top third of the screen. Under the
                             // cover, which hides it the moment there is one.
-                            val spaceCard = com.music.bitchord.ui.theme.LocalThemeTokens.current.id == com.music.bitchord.ui.theme.ThemeId.SPACE
+                            val spaceCard = com.music.bitchord.ui.theme.LocalThemeTokens.current.id == com.music.bitchord.ui.theme.ThemeId.SPACE &&
+                                com.music.bitchord.ui.theme.LocalThemeEffects.current.playerHole
                             Box(
                                 modifier = Modifier
                                     // As wide as the sleeve, for the same reason the

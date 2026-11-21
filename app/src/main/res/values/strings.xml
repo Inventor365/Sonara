@@ -1730,4 +1730,6 @@
     <string name="replay_year_summary_minutes">Minutes listened</string>
     <string name="replay_year_mute">Mute the story</string>
     <string name="replay_year_unmute">Unmute the story</string>
+    <string name="space_effect_player_hole">Black hole behind the player</string>
+    <string name="space_effect_player_hole_subtitle">Off, the player looks as it does in every theme</string>
 </resources>

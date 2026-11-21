@@ -1785,4 +1785,6 @@
         <item quantity="one">Ascoltato %1$s volta</item>
         <item quantity="other">Ascoltato %1$s volte</item>
     </plurals>
+    <string name="space_effect_player_hole">Buco nero dietro il player</string>
+    <string name="space_effect_player_hole_subtitle">Disattivato, il player è quello di ogni tema</string>
 </resources>

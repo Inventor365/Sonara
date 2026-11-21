@@ -1846,4 +1846,6 @@
         <item quantity="one">%1$s बार बजाया</item>
         <item quantity="other">%1$s बार बजाया</item>
     </plurals>
+    <string name="space_effect_player_hole">प्लेयर के पीछे ब्लैक होल</string>
+    <string name="space_effect_player_hole_subtitle">बंद होने पर प्लेयर हर थीम जैसा ही दिखता है</string>
 </resources>

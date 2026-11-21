@@ -1829,4 +1829,6 @@
         <item quantity="one">%1$s kez çalındı</item>
         <item quantity="other">%1$s kez çalındı</item>
     </plurals>
+    <string name="space_effect_player_hole">Oynatıcının arkasında kara delik</string>
+    <string name="space_effect_player_hole_subtitle">Kapalıyken oynatıcı her temadaki gibi görünür</string>
 </resources>

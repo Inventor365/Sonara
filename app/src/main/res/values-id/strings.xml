@@ -1817,4 +1817,6 @@
     <plurals name="replay_year_played_times">
         <item quantity="other">Diputar %1$s kali</item>
     </plurals>
+    <string name="space_effect_player_hole">Lubang hitam di belakang pemutar</string>
+    <string name="space_effect_player_hole_subtitle">Jika mati, pemutar tampil seperti di tema lain</string>
 </resources>

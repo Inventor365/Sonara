@@ -1818,4 +1818,6 @@
         <item quantity="one">Reproducida %1$s vez</item>
         <item quantity="other">Reproducida %1$s veces</item>
     </plurals>
+    <string name="space_effect_player_hole">Agujero negro tras el reproductor</string>
+    <string name="space_effect_player_hole_subtitle">Desactivado, el reproductor se ve como en cualquier tema</string>
 </resources>
