@@ -153,6 +153,15 @@ fun YtMusicLoginScreen(
 
                 webViewClient = object : WebViewClient() {
                     override fun onPageFinished(view: WebView?, url: String?) {
+                        // The account picked from the phone, already filled in: press Google's Next
+                        // for the listener, on the address and on a password that was filled in
+                        // rather than typed. See AUTO_CONTINUE.
+                        if (mode == WebSessionMode.SIGN_IN && view != null &&
+                            url?.startsWith("https://accounts.google.com/") == true &&
+                            startUrl?.contains("login_hint=") == true
+                        ) {
+                            view.evaluateJavascript(AUTO_CONTINUE, null)
+                        }
                         // Reaching the Music origin only enables confirmation.
                         // A multi-channel login can still be waiting for the
                         // listener to choose an identity on this very page.
@@ -240,6 +249,53 @@ private fun captureFrom(
         )
     }
 }
+
+/**
+ * Presses Next on Google's sign-in for the account the listener already picked on the phone, so
+ * the only steps left are Google's own checks ("Verify it's you" on another device, which no app
+ * can skip).
+ *
+ * - The address page: once the field holds an address (the one pre-filled from the phone).
+ * - The password page: only when the password was filled in for them, by the phone's password
+ *   manager, and never after a key was pressed in the field. A password being typed is left alone.
+ *
+ * Each step is pressed once per tab (sessionStorage), so an error page that sends the listener
+ * back to a step never loops. Google's sign-in moves between steps without loading a new page,
+ * so this watches for three minutes rather than acting once.
+ */
+private const val AUTO_CONTINUE = """
+(function () {
+  if (window.__sonaraAuto) return;
+  window.__sonaraAuto = true;
+  var store = window.sessionStorage, typed = false, pwSeen = 0, started = Date.now();
+  document.addEventListener('keydown', function (e) {
+    if (e.target && e.target.type === 'password') typed = true;
+  }, true);
+  function shown(el) { return !!el && el.offsetParent !== null && !el.disabled; }
+  function press(step) {
+    var b = document.querySelector('#' + step + ' button') || document.querySelector('#' + step);
+    if (!shown(b)) return false;
+    try { store.setItem('sonara_' + step, '1'); } catch (e) {}
+    b.click();
+    return true;
+  }
+  function done(step) { try { return store.getItem('sonara_' + step) === '1'; } catch (e) { return false; } }
+  var timer = setInterval(function () {
+    if (Date.now() - started > 180000) { clearInterval(timer); return; }
+    var email = document.querySelector('input#identifierId, input[type=email][name=identifier]');
+    if (!done('identifierNext') && shown(email) && /.+@.+/.test(email.value || '')) {
+      press('identifierNext');
+      return;
+    }
+    var pw = document.querySelector('input[type=password][name=Passwd]');
+    if (!done('passwordNext') && !typed && shown(pw) && (pw.value || '').length > 0) {
+      // Give the fill a moment to finish before going on.
+      if (!pwSeen) { pwSeen = Date.now(); return; }
+      if (Date.now() - pwSeen > 700) press('passwordNext');
+    }
+  }, 400);
+})()
+"""
 
 /**
  * How many channels the signed-in page's account can act as: its own plus any brand channels,
