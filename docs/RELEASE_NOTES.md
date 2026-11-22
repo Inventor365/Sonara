@@ -1,4 +1,36 @@
-# Sonara `v2.1.5` (`versionCode = 54`)
+# Sonara `v2.1.6` (`versionCode = 55`)
+
+**Rename your Sonara Pass, start over from Settings, see every theme at once, and a quicker Google sign-in.**
+
+![Sonara 2.1.6: every theme in view, renaming the Pass, and Reset Sonara](https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.6/strip.jpg)
+
+## What's new in 2.1.6
+
+- **Rename your Pass.** A pencil on the Sonara Pass in Library changes the name on it, and the Library title follows at once. It's the same name friends see in Listen Together. A name restored from your phone's backup after a reinstall can now be changed in two taps.
+- **Reset Sonara.** *Settings → Miscellaneous → Reset Sonara* has two choices:
+  - *Show the welcome screen again*: your library, stats, settings and sign-ins stay.
+  - *Erase everything and start fresh*: clears everything Sonara keeps on the phone (settings, listening stats, downloads and sign-ins), then reopens the app on the welcome screen, as on a new install.
+- **Every theme in view.** *Settings → Appearance → Theme* is now a grid that fits the screen: three across a phone, all five in a row on a tablet. Space is no longer hidden past the edge.
+- **A quicker Google sign-in.**
+  - **No "Use this profile" tap.** After Google, an account with a single YouTube channel is signed in straight away. An account with brand channels still picks one.
+  - **Next is pressed for you.** With the account you picked from your phone, Sonara presses Google's *Next* on the pre-filled email. It does the same on a password your password manager filled in, but never on one you are typing.
+  - **Google's own check stays.** You'll still see "Verify it's you" on another of your devices; Google asks for it when a sign-in comes from a browser it hasn't seen, and no app outside Google can skip it.
+- **Under the hood:** the sign-in screen and the update sheet are their own components, keeping the app's main screen under Android's method size limit.
+
+<table>
+  <tr>
+    <td width="25%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.6/themes.jpg" alt="Every theme in view in Settings, Appearance" width="100%" /><br/><sub>Every theme in view</sub></td>
+    <td width="25%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.6/pass-rename.jpg" alt="Renaming the Sonara Pass" width="100%" /><br/><sub>Rename your Pass</sub></td>
+    <td width="25%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.6/pass-renamed.jpg" alt="The renamed Pass and Library title" width="100%" /><br/><sub>The name follows at once</sub></td>
+    <td width="25%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.6/reset.jpg" alt="Reset Sonara with its two choices" width="100%" /><br/><sub>Reset Sonara</sub></td>
+  </tr>
+</table>
+
+Installs over 2.1.5 and every earlier Sonara or BitChord PlusPC build in place: same app, same signature, same data.
+
+---
+
+## Sonara `v2.1.5` (`versionCode = 54`)
 
 **Everything new in BitChord, merged in: AutoMix artwork transitions, a new queue, a Radio tab and much more. Plus 17 community fixes and features, a plain player again in Space, and your listening back after a reinstall.**
 
