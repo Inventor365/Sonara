@@ -54,12 +54,25 @@
     <td width="20%" align="center"><img src="docs/screenshots/app/explore-space.jpg" alt="Explore in the Space theme, under a nebula field" width="100%" /><br/><sub><b>Explore</b><br/>featured card, moods and genres</sub></td>
     <td width="20%" align="center"><img src="docs/screenshots/app/library-space.jpg" alt="Library in the Space theme: a spiral galaxy rising over a planet, the Sonara Pass and listening time" width="100%" /><br/><sub><b>Library</b><br/>your Sonara Pass and listening time</sub></td>
     <td width="20%" align="center"><img src="docs/screenshots/app/search-space.jpg" alt="Search in the Space theme over the Hubble Ultra Deep Field" width="100%" /><br/><sub><b>Search</b><br/>recent searches and categories</sub></td>
-    <td width="20%" align="center"><img src="docs/screenshots/app/player-space.jpg" alt="Now Playing in the Space theme: the cover floating in front of a black hole" width="100%" /><br/><sub><b>Now Playing</b><br/>the cover in front of its own black hole</sub></td>
+    <td width="20%" align="center"><img src="docs/screenshots/app/player-space.jpg" alt="Now Playing in the Space theme: the cover floating in front of a black hole" width="100%" /><br/><sub><b>Now Playing</b><br/>with the optional black hole behind the cover</sub></td>
     <td width="20%" align="center"><img src="docs/screenshots/app/settings-space.jpg" alt="Space effects settings: switches and sliders for every effect" width="100%" /><br/><sub><b>Space effects</b><br/>every effect a live switch</sub></td>
   </tr>
 </table>
 
 <br/>
+
+<table>
+  <tr>
+    <td width="25%" align="center"><img src="docs/screenshots/2.1.5/queue.jpg" alt="The new queue: Save as playlist, Select, AutoPlay and drag handles" width="100%" /><br/><sub><b>The new queue</b><br/>swipe, select, save, undo</sub></td>
+    <td width="25%" align="center"><img src="docs/screenshots/2.1.5/library-links.jpg" alt="Library with Downloads, Liked songs, Local Music, Listen together and Import Spotify" width="100%" /><br/><sub><b>Library</b><br/>Liked songs and Import Spotify, one tap away</sub></td>
+    <td width="25%" align="center"><img src="docs/screenshots/2.1.5/player-plain.jpg" alt="Now Playing under Space with the cover edge to edge and no black hole" width="100%" /><br/><sub><b>Now Playing</b><br/>the clean player, in every theme</sub></td>
+    <td width="25%" align="center"><img src="docs/screenshots/2.1.5/settings-player-hole.jpg" alt="The Black hole behind the player switch in Space effects" width="100%" /><br/><sub><b>Your call</b><br/>the black hole behind the player is a switch</sub></td>
+  </tr>
+</table>
+
+<sub><b>New in 2.1.5.</b> Everything new in BitChord merged in, 17 community features and fixes, and your listening back after a reinstall. <a href="docs/RELEASE_NOTES.md">Full release notes</a>.</sub>
+
+<br/><br/>
 
 <table>
   <tr>
@@ -132,14 +145,14 @@ What that means in practice:
 
 ## 3. Supported Platforms
 
-| Platform | Architectures | Artifacts on [GitHub Releases (`v2.0.0`)](https://github.com/Inventor365/Sonara/releases/latest) |
+| Platform | Architectures | Artifacts on [GitHub Releases (latest: `v2.1.5`)](https://github.com/Inventor365/Sonara/releases/latest) |
 | :--- | :--- | :--- |
-| **Android Phone, Tablet & Auto** | Universal, `arm64-v8a`, `armeabi-v7a`, `x86_64` | `Sonara-v2.0.0.apk`, `Sonara-v2.0.0_<abi>.apk` |
-| **Android TV / Fire TV** | Universal, `arm64-v8a`, `armeabi-v7a`, `x86_64` | `SonaraTV-v2.0.0.apk`, `SonaraTV-v2.0.0_<abi>.apk` |
-| **Wear OS 3+** | Universal (`arm64-v8a`, `armeabi-v7a`) | `SonaraWear-v2.0.0.apk` *(also embedded inside the Phone APK)* |
-| **macOS 12+** | Apple Silicon (`arm64`) & Intel (`x64`) | `Sonara-2.0.0-macos-{arm64,x64}.{dmg,pkg,zip}` |
-| **Windows 10 / 11** | `x64` | `Sonara-2.0.0-windows-x64-setup.exe`, `.msi`, `-portable.zip` |
-| **Linux** | `x86_64` / `amd64` | `Sonara-2.0.0-linux-x86_64.AppImage`, `-linux-amd64.deb`, `-linux-x86_64.rpm` |
+| **Android Phone, Tablet & Auto** | Universal, `arm64-v8a`, `armeabi-v7a`, `x86_64` | `Sonara-v2.1.5.apk`, `Sonara-v2.1.5_<abi>.apk` |
+| **Android TV / Fire TV** | Universal, `arm64-v8a`, `armeabi-v7a`, `x86_64` | `SonaraTV-v2.1.5.apk`, `SonaraTV-v2.1.5_<abi>.apk` |
+| **Wear OS 3+** | Universal (`arm64-v8a`, `armeabi-v7a`) | `SonaraWear-v2.1.5.apk` *(also embedded inside the Phone APK)* |
+| **macOS 12+** | Apple Silicon (`arm64`) & Intel (`x64`) | `Sonara-2.1.5-macos-{arm64,x64}.{dmg,pkg,zip}` |
+| **Windows 10 / 11** | `x64` | `Sonara-2.1.5-windows-x64-setup.exe`, `.msi`, `-portable.zip` |
+| **Linux** | `x86_64` / `amd64` | `Sonara-2.1.5-linux-x86_64.AppImage`, `-linux-amd64.deb`, `-linux-x86_64.rpm` |
 | **Web & Extension** | Chrome / Chromium (MV3) & Firefox | `web/app/` SPA + `web/extension/` companion extension |
 | **Backend Server** | Go 1.27+ (`linux/amd64`, `linux/arm64`, Docker) | `backend/` (Listen Together + Presence + Collaborative Playlists) |
 
@@ -148,33 +161,33 @@ What that means in practice:
 ## 4. Installation Instructions
 
 ### Android (Phone, Android Auto, Android TV & Wear OS)
-1. Download `Sonara-v2.0.0.apk` (universal) or the matching ABI split (`arm64-v8a` for modern phones) from [Releases](https://github.com/Inventor365/Sonara/releases/latest).
+1. Download `Sonara-v2.1.5.apk` (universal) or the matching ABI split (`arm64-v8a` for modern phones) from [Releases](https://github.com/Inventor365/Sonara/releases/latest).
 2. Open the APK and allow installation from your browser/file manager if prompted.
-3. **Android TV**: Install `SonaraTV-v2.0.0.apk` via Downloader, LocalSend, or `adb install -r SonaraTV-v2.0.0.apk`.
-4. **Wear OS**: Open **Settings → Wear OS** in the Sonara phone app to push the bundled watch app over Wi-Fi debugging, or run `adb -s <watch-ip>:<port> install -r SonaraWear-v2.0.0.apk`.
+3. **Android TV**: Install `SonaraTV-v2.1.5.apk` via Downloader, LocalSend, or `adb install -r SonaraTV-v2.1.5.apk`.
+4. **Wear OS**: Open **Settings → Wear OS** in the Sonara phone app to push the bundled watch app over Wi-Fi debugging, or run `adb -s <watch-ip>:<port> install -r SonaraWear-v2.1.5.apk`.
 
 ### macOS (`.dmg`, `.pkg`, and `.zip`)
 1. Pick **`arm64`** for Apple Silicon (`M1`/`M2`/`M3`/`M4`) or **`x64`** for Intel Macs:
-   - **`.dmg` (Recommended)**: Open `Sonara-2.0.0-macos-<arch>.dmg` and drag **Sonara** to **Applications**.
-   - **`.pkg` (Installer)**: Open `Sonara-2.0.0-macos-<arch>.pkg` and follow the macOS Installer wizard to install `/Applications/Sonara.app`.
-   - **`.zip` (Portable)**: Extract `Sonara-2.0.0-macos-<arch>.zip` and move `Sonara.app` to `/Applications`.
+   - **`.dmg` (Recommended)**: Open `Sonara-2.1.5-macos-<arch>.dmg` and drag **Sonara** to **Applications**.
+   - **`.pkg` (Installer)**: Open `Sonara-2.1.5-macos-<arch>.pkg` and follow the macOS Installer wizard to install `/Applications/Sonara.app`.
+   - **`.zip` (Portable)**: Extract `Sonara-2.1.5-macos-<arch>.zip` and move `Sonara.app` to `/Applications`.
 2. **First Launch (Unsigned Build Note)**: Community builds are ad-hoc Mach-O signed (`LC_CODE_SIGNATURE`) and not Apple-notarized. If macOS Gatekeeper blocks the first launch, right-click `Sonara.app` → **Open**, or run:
    ```bash
    xattr -cr /Applications/Sonara.app
    ```
 
 ### Windows
-- **Installer (`.exe` / `.msi`)**: Run `Sonara-2.0.0-windows-x64-setup.exe` or `Sonara-2.0.0-windows-x64.msi`.
-- **Portable (`.zip`)**: Extract `Sonara-2.0.0-windows-x64-portable.zip` anywhere and launch `Sonara\Sonara.exe`.
+- **Installer (`.exe` / `.msi`)**: Run `Sonara-2.1.5-windows-x64-setup.exe` or `Sonara-2.1.5-windows-x64.msi`.
+- **Portable (`.zip`)**: Extract `Sonara-2.1.5-windows-x64-portable.zip` anywhere and launch `Sonara\Sonara.exe`.
 
 ### Linux
 - **AppImage (Universal)**:
   ```bash
-  chmod +x Sonara-2.0.0-linux-x86_64.AppImage
-  ./Sonara-2.0.0-linux-x86_64.AppImage
+  chmod +x Sonara-2.1.5-linux-x86_64.AppImage
+  ./Sonara-2.1.5-linux-x86_64.AppImage
   ```
-- **Debian / Ubuntu (`.deb`)**: `sudo apt install ./Sonara-2.0.0-linux-amd64.deb`
-- **Fedora / RHEL / openSUSE (`.rpm`)**: `sudo dnf install ./Sonara-2.0.0-linux-x86_64.rpm`
+- **Debian / Ubuntu (`.deb`)**: `sudo apt install ./Sonara-2.1.5-linux-amd64.deb`
+- **Fedora / RHEL / openSUSE (`.rpm`)**: `sudo dnf install ./Sonara-2.1.5-linux-x86_64.rpm`
 
 ### Web App & Companion Browser Extension
 ```bash
@@ -197,10 +210,14 @@ corepack pnpm --filter @bitchord/app dev           # Launch Web player at http:/
 ## 6. Feature Highlights
 
 - **Lossless & Bit-Perfect Playback**: YouTube Music (`256 kbps` authenticated Premium AAC/Opus + NewPipe fallback), FLAC/ALAC/Dolby Atmos module sources, USB DAC exclusive mode on Android, and native desktop audio pipelines.
-- **Automix & Loop Mix**: Beat-grid, phrase, vocal, and harmonic key transitions powered by Beat This! (`final0`) ONNX + Signalsmith stretch.
+- **Automix & Loop Mix**: Beat-grid, phrase, vocal, and harmonic key transitions powered by Beat This! (`final0`) ONNX + Signalsmith stretch. The artwork mixes too: covers and Spotify Canvas clips dissolve into the next song in the full and mini players, and the seek bar glows through the mix.
+- **A Queue You Can Work With**: Swipe a song away or to play next, *Select* for bulk actions, *Save as playlist*, and *Undo* after any removal. It opens at what's coming up.
 - **Word-Synced Lyrics**: 12 providers, syllable glow sweep, duet alignment, live translation, 18-script romanization, and local MP3 (`USLT`) / FLAC / M4A / WebM embedded tag support.
 - **Animated Album Canvas**: Apple Music editorial motion artwork and Spotify Canvas with smooth swipe crossfades.
-- **Themes**: Sonara, Vice (synthwave dusk), Doom (forged steel), Winter (a live aurora at night, glaciers by day) and Space, a black hole ray traced through curved spacetime, with its lensed disk turning, matter falling in, and real ESO, Hubble and Webb skies. Each theme brings its own type, colours, glass and app icon, and every effect has a switch.
+- **Themes**: Sonara, Vice (synthwave dusk), Doom (forged steel), Winter (a live aurora at night, glaciers by day) and Space, a black hole ray traced through curved spacetime, with its lensed disk turning, matter falling in, and real ESO, Hubble and Webb skies. Each theme brings its own type, colours, glass and app icon, and every effect has a switch, including the black hole behind the player (off by default, so the player stays clean).
+- **Radio**: Its own tab, next to Explore.
+- **Your Listening Survives a Reinstall**: Listening time, plays, top artists, Replay, settings and the last song come back from the phone's own Google backup after you uninstall and reinstall.
+- **Make It Yours**: Keep the screen on while the player is open, hide the status bar everywhere, plain album and playlist pages instead of artwork-tinted ones, total duration instead of time remaining, and a switch for USB DACs that turn their volume down on connect.
 - **Scrobbling & Presence**: Last.fm, ListenBrainz, and Discord Rich Presence across Android, Desktop, and Web.
 
 ---

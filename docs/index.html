@@ -151,6 +151,17 @@ details[open] summary::after{content:"–"}
 .tour figure{margin:0}
 .tour img{display:block;width:100%;height:auto;aspect-ratio:540/1200;object-fit:cover;border-radius:18px;border:1px solid var(--line);background:#111}
 .tour figcaption{font-size:12.5px;color:var(--mute);margin-top:6px;text-align:center}
+
+/* new in this release */
+#new{margin:0 0 40px}
+.feats{display:grid;gap:12px;grid-template-columns:1fr;margin:0 0 16px}
+@media (min-width:640px){.feats{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:900px){.feats{grid-template-columns:repeat(3,1fr)}}
+.feat{padding:16px 16px 14px;border-radius:var(--r);border:1px solid var(--line);background:var(--panel)}
+.feat b{display:block;font-size:15.5px;letter-spacing:-.01em;margin-bottom:4px}
+.feat p{margin:0;font-size:14px;line-height:1.45;color:var(--mute)}
+#new .more{margin:14px 0 0;font-size:14px;color:var(--mute)}
+#new .more a{color:var(--text)}
 </style>
 </head>
 <body>
@@ -196,12 +207,32 @@ details[open] summary::after{content:"–"}
       <figure><img src="screenshots/app/explore-space.jpg" alt="Explore · Space" loading="lazy" width="540" height="1200"><figcaption>Explore · Space</figcaption></figure>
       <figure><img src="screenshots/app/library-space.jpg" alt="Library · Space" loading="lazy" width="540" height="1200"><figcaption>Library · Space</figcaption></figure>
       <figure><img src="screenshots/app/search-space.jpg" alt="Search · Space" loading="lazy" width="540" height="1200"><figcaption>Search · Space</figcaption></figure>
-      <figure><img src="screenshots/app/player-space.jpg" alt="Now Playing · Space" loading="lazy" width="540" height="1200"><figcaption>Now Playing · Space</figcaption></figure>
+      <figure><img src="screenshots/app/player-space.jpg" alt="Now Playing in Space with the optional black hole" loading="lazy" width="540" height="1200"><figcaption>Black hole behind the player (optional)</figcaption></figure>
       <figure><img src="screenshots/app/explore-winter.jpg" alt="Explore · Winter" loading="lazy" width="540" height="1200"><figcaption>Explore · Winter</figcaption></figure>
       <figure><img src="screenshots/app/library-winter.jpg" alt="Library · Winter" loading="lazy" width="540" height="1200"><figcaption>Library · Winter</figcaption></figure>
       <figure><img src="screenshots/app/player-winter.jpg" alt="Now Playing · Winter" loading="lazy" width="540" height="1200"><figcaption>Now Playing · Winter</figcaption></figure>
       <figure><img src="screenshots/app/settings-space.jpg" alt="Every effect is a switch" loading="lazy" width="540" height="1200"><figcaption>Every effect is a switch</figcaption></figure>
     </div>
+  </section>
+
+  <section id="new" aria-labelledby="nh">
+    <h2 id="nh">New in 2.1.5</h2>
+    <p class="h2sub">Everything new in BitChord, merged in, plus 17 community features and fixes.</p>
+    <div class="feats">
+      <div class="feat"><b>Artwork that mixes</b><p>With AutoMix, covers and Spotify Canvas clips dissolve into the next song, in the player and the mini players, and the seek bar glows through the mix.</p></div>
+      <div class="feat"><b>A new queue</b><p>Swipe a song away or to play next. Select for bulk actions, save the queue as a playlist, and undo any removal.</p></div>
+      <div class="feat"><b>Radio</b><p>Its own tab, right next to Explore.</p></div>
+      <div class="feat"><b>Survives a reinstall</b><p>Listening time, plays, top artists, Replay, settings and your last song come back from the phone's Google backup.</p></div>
+      <div class="feat"><b>Library shortcuts</b><p>Liked songs and Import Spotify sit beside Downloads and Local Music.</p></div>
+      <div class="feat"><b>Make it yours</b><p>Keep the screen on in the player, hide the status bar everywhere, plain album pages, and a choice of total or remaining time.</p></div>
+    </div>
+    <div class="tour">
+      <figure><img src="screenshots/2.1.5/queue.jpg" alt="The new queue" loading="lazy" width="540" height="1200"><figcaption>The new queue</figcaption></figure>
+      <figure><img src="screenshots/2.1.5/library-links.jpg" alt="Library shortcuts" loading="lazy" width="540" height="1200"><figcaption>Library shortcuts</figcaption></figure>
+      <figure><img src="screenshots/2.1.5/player-plain.jpg" alt="The clean player under Space" loading="lazy" width="540" height="1200"><figcaption>The clean player, in any theme</figcaption></figure>
+      <figure><img src="screenshots/2.1.5/settings-player-hole.jpg" alt="The black hole behind the player is a switch" loading="lazy" width="540" height="1200"><figcaption>The black hole is a switch</figcaption></figure>
+    </div>
+    <p class="more">Also: YouTube Music's timed lyrics, animated lyric videos to share, a sleep timer that fades out, a Quick Settings tile, and a smaller APK. <a class="u" href="https://github.com/Inventor365/Sonara/releases/tag/v2.1.5" rel="noopener">Full release notes</a>.</p>
   </section>
 
   <section id="platforms" aria-labelledby="ph">
