@@ -8,6 +8,24 @@ All notable changes to **Sonara** (`https://github.com/Inventor365/Sonara`), for
 
 ---
 
+## [2.1.6] — 2026-11-22 (`versionCode = 55`) — Pass rename, Reset Sonara, quicker sign-in
+
+### Added
+- **Rename the Sonara Pass**: a pencil on the Pass (`SonaraPassCard(onRename)`) opens `PassRenameAlert`, which sets the Listen Together nickname. `ListenTogether.nicknameState` makes the Pass and the Library title follow at once. The field opens focused (`FocusedTextValueAlert`).
+- **Reset Sonara** (Settings → Miscellaneous):
+  - *Show the welcome screen again* (`AppSettings.resetOnboarding`).
+  - *Erase everything and start fresh* (`AppReset`). The app hands over to `ResetActivity` in its own `:reset` process, which waits for the main process to end, deletes the app's data directory (all but `lib`) and its external files, and relaunches. A separate process because a running app's SharedPreferences write their in-memory map back after a delete, and `clearApplicationUserData()` doesn't reopen the app. `BitChordApplication` skips its start-up in that process.
+
+### Changed
+- **Theme picker** (`ThemePickerRow`): a grid that fits the width (cards at least 92 dp, three across a phone, short last row centred) instead of a horizontally scrolling row that hid Space off-screen.
+- **Google sign-in** (`YtMusicLoginScreen`):
+  - In sign-in mode the page asks YouTube's `account/accounts_list` itself, signed with SAPISIDHASH. A single-channel account is captured without "Use this profile"; brand-channel accounts still choose.
+  - For an account picked from the phone (`login_hint`), `AUTO_CONTINUE` presses Google's Next on the pre-filled address, and on a password that was filled in with no key pressed in the field. Each step is pressed once per tab (sessionStorage).
+  - Google's "Verify it's you" for an unrecognised browser remains.
+- `YtMusicSignInOverlay` and `UpdateNoticeHost` moved out of `BitChordApp`, which had reached the JVM's 64 KB method limit (incremental builds failed with `MethodTooLargeException`).
+
+---
+
 ## [2.1.5] — 2026-11-22 (`versionCode = 54`) — BitChord merge, community PRs, stats after a reinstall
 
 ### Added
