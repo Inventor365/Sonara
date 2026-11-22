@@ -404,6 +404,7 @@ fun SettingsScreen(
     var importStatus by remember { mutableStateOf<String?>(null) }
     var confirmImport by remember { mutableStateOf(false) }
     var confirmClearSongCache by remember { mutableStateOf(false) }
+    var confirmResetApp by remember { mutableStateOf(false) }
     var confirmDeleteAutomixModel by remember { mutableStateOf(false) }
     var showPerformanceWarning by remember { mutableStateOf(false) }
     var showPerformanceConfirmation by remember { mutableStateOf(false) }
@@ -2562,6 +2563,16 @@ fun SettingsScreen(
                     }
                 }
             }
+            // A way back to a fresh start: the welcome screen alone, or everything on this phone.
+            val resetTitle = stringResource(R.string.reset_app)
+            row(resetTitle, "reset", "welcome", "onboarding", "start over", "erase", "clear data") {
+                SettingsRow(
+                    icon = SfIcons.Cached,
+                    title = resetTitle,
+                    subtitle = stringResource(R.string.reset_app_subtitle),
+                    onClick = { confirmResetApp = true },
+                )
+            }
         }
 
         if (shows(SettingsCategory.LANGUAGE)) SearchableSettingsGroup(search, header = stringResource(R.string.language)) {
@@ -2664,6 +2675,38 @@ fun SettingsScreen(
                     .padding(top = 10.dp, bottom = 8.dp),
             )
         }
+    }
+
+    // Reset Sonara: the welcome again (keeps everything), or erase everything and start fresh.
+    if (confirmResetApp) {
+        AlertDialog(
+            onDismissRequest = { confirmResetApp = false },
+            title = { Text(stringResource(R.string.reset_app_title)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.reset_app_message))
+                    Spacer(Modifier.height(16.dp))
+                    TextButton(
+                        onClick = {
+                            confirmResetApp = false
+                            com.music.bitchord.AppReset.showWelcomeAgain()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text(stringResource(R.string.reset_app_welcome)) }
+                    TextButton(
+                        onClick = {
+                            confirmResetApp = false
+                            (context as? android.app.Activity)?.let(com.music.bitchord.AppReset::eraseEverything)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text(stringResource(R.string.reset_app_erase), color = MaterialTheme.colorScheme.error) }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = { confirmResetApp = false }) { Text(stringResource(R.string.cancel)) }
+            },
+        )
     }
 
     // Everything in the Cached songs folder goes with it, so say so first.

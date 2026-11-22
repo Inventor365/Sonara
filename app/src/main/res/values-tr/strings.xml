@@ -1840,4 +1840,14 @@
     <string name="keep_screen_on_subtitle">Oynatıcı açıkken ekran kapanmaz; cihazın ekran zaman aşımı değişmez</string>
     <string name="usb_attenuate_startup_volume">DAC sesini otomatik düşür</string>
     <string name="usb_attenuate_startup_volume_subtitle">Bağlanınca işitmeni korumak için donanım sesini -40 dB’ye indirir. Kapatırsan DAC’nin mevcut sesi korunur.</string>
+    <string name="pass_rename">Yeniden adlandır</string>
+    <string name="pass_rename_title">Pass adını değiştir</string>
+    <string name="pass_rename_message">Sonara Pass’indeki ad. Arkadaşların bunu Listen Together’da da görür.</string>
+    <string name="pass_rename_hint">Adın</string>
+    <string name="reset_app">Sonara’yı sıfırla</string>
+    <string name="reset_app_subtitle">Karşılama ekranını yeniden gör ya da her şeyi silip baştan başla</string>
+    <string name="reset_app_title">Sonara sıfırlansın mı?</string>
+    <string name="reset_app_message">Karşılamayı yeniden göstermek kitaplığını, istatistiklerini, ayarlarını ve oturumlarını korur. Silmek, Sonara’nın bu telefonda tuttuğu her şeyi (ayarlar, dinleme istatistikleri, indirmeler ve oturumlar) kaldırır ve uygulamayı sıfırdan açar.</string>
+    <string name="reset_app_welcome">Karşılama ekranını yeniden göster</string>
+    <string name="reset_app_erase">Her şeyi sil ve baştan başla</string>
 </resources>

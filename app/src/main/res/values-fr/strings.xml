@@ -1858,4 +1858,14 @@
     <string name="keep_screen_on_subtitle">Tant que le lecteur est ouvert, l’écran reste allumé ; la mise en veille de l’appareil ne change pas</string>
     <string name="usb_attenuate_startup_volume">Baisser automatiquement le volume du DAC</string>
     <string name="usb_attenuate_startup_volume_subtitle">Baisse le volume matériel à -40 dB à la connexion pour protéger ton audition. Désactivé, le volume actuel du DAC est conservé.</string>
+    <string name="pass_rename">Renommer</string>
+    <string name="pass_rename_title">Renommer ton Pass</string>
+    <string name="pass_rename_message">Le nom sur ton Sonara Pass. Tes amis le voient aussi dans Listen Together.</string>
+    <string name="pass_rename_hint">Ton nom</string>
+    <string name="reset_app">Réinitialiser Sonara</string>
+    <string name="reset_app_subtitle">Revoir l’écran d’accueil, ou tout effacer et repartir de zéro</string>
+    <string name="reset_app_title">Réinitialiser Sonara ?</string>
+    <string name="reset_app_message">Revoir l’accueil garde ta bibliothèque, tes statistiques, tes réglages et tes connexions. Tout effacer supprime ce que Sonara garde sur ce téléphone (réglages, statistiques d’écoute, téléchargements et connexions), puis l’ouvre à neuf.</string>
+    <string name="reset_app_welcome">Revoir l’écran d’accueil</string>
+    <string name="reset_app_erase">Tout effacer et repartir de zéro</string>
 </resources>

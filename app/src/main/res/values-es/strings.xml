@@ -1829,4 +1829,14 @@
     <string name="keep_screen_on_subtitle">Mientras el reproductor está abierto la pantalla no se apaga; el tiempo de espera del dispositivo no cambia</string>
     <string name="usb_attenuate_startup_volume">Bajar automáticamente el volumen del DAC</string>
     <string name="usb_attenuate_startup_volume_subtitle">Baja el volumen del hardware a -40 dB al conectar para proteger tu oído. Desactívalo para mantener el volumen actual del DAC.</string>
+    <string name="pass_rename">Cambiar nombre</string>
+    <string name="pass_rename_title">Cambia el nombre de tu Pass</string>
+    <string name="pass_rename_message">El nombre de tu Sonara Pass. Tus amigos también lo ven en Listen Together.</string>
+    <string name="pass_rename_hint">Tu nombre</string>
+    <string name="reset_app">Restablecer Sonara</string>
+    <string name="reset_app_subtitle">Ver otra vez la bienvenida, o borrarlo todo y empezar de cero</string>
+    <string name="reset_app_title">¿Restablecer Sonara?</string>
+    <string name="reset_app_message">Ver la bienvenida conserva tu biblioteca, estadísticas, ajustes e inicios de sesión. Borrar elimina todo lo que Sonara guarda en este teléfono (ajustes, estadísticas de escucha, descargas e inicios de sesión) y lo abre desde cero.</string>
+    <string name="reset_app_welcome">Mostrar otra vez la bienvenida</string>
+    <string name="reset_app_erase">Borrarlo todo y empezar de cero</string>
 </resources>

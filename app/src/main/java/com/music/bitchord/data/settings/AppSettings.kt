@@ -1901,6 +1901,12 @@ object AppSettings {
         animatedCanvas.value = effective.animatedCovers
     }
 
+    /** Settings → Reset Sonara → Show the welcome again: everything else stays. */
+    fun resetOnboarding() {
+        onboardingComplete.value = false
+        prefs.edit().putBoolean(KEY_ONBOARDING_COMPLETE, false).apply()
+    }
+
     fun setOnboardingComplete() {
         onboardingComplete.value = true
         prefs.edit().putBoolean(KEY_ONBOARDING_COMPLETE, true).apply()

@@ -1796,4 +1796,14 @@
     <string name="keep_screen_on_subtitle">Lo schermo resta acceso finché il player è aperto; il timeout del dispositivo non cambia</string>
     <string name="usb_attenuate_startup_volume">Abbassa automaticamente il volume del DAC</string>
     <string name="usb_attenuate_startup_volume_subtitle">Abbassa il volume hardware a -40 dB alla connessione per proteggere l’udito. Disattivalo per mantenere il volume attuale del DAC.</string>
+    <string name="pass_rename">Rinomina</string>
+    <string name="pass_rename_title">Rinomina il tuo Pass</string>
+    <string name="pass_rename_message">Il nome sul tuo Sonara Pass. Lo vedono anche gli amici in Listen Together.</string>
+    <string name="pass_rename_hint">Il tuo nome</string>
+    <string name="reset_app">Reimposta Sonara</string>
+    <string name="reset_app_subtitle">Rivedi la schermata di benvenuto, o cancella tutto e ricomincia</string>
+    <string name="reset_app_title">Reimpostare Sonara?</string>
+    <string name="reset_app_message">Rivedere il benvenuto mantiene libreria, statistiche, impostazioni e accessi. Cancellare rimuove tutto ciò che Sonara conserva su questo telefono (impostazioni, statistiche di ascolto, download e accessi), poi lo riapre da zero.</string>
+    <string name="reset_app_welcome">Mostra di nuovo il benvenuto</string>
+    <string name="reset_app_erase">Cancella tutto e ricomincia</string>
 </resources>

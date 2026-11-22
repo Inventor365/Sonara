@@ -1702,4 +1702,14 @@
     <string name="keep_screen_on_subtitle">플레이어가 열려 있는 동안 화면이 꺼지지 않습니다. 기기의 화면 시간 제한은 그대로입니다</string>
     <string name="usb_attenuate_startup_volume">DAC 볼륨 자동 낮추기</string>
     <string name="usb_attenuate_startup_volume_subtitle">연결 시 청력 보호를 위해 하드웨어 볼륨을 -40dB로 낮춥니다. 끄면 현재 DAC 볼륨을 유지합니다.</string>
+    <string name="pass_rename">이름 바꾸기</string>
+    <string name="pass_rename_title">패스 이름 바꾸기</string>
+    <string name="pass_rename_message">Sonara Pass에 표시되는 이름이에요. Listen Together에서 친구들에게도 보여요.</string>
+    <string name="pass_rename_hint">내 이름</string>
+    <string name="reset_app">Sonara 초기화</string>
+    <string name="reset_app_subtitle">시작 화면 다시 보기, 또는 모두 지우고 새로 시작하기</string>
+    <string name="reset_app_title">Sonara를 초기화할까요?</string>
+    <string name="reset_app_message">시작 화면만 다시 보면 보관함, 통계, 설정, 로그인은 그대로예요. 지우면 Sonara가 이 휴대폰에 저장한 모든 것(설정, 감상 통계, 다운로드, 로그인)을 삭제하고 새로 열어요.</string>
+    <string name="reset_app_welcome">시작 화면 다시 보기</string>
+    <string name="reset_app_erase">모두 지우고 새로 시작</string>
 </resources>

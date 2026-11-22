@@ -1828,4 +1828,14 @@
     <string name="keep_screen_on_subtitle">播放器打开时屏幕保持常亮；设备的息屏时间不变</string>
     <string name="usb_attenuate_startup_volume">自动降低 DAC 音量</string>
     <string name="usb_attenuate_startup_volume_subtitle">连接时将硬件音量降至 -40 dB 以保护听力。关闭则保留 DAC 当前音量。</string>
+    <string name="pass_rename">重命名</string>
+    <string name="pass_rename_title">重命名你的通行证</string>
+    <string name="pass_rename_message">你 Sonara 通行证上的名字，好友在 Listen Together 中也会看到。</string>
+    <string name="pass_rename_hint">你的名字</string>
+    <string name="reset_app">重置 Sonara</string>
+    <string name="reset_app_subtitle">重新查看欢迎页面，或清除全部内容重新开始</string>
+    <string name="reset_app_title">要重置 Sonara 吗？</string>
+    <string name="reset_app_message">仅重新显示欢迎页面会保留你的资料库、统计、设置和登录。清除会删除 Sonara 在这部手机上保存的所有内容（设置、收听统计、下载和登录），然后重新打开。</string>
+    <string name="reset_app_welcome">重新显示欢迎页面</string>
+    <string name="reset_app_erase">清除全部并重新开始</string>
 </resources>

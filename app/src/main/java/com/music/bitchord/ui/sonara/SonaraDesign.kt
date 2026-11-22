@@ -246,6 +246,8 @@ fun SonaraPassCard(
     modifier: Modifier = Modifier,
     avatarUrl: String? = null,
     onClick: (() -> Unit)? = null,
+    /** A pencil beside the holder's name, when the name can be changed from here. */
+    onRename: (() -> Unit)? = null,
 ) {
     val tokens = LocalThemeTokens.current
     val effects = com.music.bitchord.ui.theme.LocalThemeEffects.current
@@ -330,6 +332,28 @@ fun SonaraPassCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
+                }
+                if (onRename != null) {
+                    Spacer(Modifier.width(10.dp))
+                    Box(
+                        Modifier
+                            .size(36.dp)
+                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .background(Color.White.copy(alpha = 0.12f))
+                            .border(0.5.dp, Color.White.copy(alpha = 0.18f), androidx.compose.foundation.shape.CircleShape)
+                            .clickable(
+                                onClickLabel = androidx.compose.ui.res.stringResource(com.music.bitchord.R.string.pass_rename),
+                                onClick = onRename,
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        androidx.compose.material3.Icon(
+                            com.music.bitchord.ui.icons.SfIcons.Pencil,
+                            contentDescription = androidx.compose.ui.res.stringResource(com.music.bitchord.R.string.pass_rename),
+                            tint = Color.White.copy(alpha = 0.9f),
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
                 }
             }
             Spacer(Modifier.weight(1f))

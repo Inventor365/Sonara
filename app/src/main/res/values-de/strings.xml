@@ -1857,4 +1857,14 @@
     <string name="keep_screen_on_subtitle">Solange der Player offen ist, bleibt der Bildschirm an; die Bildschirmzeit des Geräts bleibt unverändert</string>
     <string name="usb_attenuate_startup_volume">DAC-Lautstärke automatisch senken</string>
     <string name="usb_attenuate_startup_volume_subtitle">Senkt die Hardware-Lautstärke beim Anschließen auf -40 dB, um dein Gehör zu schützen. Aus lässt die aktuelle DAC-Lautstärke.</string>
+    <string name="pass_rename">Umbenennen</string>
+    <string name="pass_rename_title">Pass umbenennen</string>
+    <string name="pass_rename_message">Der Name auf deinem Sonara Pass. Freunde sehen ihn auch bei Listen Together.</string>
+    <string name="pass_rename_hint">Dein Name</string>
+    <string name="reset_app">Sonara zurücksetzen</string>
+    <string name="reset_app_subtitle">Den Willkommensbildschirm erneut sehen oder alles löschen und neu anfangen</string>
+    <string name="reset_app_title">Sonara zurücksetzen?</string>
+    <string name="reset_app_message">Der Willkommensbildschirm allein behält Mediathek, Statistiken, Einstellungen und Anmeldungen. Löschen entfernt alles, was Sonara auf diesem Telefon speichert (Einstellungen, Hörstatistiken, Downloads und Anmeldungen), und öffnet die App dann neu.</string>
+    <string name="reset_app_welcome">Willkommensbildschirm erneut zeigen</string>
+    <string name="reset_app_erase">Alles löschen und neu anfangen</string>
 </resources>

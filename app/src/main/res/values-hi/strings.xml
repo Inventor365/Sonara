@@ -1857,4 +1857,14 @@
     <string name="keep_screen_on_subtitle">प्लेयर खुला रहने तक स्क्रीन चालू रहती है; डिवाइस का टाइमआउट नहीं बदलता</string>
     <string name="usb_attenuate_startup_volume">DAC वॉल्यूम अपने-आप कम करें</string>
     <string name="usb_attenuate_startup_volume_subtitle">कनेक्ट होने पर सुनने की सुरक्षा के लिए हार्डवेयर वॉल्यूम -40 dB कर देता है। बंद करने पर DAC का मौजूदा वॉल्यूम बना रहता है।</string>
+    <string name="pass_rename">नाम बदलें</string>
+    <string name="pass_rename_title">अपने पास का नाम बदलें</string>
+    <string name="pass_rename_message">आपके Sonara Pass पर लिखा नाम। Listen Together में दोस्त भी इसे देखते हैं।</string>
+    <string name="pass_rename_hint">आपका नाम</string>
+    <string name="reset_app">Sonara रीसेट करें</string>
+    <string name="reset_app_subtitle">स्वागत स्क्रीन फिर से देखें, या सब कुछ मिटाकर नए सिरे से शुरू करें</string>
+    <string name="reset_app_title">Sonara रीसेट करें?</string>
+    <string name="reset_app_message">स्वागत फिर से दिखाने पर आपकी लाइब्रेरी, आंकड़े, सेटिंग्स और साइन-इन बने रहते हैं। मिटाने पर Sonara इस फ़ोन पर जो कुछ रखता है (सेटिंग्स, सुनने के आंकड़े, डाउनलोड और साइन-इन) सब हट जाता है, फिर ऐप नए सिरे से खुलता है।</string>
+    <string name="reset_app_welcome">स्वागत स्क्रीन फिर से दिखाएँ</string>
+    <string name="reset_app_erase">सब कुछ मिटाएँ और नए सिरे से शुरू करें</string>
 </resources>

@@ -66,6 +66,9 @@ class BitChordApplication : Application(), SingletonImageLoader.Factory, Configu
     @kotlin.OptIn(ExperimentalComposeUiApi::class)
     override fun onCreate() {
         super.onCreate()
+        // The reset process only deletes the app's data and starts it again; the usual start-up
+        // would write settings and open the player in the very directories it is clearing.
+        if (AppReset.isResetProcess()) return
         // The player is drawn by the shared UI module; this is what it reads
         // underneath — settings, the Canvas decoder, outputs, the party.
         AndroidStreamHooks.installEarly()

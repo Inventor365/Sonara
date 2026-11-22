@@ -1829,4 +1829,14 @@
     <string name="keep_screen_on_subtitle">プレーヤーを開いている間は画面がオンのまま。端末のスリープ設定は変わりません</string>
     <string name="usb_attenuate_startup_volume">DACの音量を自動で下げる</string>
     <string name="usb_attenuate_startup_volume_subtitle">接続時にハードウェア音量を-40 dBまで下げて耳を守ります。オフにすると今のDAC音量のままです。</string>
+    <string name="pass_rename">名前を変更</string>
+    <string name="pass_rename_title">パスの名前を変更</string>
+    <string name="pass_rename_message">Sonara Pass に表示される名前です。Listen Together で友だちにも表示されます。</string>
+    <string name="pass_rename_hint">あなたの名前</string>
+    <string name="reset_app">Sonara をリセット</string>
+    <string name="reset_app_subtitle">ようこそ画面をもう一度見る、またはすべて消去して最初から</string>
+    <string name="reset_app_title">Sonara をリセットしますか？</string>
+    <string name="reset_app_message">ようこそ画面を再表示しても、ライブラリ、統計、設定、ログインはそのままです。消去すると、Sonara がこのスマートフォンに保存しているもの（設定、再生統計、ダウンロード、ログイン）をすべて削除して、最初から開きます。</string>
+    <string name="reset_app_welcome">ようこそ画面をもう一度表示</string>
+    <string name="reset_app_erase">すべて消去して最初から</string>
 </resources>

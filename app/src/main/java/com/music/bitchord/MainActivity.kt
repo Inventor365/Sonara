@@ -943,6 +943,8 @@ private fun BitChordApp(
     var offlinePlaylistTarget by remember { mutableStateOf<Song?>(null) }
     var creatingOfflinePlaylist by remember { mutableStateOf(false) }
     var showSpotifyImportDialog by remember { mutableStateOf(false) }
+    // The Sonara Pass's pencil: the name being edited, or null while the alert is closed.
+    var renamingPass by remember { mutableStateOf<String?>(null) }
     /** Which tile opened the import dialog. */
     var importSource by rememberSaveable { mutableStateOf(ImportSource.SPOTIFY) }
     // Which album or playlist the collection menu is open on, or null when it
@@ -4508,9 +4510,8 @@ private fun BitChordApp(
                                 },
                                 header = {
                                     val passMillis = remember { memberSinceMillis(context) }
-                                    val holder = remember(account?.name, onboardingComplete) {
-                                        ListenTogether.nickname().ifBlank { account?.name.orEmpty() }
-                                    }
+                                    val nickname by ListenTogether.nicknameState.collectAsStateWithLifecycle()
+                                    val holder = nickname.ifBlank { account?.name.orEmpty() }
                                     LibraryProfileHeader(
                                         name = holder,
                                         avatarUrl = account?.thumbnailUrl,
@@ -4519,6 +4520,7 @@ private fun BitChordApp(
                                         summary = replay.summary,
                                         loading = replay.loading,
                                         onEditProfile = { navigator.push(AppRoute.AccountScrobbling) },
+                                        onRename = { renamingPass = holder },
                                         onViewStats = {
                                             replayLandingPage = ReplayStoryPage.INTRO
                                             navigator.push(AppRoute.Replay)
@@ -6635,128 +6637,26 @@ private fun BitChordApp(
 
         // ---- Google sign-in (full screen WebView) ----
         webSession?.let { mode ->
-            BackHandler { webSession = null }
-            // Raised by "Use this channel", read by the browser as "take the
-            // session from the page as it now stands". A counter rather than a
-            // flag so a second tap, after a failed first one, is still a new
-            // request rather than a value that was already true.
-            var captureRequest by remember(mode) { mutableIntStateOf(0) }
-            var captureFailed by remember(mode) { mutableStateOf(false) }
-            var pageReady by remember(mode) { mutableStateOf(false) }
-            var confirmingProfile by remember(mode) { mutableStateOf(false) }
-            Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                Column(Modifier.fillMaxSize()) {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .statusBarsPadding()
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        IconButton(onClick = { webSession = null }) {
-                            Icon(
-                                Icons.Rounded.Close,
-                                contentDescription = stringResource(R.string.close),
-                                tint = MaterialTheme.colorScheme.onBackground,
-                            )
-                        }
-                        Column(Modifier.weight(1f)) {
-                            Text(
-                                text = when (mode) {
-                                    WebSessionMode.SIGN_IN -> stringResource(R.string.sign_in_youtube_music)
-                                    WebSessionMode.SWITCH_CHANNEL -> stringResource(R.string.choose_profile)
-                                },
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onBackground,
-                            )
-                            if (pageReady) {
-                                Text(
-                                    text = if (captureFailed) {
-                                         stringResource(R.string.profile_unavailable)
-                                     } else {
-                                         stringResource(R.string.switch_profile_hint)
-                                    },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 2,
-                                )
-                            }
-                        }
-                        if (pageReady) {
-                            TextButton(onClick = {
-                                captureFailed = false
-                                confirmingProfile = true
-                                captureRequest++
-                            }, enabled = !confirmingProfile) {
-                                Text(
-                                    if (confirmingProfile) stringResource(R.string.checking)
-                                    else stringResource(R.string.use_this_profile),
-                                )
-                            }
-                        }
-                    }
-                    YtMusicLoginScreen(
-                        mode = mode,
-                        initialCookie = if (mode == WebSessionMode.SWITCH_CHANNEL) {
-                            googleAccounts.firstOrNull { it.accountId == activeAccountId }?.cookie
-                        } else null,
-                        captureRequest = captureRequest,
-                        onPageReady = { pageReady = it },
-                        onCaptureUnavailable = {
-                            confirmingProfile = false
-                            captureFailed = true
-                        },
-                        onCaptured = { session ->
-                            viewModel.onWebSession(session, mode) { accepted ->
-                                confirmingProfile = false
-                                if (accepted) {
-                                    webSession = null
-                                    if (mode == WebSessionMode.SIGN_IN) {
-                                        navigator.clear()
-                                        selectedTab = TAB_LIBRARY
-                                    }
-                                } else {
-                                    captureFailed = true
-                                }
-                            }
-                        },
-                    )
-                }
-            }
+            YtMusicSignInOverlay(
+                mode = mode,
+                viewModel = viewModel,
+                onClose = { webSession = null },
+                onSignedIn = {
+                    navigator.clear()
+                    selectedTab = TAB_LIBRARY
+                },
+            )
+        }
+
+        // ---- Rename the Sonara Pass (its pencil, in Library) ----
+        renamingPass?.let { draft ->
+            com.music.bitchord.ui.screens.PassRenameAlert(hazeState, draft, { renamingPass = it }, { renamingPass = null })
         }
 
         // ---- Update available (once per launch; held until the welcome is done) ----
         if (showUpdateDialog && onboardingComplete) {
             updateNotice?.let { update ->
-                UpdateAvailableDialog(
-                    version = update.version,
-                    notes = update.notes,
-                    hazeState = hazeState,
-                    // A download in progress keeps running behind the closed
-                    // sheet — only the sheet itself goes away. The top bar's
-                    // update icon reopens it onto whatever state it reached.
-                    onDismiss = { showUpdateDialog = false },
-                    onDownload = {
-                        if (update.apkUrl != null) {
-                            scope.launch { AppUpdateChecker.downloadApk(context) }
-                        } else {
-                            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(update.releaseUrl)))
-                            showUpdateDialog = false
-                        }
-                    },
-                    onCancelDownload = {
-                        AppUpdateChecker.cancelDownload()
-                    },
-                    onInstall = {
-                        val ready = AppUpdateChecker.download.value as? AppUpdateChecker.DownloadState.Ready
-                        ready?.let { AppUpdateChecker.installApk(context, it.file) }
-                    },
-                    onOpenReleasePage = {
-                        AppUpdateChecker.resetDownload()
-                        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(update.releaseUrl)))
-                        showUpdateDialog = false
-                    },
-                )
+                UpdateNoticeHost(update, hazeState) { showUpdateDialog = false }
             }
         }
 
@@ -7933,5 +7833,146 @@ private fun rememberThemeEffects(tokens: com.music.bitchord.ui.theme.ThemeTokens
             animationsOff = animationsOff,
             hidden = !resumed,
         ),
+    )
+}
+
+
+/**
+ * The full-screen Google sign-in for YouTube Music, and the channel switcher: the WebView with a
+ * bar above it that confirms the profile. Its own function so the app's main composable stays
+ * under the JVM's method size limit.
+ */
+@Composable
+private fun YtMusicSignInOverlay(
+    mode: WebSessionMode,
+    viewModel: MainViewModel,
+    onClose: () -> Unit,
+    onSignedIn: () -> Unit,
+) {
+    BackHandler { onClose() }
+    // Raised by "Use this channel", read by the browser as "take the
+    // session from the page as it now stands". A counter rather than a
+    // flag so a second tap, after a failed first one, is still a new
+    // request rather than a value that was already true.
+    var captureRequest by remember(mode) { mutableIntStateOf(0) }
+    var captureFailed by remember(mode) { mutableStateOf(false) }
+    var pageReady by remember(mode) { mutableStateOf(false) }
+    var confirmingProfile by remember(mode) { mutableStateOf(false) }
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Column(Modifier.fillMaxSize()) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                IconButton(onClick = { onClose() }) {
+                    Icon(
+                        Icons.Rounded.Close,
+                        contentDescription = stringResource(R.string.close),
+                        tint = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = when (mode) {
+                            WebSessionMode.SIGN_IN -> stringResource(R.string.sign_in_youtube_music)
+                            WebSessionMode.SWITCH_CHANNEL -> stringResource(R.string.choose_profile)
+                        },
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    if (pageReady) {
+                        Text(
+                            text = if (captureFailed) {
+                                 stringResource(R.string.profile_unavailable)
+                             } else {
+                                 stringResource(R.string.switch_profile_hint)
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 2,
+                        )
+                    }
+                }
+                if (pageReady) {
+                    TextButton(onClick = {
+                        captureFailed = false
+                        confirmingProfile = true
+                        captureRequest++
+                    }, enabled = !confirmingProfile) {
+                        Text(
+                            if (confirmingProfile) stringResource(R.string.checking)
+                            else stringResource(R.string.use_this_profile),
+                        )
+                    }
+                }
+            }
+            YtMusicLoginScreen(
+                mode = mode,
+                initialCookie = if (mode == WebSessionMode.SWITCH_CHANNEL) {
+                    viewModel.googleAccounts.value.firstOrNull { it.accountId == viewModel.activeAccountId.value }?.cookie
+                } else null,
+                captureRequest = captureRequest,
+                onPageReady = { pageReady = it },
+                // A single-channel account is taken as soon as it lands: no "Use this profile".
+                onAutoConfirming = {
+                    captureFailed = false
+                    confirmingProfile = true
+                },
+                onCaptureUnavailable = {
+                    confirmingProfile = false
+                    captureFailed = true
+                },
+                onCaptured = { session ->
+                    viewModel.onWebSession(session, mode) { accepted ->
+                        confirmingProfile = false
+                        if (accepted) {
+                            onClose()
+                            if (mode == WebSessionMode.SIGN_IN) onSignedIn()
+                        } else {
+                            captureFailed = true
+                        }
+                    }
+                },
+            )
+        }
+    }
+}
+
+/** The update sheet. Its own function so the app's main composable stays under the JVM's method size limit. */
+@Composable
+private fun UpdateNoticeHost(update: AppUpdateChecker.UpdateInfo, hazeState: HazeState, onClose: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    UpdateAvailableDialog(
+        version = update.version,
+        notes = update.notes,
+        hazeState = hazeState,
+        // A download in progress keeps running behind the closed
+        // sheet — only the sheet itself goes away. The top bar's
+        // update icon reopens it onto whatever state it reached.
+        onDismiss = { onClose() },
+        onDownload = {
+            if (update.apkUrl != null) {
+                scope.launch { AppUpdateChecker.downloadApk(context) }
+            } else {
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(update.releaseUrl)))
+                onClose()
+            }
+        },
+        onCancelDownload = {
+            AppUpdateChecker.cancelDownload()
+        },
+        onInstall = {
+            val ready = AppUpdateChecker.download.value as? AppUpdateChecker.DownloadState.Ready
+            ready?.let { AppUpdateChecker.installApk(context, it.file) }
+        },
+        onOpenReleasePage = {
+            AppUpdateChecker.resetDownload()
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(update.releaseUrl)))
+            onClose()
+        },
     )
 }

@@ -36,6 +36,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.Dialog
@@ -263,7 +264,51 @@ fun TextValueAlert(
     saveEnabled: Boolean = true,
     /** A third action between Save and Cancel, for a value that can be cleared. */
     onRemove: (() -> Unit)? = null,
+) = TextValueAlertImpl(hazeState, title, message, placeholder, value, onValueChange, onSave, onDismiss, saveEnabled, onRemove, autoFocus = false)
+
+/**
+ * [TextValueAlert] that opens with its field focused and the keyboard up, for an alert that is
+ * only the field (renaming the Sonara Pass). A separate entry point rather than one more
+ * parameter: an eleventh parameter widens every call site, and MainActivity's composable is at
+ * the JVM's method size limit.
+ */
+@OptIn(ExperimentalHazeMaterialsApi::class)
+@Composable
+fun FocusedTextValueAlert(
+    hazeState: HazeState,
+    title: String,
+    message: String,
+    placeholder: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSave: () -> Unit,
+    onDismiss: () -> Unit,
+    saveEnabled: Boolean = true,
+) = TextValueAlertImpl(hazeState, title, message, placeholder, value, onValueChange, onSave, onDismiss, saveEnabled, null, autoFocus = true)
+
+@OptIn(ExperimentalHazeMaterialsApi::class)
+@Composable
+private fun TextValueAlertImpl(
+    hazeState: HazeState,
+    title: String,
+    message: String,
+    placeholder: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSave: () -> Unit,
+    onDismiss: () -> Unit,
+    saveEnabled: Boolean,
+    onRemove: (() -> Unit)?,
+    autoFocus: Boolean,
 ) {
+    val focus = remember { androidx.compose.ui.focus.FocusRequester() }
+    if (autoFocus) {
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            // After the alert's first frame: a requester asked before it is attached does nothing.
+            kotlinx.coroutines.delay(120)
+            runCatching { focus.requestFocus() }
+        }
+    }
     AlertScaffold(hazeState = hazeState, onDismiss = onDismiss) {
         Column(
             modifier = Modifier
@@ -288,6 +333,7 @@ fun TextValueAlert(
                 value = value,
                 onValueChange = onValueChange,
                 placeholder = placeholder,
+                modifier = Modifier.focusRequester(focus),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { onSave() }),
             )

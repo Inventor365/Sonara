@@ -111,28 +111,44 @@ fun ThemePickerRow(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val haptics = rememberHaptics()
     val current by AppSettings.appTheme.collectAsStateWithLifecycle()
-    // A scrolling row of fixed cards: five themes no longer fit across a phone at a readable size,
-    // and the next card peeking at the edge says there are more.
-    Row(
+    // Every theme in view at once, in a grid that fits the width: three across a phone (two rows),
+    // all five in one row on a tablet. A scrolling row used to hide Space past the screen's edge,
+    // where someone opening Appearance for the first time never saw it.
+    androidx.compose.foundation.layout.BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
             .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        for (id in ThemeId.entries) {
-            ThemePreviewCard(
-                id = id,
-                modifier = Modifier.width(92.dp),
-                selected = id == current,
-                onClick = {
-                    haptics.play(Haptic.Select)
-                    chooseTheme(context, id)
-                },
-            )
+        val gap = 10.dp
+        val themes = ThemeId.entries
+        val columns = ((maxWidth + gap) / (THEME_CARD_MIN_WIDTH + gap)).toInt().coerceIn(1, themes.size)
+        val cardWidth = (maxWidth - gap * (columns - 1)) / columns
+        androidx.compose.foundation.layout.Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            for (rowThemes in themes.chunked(columns)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    // A short last row sits in the middle rather than hanging off the left.
+                    horizontalArrangement = Arrangement.spacedBy(gap, Alignment.CenterHorizontally),
+                ) {
+                    for (id in rowThemes) {
+                        ThemePreviewCard(
+                            id = id,
+                            modifier = Modifier.width(cardWidth),
+                            selected = id == current,
+                            onClick = {
+                                haptics.play(Haptic.Select)
+                                chooseTheme(context, id)
+                            },
+                        )
+                    }
+                }
+            }
         }
     }
 }
+
+/** Narrow enough for three across a phone, wide enough for the miniature to read. */
+private val THEME_CARD_MIN_WIDTH = 92.dp
 
 @Composable
 private fun ThemePreviewCard(id: ThemeId, selected: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {

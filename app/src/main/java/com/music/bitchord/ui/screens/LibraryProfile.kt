@@ -46,6 +46,8 @@ fun LibraryProfileHeader(
     loading: Boolean,
     onEditProfile: () -> Unit,
     onViewStats: () -> Unit,
+    /** Renames the Pass; see [SonaraPassCard]'s pencil. */
+    onRename: (() -> Unit)? = null,
 ) {
     Box(Modifier.fillMaxWidth()) {
         FadingDotGrid(
@@ -86,6 +88,7 @@ fun LibraryProfileHeader(
                 passId = passId,
                 avatarUrl = avatarUrl,
                 onClick = onEditProfile,
+                onRename = onRename,
                 modifier = Modifier
                     .revealOnAppear(order = 0, rise = 18.dp)
                     .graphicsLayer { rotationZ = -1.2f },
@@ -105,4 +108,33 @@ fun LibraryProfileHeader(
             Spacer(Modifier.height(10.dp))
         }
     }
+}
+
+/**
+ * The Sonara Pass's pencil: renames the holder, which is also the name friends see in Listen
+ * Together. Its own function so MainActivity's composable stays under the JVM's method size limit.
+ */
+@Composable
+fun PassRenameAlert(
+    hazeState: dev.chrisbanes.haze.HazeState,
+    draft: String,
+    onDraftChange: (String) -> Unit,
+    onClose: () -> Unit,
+) {
+    com.music.bitchord.ui.components.FocusedTextValueAlert(
+        hazeState = hazeState,
+        title = androidx.compose.ui.res.stringResource(com.music.bitchord.R.string.pass_rename_title),
+        message = androidx.compose.ui.res.stringResource(com.music.bitchord.R.string.pass_rename_message),
+        placeholder = androidx.compose.ui.res.stringResource(com.music.bitchord.R.string.pass_rename_hint),
+        value = draft,
+        onValueChange = { onDraftChange(it.take(40)) },
+        saveEnabled = draft.isNotBlank(),
+        onSave = {
+            if (draft.isNotBlank()) {
+                com.music.bitchord.data.listentogether.ListenTogether.setNickname(draft)
+                onClose()
+            }
+        },
+        onDismiss = onClose,
+    )
 }

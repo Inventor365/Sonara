@@ -1835,4 +1835,14 @@
     <string name="keep_screen_on_subtitle">หน้าจอจะเปิดค้างไว้ขณะที่เพลเยอร์เปิดอยู่ โดยไม่เปลี่ยนเวลาปิดหน้าจอของอุปกรณ์</string>
     <string name="usb_attenuate_startup_volume">ลดเสียง DAC อัตโนมัติ</string>
     <string name="usb_attenuate_startup_volume_subtitle">ลดเสียงของฮาร์ดแวร์เป็น -40 dB เมื่อเชื่อมต่อเพื่อถนอมการได้ยิน ปิดเพื่อคงระดับเสียง DAC ปัจจุบัน</string>
+    <string name="pass_rename">เปลี่ยนชื่อ</string>
+    <string name="pass_rename_title">เปลี่ยนชื่อบน Pass</string>
+    <string name="pass_rename_message">ชื่อบน Sonara Pass ของคุณ เพื่อนจะเห็นชื่อนี้ใน Listen Together ด้วย</string>
+    <string name="pass_rename_hint">ชื่อของคุณ</string>
+    <string name="reset_app">รีเซ็ต Sonara</string>
+    <string name="reset_app_subtitle">ดูหน้าต้อนรับอีกครั้ง หรือลบทุกอย่างแล้วเริ่มใหม่</string>
+    <string name="reset_app_title">รีเซ็ต Sonara ไหม</string>
+    <string name="reset_app_message">การแสดงหน้าต้อนรับอีกครั้งจะเก็บคลังเพลง สถิติ การตั้งค่า และการลงชื่อเข้าใช้ไว้ การลบจะล้างทุกอย่างที่ Sonara เก็บไว้ในโทรศัพท์นี้ (การตั้งค่า สถิติการฟัง ดาวน์โหลด และการลงชื่อเข้าใช้) แล้วเปิดใหม่</string>
+    <string name="reset_app_welcome">แสดงหน้าต้อนรับอีกครั้ง</string>
+    <string name="reset_app_erase">ลบทุกอย่างแล้วเริ่มใหม่</string>
 </resources>

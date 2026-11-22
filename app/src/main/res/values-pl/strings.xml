@@ -1909,4 +1909,14 @@
     <string name="keep_screen_on_subtitle">Ekran nie gaśnie, gdy odtwarzacz jest otwarty; limit czasu urządzenia się nie zmienia</string>
     <string name="usb_attenuate_startup_volume">Automatycznie ściszaj DAC</string>
     <string name="usb_attenuate_startup_volume_subtitle">Po podłączeniu obniża głośność sprzętową do -40 dB, aby chronić słuch. Wyłącz, aby zachować obecną głośność DAC.</string>
+    <string name="pass_rename">Zmień nazwę</string>
+    <string name="pass_rename_title">Zmień nazwę Passa</string>
+    <string name="pass_rename_message">Imię na Twoim Sonara Pass. Znajomi widzą je też w Listen Together.</string>
+    <string name="pass_rename_hint">Twoje imię</string>
+    <string name="reset_app">Zresetuj Sonarę</string>
+    <string name="reset_app_subtitle">Zobacz ekran powitalny jeszcze raz albo wyczyść wszystko i zacznij od nowa</string>
+    <string name="reset_app_title">Zresetować Sonarę?</string>
+    <string name="reset_app_message">Ekran powitalny zachowuje bibliotekę, statystyki, ustawienia i logowania. Wyczyszczenie usuwa wszystko, co Sonara przechowuje na tym telefonie (ustawienia, statystyki słuchania, pobrane pliki i logowania), a potem otwiera ją od nowa.</string>
+    <string name="reset_app_welcome">Pokaż ekran powitalny ponownie</string>
+    <string name="reset_app_erase">Wyczyść wszystko i zacznij od nowa</string>
 </resources>

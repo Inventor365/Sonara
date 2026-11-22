@@ -661,6 +661,7 @@ object ListenTogether {
 
     fun init(context: Context) {
         prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        _nicknameState.value = nickname()
         val rawSaved = prefs.getString(KEY_SERVER, null)?.trim().orEmpty()
         val normalizedSaved = when (val res = parseAndNormalizeServerUrl(rawSaved)) {
             is ServerUrlValidationResult.Valid -> res.normalizedUrl
@@ -767,8 +768,15 @@ object ListenTogether {
 
     fun nickname(): String = prefs.getString(KEY_NICKNAME, null).orEmpty()
 
+    private val _nicknameState = MutableStateFlow("")
+
+    /** [nickname] as it changes: the name on the Sonara Pass follows a rename at once. */
+    val nicknameState: StateFlow<String> = _nicknameState.asStateFlow()
+
     fun setNickname(value: String) {
-        prefs.edit().putString(KEY_NICKNAME, value.trim().take(80)).apply()
+        val clean = value.trim().take(80)
+        prefs.edit().putString(KEY_NICKNAME, clean).apply()
+        _nicknameState.value = clean
     }
 
     /**

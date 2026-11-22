@@ -1901,4 +1901,14 @@
     <string name="keep_screen_on_subtitle">Пока открыт плеер, экран не гаснет; тайм-аут устройства не меняется</string>
     <string name="usb_attenuate_startup_volume">Автоматически снижать громкость ЦАП</string>
     <string name="usb_attenuate_startup_volume_subtitle">При подключении снижает аппаратную громкость до -40 дБ, чтобы беречь слух. Выключите, чтобы сохранить текущую громкость ЦАП.</string>
+    <string name="pass_rename">Переименовать</string>
+    <string name="pass_rename_title">Переименовать пропуск</string>
+    <string name="pass_rename_message">Имя на вашем Sonara Pass. Друзья видят его и в Listen Together.</string>
+    <string name="pass_rename_hint">Ваше имя</string>
+    <string name="reset_app">Сбросить Sonara</string>
+    <string name="reset_app_subtitle">Снова показать приветствие или стереть всё и начать заново</string>
+    <string name="reset_app_title">Сбросить Sonara?</string>
+    <string name="reset_app_message">Приветствие сохранит библиотеку, статистику, настройки и входы. Стирание удалит всё, что Sonara хранит на этом телефоне (настройки, статистику прослушивания, загрузки и входы), и откроет приложение заново.</string>
+    <string name="reset_app_welcome">Показать приветствие снова</string>
+    <string name="reset_app_erase">Стереть всё и начать заново</string>
 </resources>

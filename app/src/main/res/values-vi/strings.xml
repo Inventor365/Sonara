@@ -1770,4 +1770,14 @@
     <string name="keep_screen_on_subtitle">Màn hình luôn bật khi trình phát đang mở; thời gian chờ của thiết bị không đổi</string>
     <string name="usb_attenuate_startup_volume">Tự động giảm âm lượng DAC</string>
     <string name="usb_attenuate_startup_volume_subtitle">Giảm âm lượng phần cứng xuống -40 dB khi kết nối để bảo vệ thính giác. Tắt để giữ âm lượng DAC hiện tại.</string>
+    <string name="pass_rename">Đổi tên</string>
+    <string name="pass_rename_title">Đổi tên trên Pass</string>
+    <string name="pass_rename_message">Tên trên Sonara Pass của bạn. Bạn bè cũng thấy tên này trong Listen Together.</string>
+    <string name="pass_rename_hint">Tên của bạn</string>
+    <string name="reset_app">Đặt lại Sonara</string>
+    <string name="reset_app_subtitle">Xem lại màn hình chào mừng, hoặc xóa hết và bắt đầu lại</string>
+    <string name="reset_app_title">Đặt lại Sonara?</string>
+    <string name="reset_app_message">Xem lại màn hình chào mừng vẫn giữ thư viện, thống kê, cài đặt và đăng nhập. Xóa sẽ gỡ mọi thứ Sonara lưu trên điện thoại này (cài đặt, thống kê nghe, bản tải xuống và đăng nhập), rồi mở lại từ đầu.</string>
+    <string name="reset_app_welcome">Hiện lại màn hình chào mừng</string>
+    <string name="reset_app_erase">Xóa hết và bắt đầu lại</string>
 </resources>

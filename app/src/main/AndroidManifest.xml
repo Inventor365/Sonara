@@ -101,6 +101,17 @@
         android:theme="@style/Theme.BitChord"
         tools:targetApi="34">
 
+        <!-- Settings → Reset Sonara → Erase everything: see AppReset. A process of its own, so it can
+             clear the app's data once the app itself has stopped. -->
+        <activity
+            android:name=".ResetActivity"
+            android:process=":reset"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+
         <!--
           Lets a release build be sampled with simpleperf or Perfetto from adb,
           so jank is measured on the build users get rather than on a debug

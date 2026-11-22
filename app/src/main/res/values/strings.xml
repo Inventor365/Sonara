@@ -1742,4 +1742,14 @@
     <string name="replay_year_unmute">Unmute the story</string>
     <string name="space_effect_player_hole">Black hole behind the player</string>
     <string name="space_effect_player_hole_subtitle">Off, the player looks as it does in every theme</string>
+    <string name="pass_rename">Rename</string>
+    <string name="pass_rename_title">Rename your Pass</string>
+    <string name="pass_rename_message">The name on your Sonara Pass. Friends see it in Listen Together too.</string>
+    <string name="pass_rename_hint">Your name</string>
+    <string name="reset_app">Reset Sonara</string>
+    <string name="reset_app_subtitle">See the welcome screen again, or erase everything and start fresh</string>
+    <string name="reset_app_title">Reset Sonara?</string>
+    <string name="reset_app_message">Showing the welcome again keeps your library, stats, settings and sign-ins. Erasing removes everything Sonara keeps on this phone (settings, listening stats, downloads and sign-ins), then opens it fresh.</string>
+    <string name="reset_app_welcome">Show the welcome screen again</string>
+    <string name="reset_app_erase">Erase everything and start fresh</string>
 </resources>

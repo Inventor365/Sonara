@@ -1862,4 +1862,14 @@
     <string name="keep_screen_on_subtitle">המסך נשאר דלוק כל עוד הנגן פתוח; זמן הכיבוי של המכשיר לא משתנה</string>
     <string name="usb_attenuate_startup_volume">הנמכה אוטומטית של עוצמת ה-DAC</string>
     <string name="usb_attenuate_startup_volume_subtitle">מוריד את עוצמת החומרה ל-‎-40 dB בחיבור כדי להגן על השמיעה. כבוי – עוצמת ה-DAC נשארת כפי שהיא.</string>
+    <string name="pass_rename">שינוי שם</string>
+    <string name="pass_rename_title">שינוי השם ב-Pass</string>
+    <string name="pass_rename_message">השם שמופיע ב-Sonara Pass שלך. גם חברים רואים אותו ב-Listen Together.</string>
+    <string name="pass_rename_hint">השם שלך</string>
+    <string name="reset_app">איפוס Sonara</string>
+    <string name="reset_app_subtitle">להציג שוב את מסך הפתיחה, או למחוק הכול ולהתחיל מחדש</string>
+    <string name="reset_app_title">לאפס את Sonara?</string>
+    <string name="reset_app_message">הצגת מסך הפתיחה שומרת על הספרייה, הסטטיסטיקות, ההגדרות וההתחברויות. מחיקה מסירה את כל מה ש-Sonara שומרת בטלפון הזה (הגדרות, סטטיסטיקות האזנה, הורדות והתחברויות) ופותחת אותה מחדש.</string>
+    <string name="reset_app_welcome">הצגת מסך הפתיחה שוב</string>
+    <string name="reset_app_erase">למחוק הכול ולהתחיל מחדש</string>
 </resources>
