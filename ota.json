@@ -1,46 +1,45 @@
 {
-  "version": "2.1.5",
-  "versionCode": 54,
-  "tvVersionCode": 54,
-  "releaseUrl": "https://github.com/Inventor365/Sonara/releases/tag/v2.1.5",
+  "version": "2.1.6",
+  "versionCode": 55,
+  "tvVersionCode": 55,
+  "releaseUrl": "https://github.com/Inventor365/Sonara/releases/tag/v2.1.6",
   "changelogUrl": "https://raw.githubusercontent.com/Inventor365/Bitchord-OTA/refs/heads/main/changelogs.txt",
   "changelog": [
-    "## Sonara v2.1.5",
-    "![The plain Space player, the black hole switch, the new queue and Library links](https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.5/strip.jpg)",
-    "- **Everything new in BitChord**: AutoMix artwork transitions, a new queue (swipe, Select, Save as playlist, Undo), a Radio tab, new player animations, YouTube Music timed lyrics and much more.",
-    "- **17 community features and fixes**: Liked songs and Import Spotify in Library, Keep screen on, Hide the status bar everywhere, no gradient on albums and playlists, a DAC volume switch, newest songs first in Recently added, and more.",
-    "- **Space: the player is the normal one again.** The black hole behind it is a switch, off by default (Settings → Appearance → Space effects).",
-    "- **Your listening comes back after a reinstall**: stats, Replay, settings and the last song, from the phone's Google backup.",
-    "- **Search uses your signed-in account**, so searches show in your YouTube history."
+    "## Sonara v2.1.6",
+    "![Every theme in view, renaming the Pass, and Reset Sonara](https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.6/strip.jpg)",
+    "- **Rename your Sonara Pass**: tap the pencil on the Pass in Library. The Library title follows at once, and friends see the new name in Listen Together.",
+    "- **Reset Sonara** (Settings → Miscellaneous): show the welcome screen again, or erase everything and start fresh.",
+    "- **Every theme in view**: Appearance shows all five themes at once, Space included.",
+    "- **A quicker Google sign-in**: no \"Use this profile\" tap for single-channel accounts, and Google's Next is pressed for you on the account you picked from your phone."
   ],
-  "downloadUrl": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-v2.1.5.apk",
+  "downloadUrl": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-v2.1.6.apk",
   "downloads": {
     "android": {
-      "universal": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-v2.1.5.apk",
-      "arm64-v8a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-v2.1.5_arm64-v8a.apk",
-      "armeabi-v7a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-v2.1.5_armeabi-v7a.apk",
-      "x86_64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-v2.1.5_x86_64.apk"
+      "universal": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-v2.1.6.apk",
+      "arm64-v8a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-v2.1.6_arm64-v8a.apk",
+      "armeabi-v7a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-v2.1.6_armeabi-v7a.apk",
+      "x86_64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-v2.1.6_x86_64.apk"
     },
     "tv": {
-      "universal": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/SonaraTV-v2.1.5.apk",
-      "arm64-v8a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/SonaraTV-v2.1.5_arm64-v8a.apk",
-      "armeabi-v7a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/SonaraTV-v2.1.5_armeabi-v7a.apk",
-      "x86_64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/SonaraTV-v2.1.5_x86_64.apk"
+      "universal": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/SonaraTV-v2.1.6.apk",
+      "arm64-v8a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/SonaraTV-v2.1.6_arm64-v8a.apk",
+      "armeabi-v7a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/SonaraTV-v2.1.6_armeabi-v7a.apk",
+      "x86_64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/SonaraTV-v2.1.6_x86_64.apk"
     },
-    "wear": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/SonaraWear-v2.1.5.apk",
+    "wear": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/SonaraWear-v2.1.6.apk",
     "windows": {
-      "exe": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-2.1.5-windows-x64-setup.exe",
-      "msi": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-2.1.5-windows-x64.msi",
-      "portable": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-2.1.5-windows-x64-portable.zip"
+      "exe": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-windows-x64-setup.exe",
+      "msi": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-windows-x64.msi",
+      "portable": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-windows-x64-portable.zip"
     },
     "macos": {
-      "arm64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-2.1.5-macos-arm64.dmg",
-      "x64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-2.1.5-macos-x64.dmg"
+      "arm64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-macos-arm64.dmg",
+      "x64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-macos-x64.dmg"
     },
     "linux": {
-      "appimage": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-2.1.5-linux-x86_64.AppImage",
-      "deb": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-2.1.5-linux-amd64.deb",
-      "rpm": "https://github.com/Inventor365/Sonara/releases/download/v2.1.5/Sonara-2.1.5-linux-x86_64.rpm"
+      "appimage": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-linux-x86_64.AppImage",
+      "deb": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-linux-amd64.deb",
+      "rpm": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-linux-x86_64.rpm"
     }
   }
 }
