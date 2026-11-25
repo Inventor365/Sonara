@@ -273,6 +273,7 @@ fun SettingsScreen(
     val playbackSpeed by AppSettings.playbackSpeed.collectAsStateWithLifecycle()
     val sleepTimerFadeOut by AppSettings.sleepTimerFadeOut.collectAsStateWithLifecycle()
     val audioFocusOption by AppSettings.audioFocusOption.collectAsStateWithLifecycle()
+    val rememberShuffleState by AppSettings.rememberShuffleState.collectAsStateWithLifecycle()
     val dolbyAtmos by AppSettings.dolbyAtmos.collectAsStateWithLifecycle()
     val directSourceStream by AppSettings.directSourceStream.collectAsStateWithLifecycle()
     // A property of the hardware, so it is read once rather than remembered
@@ -1157,6 +1158,21 @@ fun SettingsScreen(
                         AudioFocusOption.KEEP_PLAYING -> stringResource(R.string.audio_focus_keep_playing)
                     },
                     onClick = { onOpenChoice(SettingsChoiceKind.AUDIO_FOCUS) },
+                )
+            }
+            val rememberShuffleTitle = stringResource(R.string.remember_shuffle_state)
+            row(rememberShuffleTitle, "shuffle", "order", "album", "playlist") {
+                SettingsRow(
+                    icon = SfIcons.Shuffle,
+                    title = rememberShuffleTitle,
+                    subtitle = stringResource(R.string.remember_shuffle_state_subtitle),
+                    trailing = {
+                        IosSwitch(
+                            checked = rememberShuffleState,
+                            onCheckedChange = AppSettings::setRememberShuffleState,
+                        )
+                    },
+                    onClick = { AppSettings.setRememberShuffleState(!rememberShuffleState) },
                 )
             }
             val spatialAudioTitle = stringResource(R.string.spatial_audio)

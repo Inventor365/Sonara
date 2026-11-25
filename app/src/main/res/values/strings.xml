@@ -1768,4 +1768,6 @@
     <string name="audio_focus_keep_playing" translatable="false">Always keep playing</string>
     <string name="audio_focus_keep_playing_subtitle" translatable="false">Keep music playing in background, only pause for phone calls</string>
     <string name="audio_focus_footer" translatable="false">Controls how BitChord responds when other applications or phone calls request audio focus.</string>
+    <string name="remember_shuffle_state" translatable="false">Remember shuffle state</string>
+    <string name="remember_shuffle_state_subtitle" translatable="false">Keep shuffle turned on when starting a new queue or album</string>
 </resources>

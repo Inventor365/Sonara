@@ -535,6 +535,9 @@ object AppSettings {
     /** Audio focus handling policy — auto-pause on external sound vs keep playing except calls. */
     val audioFocusOption = MutableStateFlow(AudioFocusOption.AUTO_PAUSE)
 
+    /** Whether shuffle remains active when starting playback of a new queue or album. */
+    val rememberShuffleState = MutableStateFlow(true)
+
     /** Repeat mode for the player — Off, All, or One. */
     val repeatMode = MutableStateFlow(Player.REPEAT_MODE_OFF)
 
@@ -1335,6 +1338,7 @@ object AppSettings {
                 prefs.getString(KEY_AUDIO_FOCUS_OPTION, null) ?: AudioFocusOption.AUTO_PAUSE.name,
             )
         }.getOrDefault(AudioFocusOption.AUTO_PAUSE)
+        rememberShuffleState.value = prefs.getBoolean(KEY_REMEMBER_SHUFFLE_STATE, true)
         repeatMode.value = prefs.getInt(KEY_REPEAT_MODE, Player.REPEAT_MODE_OFF)
         showNerdStats.value = prefs.getBoolean(KEY_NERD_STATS, false)
         showBestPart.value = prefs.getBoolean(KEY_BEST_PART, true)
@@ -1608,6 +1612,13 @@ object AppSettings {
         audioFocusOption.value = option
         if (this::prefs.isInitialized) {
             prefs.edit().putString(KEY_AUDIO_FOCUS_OPTION, option.name).apply()
+        }
+    }
+
+    fun setRememberShuffleState(value: Boolean) {
+        rememberShuffleState.value = value
+        if (this::prefs.isInitialized) {
+            prefs.edit().putBoolean(KEY_REMEMBER_SHUFFLE_STATE, value).apply()
         }
     }
 
@@ -2913,6 +2924,7 @@ object AppSettings {
     private const val KEY_AUTO_PLAY_ON_BLUETOOTH_CONNECTION = "auto_play_on_bluetooth_connection"
     private const val KEY_SHUFFLE_ENABLED = "shuffle_enabled"
     private const val KEY_AUDIO_FOCUS_OPTION = "audio_focus_option"
+    private const val KEY_REMEMBER_SHUFFLE_STATE = "remember_shuffle_state"
     private const val KEY_REPEAT_MODE = "repeat_mode"
     private const val KEY_NERD_STATS = "show_nerd_stats"
     private const val KEY_BEST_PART = "show_best_part"
