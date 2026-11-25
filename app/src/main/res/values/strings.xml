@@ -1757,4 +1757,9 @@
     <string name="clear_listening_history">Clear on-device history</string>
     <string name="automix_preserve_albums" translatable="false">Skip for sequential album tracks</string>
     <string name="automix_preserve_albums_subtitle" translatable="false">Preserves gapless playback when listening to consecutive tracks from the same album</string>
+    <string name="lastfm_authorize_in_browser" translatable="false">Open Last.fm in browser</string>
+    <string name="lastfm_complete_connection" translatable="false">Complete connection</string>
+    <string name="lastfm_oauth_description" translatable="false">Authorize BitChord in your web browser to securely connect your Last.fm account without entering your password.</string>
+    <string name="lastfm_oauth_waiting" translatable="false">Approve access on Last.fm in your browser, then tap below to finish connecting.</string>
+    <string name="lastfm_oauth_error_pending" translatable="false">Authorization not yet completed. Please approve access on Last.fm in your browser and try again.</string>
 </resources>
