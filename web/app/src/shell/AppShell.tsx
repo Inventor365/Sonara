@@ -17,6 +17,7 @@ import { useDocumentTitle } from './useDocumentTitle';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { Banner, bannerButtonClass } from './Banner';
 import { MobileTopBar } from './MobileTopBar';
+import { PictureInPicturePortal } from './PictureInPicture';
 import { PlayerBar } from './PlayerBar';
 import { ToastHost } from './ToastHost';
 import { SidePanel } from './SidePanel';
@@ -131,6 +132,7 @@ export function AppShell() {
         <ToastHost />
         <SidePanel />
       </div>
+      <PictureInPicturePortal />
       {banner}
       {fullScreen && (
         <Suspense fallback={null}>
