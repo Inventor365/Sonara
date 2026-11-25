@@ -82,6 +82,8 @@
     <string name="lyrics_offset">Şarkı sözü gecikmesi</string>
     <string name="lyrics_offset_description">Pozitif değerler sözleri daha geç gösterir</string>
     <string name="lyrics_offset_reset">Sıfırla</string>
+    <string name="lyrics_offset_this_song">Bu şarkı</string>
+    <string name="lyrics_offset_all_songs">Tüm şarkılar</string>
     <string name="lyrics_provider_current">Geçerli sağlayıcı</string>
     <string name="lyrics_provider_fetching">Sözler getiriliyor…</string>
     <string name="lyrics_provider_found">Sözler bulundu · Kullanmak için dokun</string>
