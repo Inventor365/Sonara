@@ -679,6 +679,9 @@ data class LibraryPage(
         get() = likedSongs.isEmpty() && librarySongs.isEmpty() && shelves.isEmpty()
 }
 
+/** Process-local identity for one detail load, not the id of its collection. */
+class DetailLoadId
+
 /** A browsed album / artist / playlist page. */
 data class DetailPage(
     val browseId: String,
@@ -720,6 +723,7 @@ data class DetailPage(
      * fetched with a session; see [SubscriptionState].
      */
     val subscription: SubscriptionState? = null,
+    val detailLoadId: DetailLoadId? = null,
 )
 
 /**
