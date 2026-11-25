@@ -940,7 +940,7 @@
     <string name="replay_songs_end"> filled your month.</string>
     <string name="replay_songs_end_week"> filled your week.</string>
     <string name="replay_songs_start">In total, </string>
-    <string name="replay_summary_start">Your </string>
+    <string name="replay_summary_start">Your</string>
     <string name="replay_summary_end_week">week</string>
     <string name="saved">Saved</string>
     <string name="saved_bang">Saved!</string>
@@ -1776,4 +1776,6 @@
     <string name="extend_animated_artwork">Extend animated artwork only</string>
     <string name="extend_animated_artwork_subtitle">Extends animated canvas artwork to the player edges while keeping still covers square</string>
     <string name="pipeline_karaoke" translatable="false">Karaoke</string>
+    <string name="replay_summary_separator">\u0020</string>
+    <string name="replay_summary_suffix">in music.</string>
 </resources>
