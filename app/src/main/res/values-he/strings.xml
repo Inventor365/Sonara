@@ -1874,4 +1874,5 @@
     <string name="reset_app_erase">למחוק הכול ולהתחיל מחדש</string>
     <string name="hide_trending">הסתר המלצות פופולריות</string>
     <string name="hide_trending_subtitle">מסיר שירים פופולריים ופלייליסטים קהילתיים מדף הבית</string>
+    <string name="clear_listening_history">מחיקת ההיסטוריה במכשיר</string>
 </resources>

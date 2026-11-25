@@ -1782,4 +1782,5 @@
     <string name="reset_app_erase">Xóa hết và bắt đầu lại</string>
     <string name="hide_trending">Ẩn đề xuất thịnh hành</string>
     <string name="hide_trending_subtitle">Xóa bài hát thịnh hành và danh sách phát cộng đồng khỏi Trang chủ</string>
+    <string name="clear_listening_history">Xóa lịch sử trên thiết bị</string>
 </resources>

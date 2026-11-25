@@ -1841,4 +1841,5 @@
     <string name="reset_app_erase">すべて消去して最初から</string>
     <string name="hide_trending">急上昇のおすすめを非表示</string>
     <string name="hide_trending_subtitle">ホームから急上昇の曲やコミュニティ再生リストを削除します</string>
+    <string name="clear_listening_history">デバイス上の履歴を消去</string>
 </resources>

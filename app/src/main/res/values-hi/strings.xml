@@ -1869,4 +1869,5 @@
     <string name="reset_app_erase">सब कुछ मिटाएँ और नए सिरे से शुरू करें</string>
     <string name="hide_trending">ट्रेंडिंग सुझाव छिपाएं</string>
     <string name="hide_trending_subtitle">होम से ट्रेंडिंग गाने और कम्युनिटी प्लेलिस्ट हटाता है</string>
+    <string name="clear_listening_history">डिवाइस पर इतिहास साफ़ करें</string>
 </resources>

@@ -1840,4 +1840,5 @@
     <string name="reset_app_erase">Hapus semuanya dan mulai dari awal</string>
     <string name="hide_trending">Sembunyikan rekomendasi tren</string>
     <string name="hide_trending_subtitle">Menghapus lagu yang sedang tren dan playlist komunitas dari Beranda</string>
+    <string name="clear_listening_history">Hapus riwayat di perangkat</string>
 </resources>

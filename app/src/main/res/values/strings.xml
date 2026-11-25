@@ -1754,4 +1754,5 @@
     <string name="reset_app_erase">Erase everything and start fresh</string>
     <string name="hide_trending">Hide Trending recommendations</string>
     <string name="hide_trending_subtitle">Removes trending songs and community shelves from Home</string>
+    <string name="clear_listening_history">Clear on-device history</string>
 </resources>

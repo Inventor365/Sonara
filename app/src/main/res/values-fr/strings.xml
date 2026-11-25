@@ -1870,4 +1870,5 @@
     <string name="reset_app_erase">Tout effacer et repartir de zéro</string>
     <string name="hide_trending">Masquer les tendances</string>
     <string name="hide_trending_subtitle">Supprime les titres tendances et les playlists communautaires de l’accueil</string>
+    <string name="clear_listening_history">Effacer l’historique de l’appareil</string>
 </resources>

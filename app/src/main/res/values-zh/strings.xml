@@ -1840,4 +1840,5 @@
     <string name="reset_app_erase">清除全部并重新开始</string>
     <string name="hide_trending">隐藏热门趋势推荐</string>
     <string name="hide_trending_subtitle">从主页移除热门趋势歌曲和社区播放列表</string>
+    <string name="clear_listening_history">清除设备上的历史记录</string>
 </resources>

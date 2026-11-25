@@ -1869,4 +1869,5 @@
     <string name="reset_app_erase">Alles löschen und neu anfangen</string>
     <string name="hide_trending">Trends ausblenden</string>
     <string name="hide_trending_subtitle">Entfernt Trends und Community-Playlists von der Startseite</string>
+    <string name="clear_listening_history">Geräteverlauf löschen</string>
 </resources>

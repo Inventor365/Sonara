@@ -1857,4 +1857,5 @@
     <string name="reset_app_erase">清除全部並重新開始</string>
     <string name="hide_trending">隱藏熱門趨勢推薦</string>
     <string name="hide_trending_subtitle">從首頁移除熱門趨勢歌曲和社群播放清單</string>
+    <string name="clear_listening_history">清除裝置上的記錄</string>
 </resources>

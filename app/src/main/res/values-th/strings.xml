@@ -1847,4 +1847,5 @@
     <string name="reset_app_erase">ลบทุกอย่างแล้วเริ่มใหม่</string>
     <string name="hide_trending">ซ่อนการแนะนำที่กำลังเป็นกระแส</string>
     <string name="hide_trending_subtitle">ลบเพลงที่กำลังมาแรงและเพลย์利สต์ของชุมชนออกจากหน้าแรก</string>
+    <string name="clear_listening_history">ล้างประวัติในอุปกรณ์</string>
 </resources>

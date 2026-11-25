@@ -1921,4 +1921,5 @@
     <string name="reset_app_erase">Wyczyść wszystko i zacznij od nowa</string>
     <string name="hide_trending">Ukryj rekomendacje z trendów</string>
     <string name="hide_trending_subtitle">Usuwa utwory z trendów i playlisty społeczności ze strony głównej</string>
+    <string name="clear_listening_history">Wyczyść historię na urządzeniu</string>
 </resources>

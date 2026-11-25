@@ -1841,4 +1841,5 @@
     <string name="reset_app_erase">Borrarlo todo y empezar de cero</string>
     <string name="hide_trending">Ocultar recomendaciones de tendencias</string>
     <string name="hide_trending_subtitle">Elimina canciones en tendencia y listas de la comunidad de Inicio</string>
+    <string name="clear_listening_history">Borrar historial del dispositivo</string>
 </resources>

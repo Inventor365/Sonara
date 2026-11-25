@@ -1808,4 +1808,5 @@
     <string name="reset_app_erase">Cancella tutto e ricomincia</string>
     <string name="hide_trending">Nascondi i consigli di tendenza</string>
     <string name="hide_trending_subtitle">Rimuove i brani di tendenza e le playlist della community dalla Home</string>
+    <string name="clear_listening_history">Cancella cronologia sul dispositivo</string>
 </resources>
