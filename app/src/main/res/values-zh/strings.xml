@@ -556,7 +556,7 @@
     <string name="replay_artist_end">让你一听再听。</string>
     <string name="replay_artist_focus">同一位艺人</string>
     <string name="replay_artist_start">整月里，</string>
-    <string name="replay_empty_description">再多听一些，BitChord 就会根据你的收听记录生成听歌回顾。</string>
+    <string name="replay_empty_description">再多听一些，Sonara 就会根据你的收听记录生成听歌回顾。</string>
     <string name="replay_genre_end">塑造了你的听感。</string>
     <string name="replay_genre_focus">你的流派</string>
     <string name="replay_genre_start">总的来说，</string>
@@ -1070,7 +1070,7 @@
 
     <string name="auto_login_title">在手机上登录 YouTube</string>
 
-    <string name="auto_login_subtitle">在手机上打开 BitChord 以登录</string>
+    <string name="auto_login_subtitle">在手机上打开 Sonara 以登录</string>
 
     <string name="auto_empty_recents_title">暂无最近播放的歌曲</string>
 
@@ -1114,7 +1114,7 @@
     <string name="smart_version_alignment">智能音频对齐</string>
     <string name="smart_version_alignment_subtitle">分析音频波形，精确匹配对应的播放时刻</string>
 
-    <string name="equalizer_footer">在声音送往系统之前，先在 BitChord 中调整音效。</string>
+    <string name="equalizer_footer">在声音送往系统之前，先在 Sonara 中调整音效。</string>
 
     <string name="equalizer_dynamic">动态</string>
 
@@ -1157,7 +1157,7 @@
 
     <string name="system_equalizer_subtitle">打开设备自带的均衡器面板</string>
 
-    <string name="system_equalizer_footer">系统均衡器会在 BitChord 均衡器之后处理整段音频。两者同时启用时，效果会叠加。</string>
+    <string name="system_equalizer_footer">系统均衡器会在 Sonara 均衡器之后处理整段音频。两者同时启用时，效果会叠加。</string>
 
     <string name="eq_preset_flat">平直</string>
 
@@ -1793,7 +1793,7 @@
     <string name="replay_year_open">打开你的 %1$s 年度回顾</string>
     <string name="replay_year_opener_detail">一起回顾你这一年听过的音乐吧。</string>
     <string name="replay_year_opener_end">年度回顾</string>
-    <string name="replay_year_opener_start">你在 BitChord 的</string>
+    <string name="replay_year_opener_start">你在 Sonara 的</string>
     <string name="replay_year_song_start">而年度歌曲是……</string>
     <string name="replay_year_summary_artists">热门艺人</string>
     <string name="replay_year_summary_minutes">听歌时长（分钟）</string>
@@ -1847,7 +1847,7 @@
     <string name="clear_listening_history">清除设备上的历史记录</string>
     <string name="search_source_youtube" translatable="false">YouTube</string>
     <string name="tester_code_title" translatable="false">Tester code</string>
-    <string name="tester_code_message" translatable="false">For BitChord testers. Lets addon verification work on this phone with an unlocked bootloader.</string>
+    <string name="tester_code_message" translatable="false">For Sonara testers. Lets addon verification work on this phone with an unlocked bootloader.</string>
     <string name="tester_code_message_saved" translatable="false">A tester code is saved on this phone. Enter a new one to replace it, or remove it.</string>
     <string name="tester_code_placeholder" translatable="false">XXXXX-XXXXX-XXXXX-XXXXX-XXXXX</string>
     <string name="tester_code_saved" translatable="false">Tester code saved</string>
