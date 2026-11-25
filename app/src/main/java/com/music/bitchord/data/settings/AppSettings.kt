@@ -19,10 +19,15 @@ import com.music.bitchord.playback.AutoMixVisualFeed
 import com.music.bitchord.playback.EqLayout
 import com.music.bitchord.playback.EqualizerPreset
 import com.music.bitchord.R
+import com.music.bitchord.playback.KaraokeProcessingAvailability
 import com.music.bitchord.ui.player.AutoMixArtworkPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import com.music.bitchord.data.modes.over
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
 
 
 /**
@@ -67,13 +72,23 @@ enum class OutputPcmMode(val label: String) {
 }
 
 /**
+ * Audio focus handling behavior when other apps or phone calls request focus.
+ */
+enum class AudioFocusOption {
+    AUTO_PAUSE,
+    KEEP_PLAYING;
+
+    val isAutoPause: Boolean get() = this == AUTO_PAUSE
+}
+
+/**
  * Which exclusive output, if any, a track is sent to unchanged. Declared in
  * the order the settings picker lists them; persisted by name, so the order
  * can change freely.
  *
- * Bit-perfect output bypasses the equalizer, loudness normalization,
- * crossfade, Automix, playback speed and software volume: any of them would
- * change the samples. Volume belongs to the DAC.
+ * Bit-perfect output bypasses the equalizer, Karaoke vocal reduction, loudness
+ * normalization, crossfade, Automix, playback speed and software volume: any of
+ * them would change the samples. Volume belongs to the DAC.
  *
  * See [com.music.bitchord.playback.audio.bitperfect.BitPerfectOutput].
  */
@@ -460,6 +475,25 @@ object AppSettings {
      */
     val equalizerEnabled = MutableStateFlow(false)
 
+    /**
+     * Karaoke vocal reduction, master switch.
+     *
+     * Stereo mid/side DSP in the playback chain — see
+     * [com.music.bitchord.playback.StereoVocalReductionProcessor]. Vocal
+     * *reduction*, not guaranteed removal: centered instruments ride with the
+     * vocal, and mono tracks have no middle to cancel.
+     */
+    val karaokeEnabled = MutableStateFlow(false)
+
+    /**
+     * 0 = maximum vocal reduction, 1 = the original mix.
+     *
+     * Default 0 so the first activation is immediately audible. Kept when
+     * [karaokeEnabled] is switched off, so disabling does not discard the
+     * level the listener chose for the next time.
+     */
+    val karaokeVocalLevel = MutableStateFlow(0f)
+
     /** Which tab is driving it. */
     val equalizerMode = MutableStateFlow(EqualizerMode.DYNAMIC)
 
@@ -520,6 +554,12 @@ object AppSettings {
 
     /** Whether the queue is held in shuffled order (Mix button). */
     val shuffleEnabled = MutableStateFlow(false)
+
+    /** Audio focus handling policy — auto-pause on external sound vs keep playing except calls. */
+    val audioFocusOption = MutableStateFlow(AudioFocusOption.AUTO_PAUSE)
+
+    /** Whether shuffle remains active when starting playback of a new queue or album. */
+    val rememberShuffleState = MutableStateFlow(true)
 
     /** Repeat mode for the player — Off, All, or One. */
     val repeatMode = MutableStateFlow(Player.REPEAT_MODE_OFF)
@@ -634,6 +674,7 @@ object AppSettings {
 
     /** Home's Find Your Mood shelf. Explore's moods are a page the listener opened, so they stay. */
     val hideHomeMoods = MutableStateFlow(false)
+    val hideTrending = MutableStateFlow(false)
 
     /** Music videos are square wherever they show — see [com.music.bitchord.ui.components.VideoThumbnails]. */
     val squareVideoThumbnails = MutableStateFlow(false)
@@ -676,6 +717,16 @@ object AppSettings {
 
     /** Positive values delay synced lyrics; negative values bring them forward. */
     val lyricsOffsetMs = MutableStateFlow(0)
+
+    /**
+     * A song's own lyrics offset, added to [lyricsOffsetMs], by video id. The
+     * global one stays for what delays every song alike (a Bluetooth headset);
+     * this is for the one recording whose lyrics run early or late.
+     */
+    val songLyricsOffsets = MutableStateFlow<Map<String, Int>>(emptyMap())
+
+    /** The lyrics provider picked by hand for a song, by video id; used again the next time it plays. */
+    val songLyricsProviders = MutableStateFlow<Map<String, LyricsSource>>(emptyMap())
 
     /**
      * Which language the lyrics translate button translates *into*.
@@ -763,6 +814,8 @@ object AppSettings {
      * [NowPlayingScreen][com.music.bitchord.ui.player.NowPlayingScreen].
      */
     val fullBleedArtwork = MutableStateFlow(true)
+    /** Allows animated canvas artwork to extend while still covers remain square. */
+    val extendAnimatedArtwork = MutableStateFlow(false)
 
     /**
      * The album and playlist page's answer to [fullBleedArtwork]: the sleeve
@@ -916,6 +969,41 @@ object AppSettings {
     val smbUsername = MutableStateFlow("")
     val smbPassword = MutableStateFlow("")
 
+    private val _remoteArtworkScope = MutableStateFlow(0L)
+    val remoteArtworkScope = _remoteArtworkScope.asStateFlow()
+    internal class RemoteArtworkAuth(
+        val scope: Long,
+        val smb: com.music.bitchord.data.smb.SmbAuth.ArtworkServer,
+        val webDav: com.music.bitchord.data.webdav.WebDavAuth.Snapshot,
+    )
+    @Volatile private var artworkAuth = captureArtworkAuth(0L)
+    internal fun remoteArtworkAuth(scope: Long): RemoteArtworkAuth? = artworkAuth.takeIf { it.scope == scope }
+
+    private fun captureArtworkAuth(scope: Long) = RemoteArtworkAuth(
+        scope, com.music.bitchord.data.smb.SmbAuth.artworkServer, com.music.bitchord.data.webdav.WebDavAuth.current,
+    )
+
+    private fun publishArtworkAuth(scope: Long) {
+        artworkAuth = captureArtworkAuth(scope)
+        _remoteArtworkScope.value = scope
+    }
+
+    private data class SmbSource(val authority: String, val share: String, val basePath: String, val username: String, val password: String) {
+        override fun toString() = "SmbSource(redacted)"
+    }
+
+    private data class WebDavSource(val url: String, val username: String, val password: String) {
+        override fun toString() = "WebDavSource(redacted)"
+    }
+
+    private data class ArtworkSources(val smb: SmbSource, val webDav: WebDavSource) {
+        val fingerprint by lazy {
+            remoteArtworkSourceFingerprint(listOf(smb.authority, smb.share, smb.basePath, smb.username, smb.password,
+                webDav.url, webDav.username, webDav.password))
+        }
+    }
+    private val artworkRevision = RemoteArtworkRevision<ArtworkSources>()
+
     /**
      * Browse ids of the playlists pinned to the top of the Library tab, in the
      * order they were pinned.
@@ -1000,6 +1088,21 @@ object AppSettings {
 
     /** Published by PlaybackService so the UI can open the system equalizer. */
     val audioSessionId = MutableStateFlow(0)
+
+    /**
+     * Whether the Karaoke vocal reduction can run on the audio that is
+     * actually playing right now — local stereo PCM, or a route that bypasses
+     * it (mono, non-PCM, bit-perfect, Cast, the watch).
+     *
+     * Runtime, not persisted: published by PlaybackService like
+     * [audioSessionId], and recomputed on every format, route, Cast, watch
+     * and bit-perfect change. A preference left enabled on an incompatible
+     * route reads as the matching unavailable state rather than pretending
+     * to work, and returns to [AVAILABLE][KaraokeProcessingAvailability.AVAILABLE]
+     * on its own when a compatible route does.
+     */
+    val karaokeProcessingAvailability =
+        MutableStateFlow(KaraokeProcessingAvailability.AVAILABLE)
 
     /**
      * True only while a Automix transition that is actually *mixing* is
@@ -1133,6 +1236,7 @@ object AppSettings {
         prefs = context.getSharedPreferences("bitchord_settings", Context.MODE_PRIVATE)
         this.authStore = authStore
         moveSecretsOutOfSettings()
+        mutateRemoteArtworkSettings()
         com.music.bitchord.data.spotify.LocalPlaylistStore.init(context)
         com.music.bitchord.data.OfflinePlaylists.init(
             context,
@@ -1155,6 +1259,7 @@ object AppSettings {
      */
     fun reload() {
         if (!this::prefs.isInitialized) return
+        mutateRemoteArtworkSettings()
         readAll()
     }
 
@@ -1239,6 +1344,8 @@ object AppSettings {
         youtubePremiumAudio.value = prefs.getBoolean(KEY_YOUTUBE_PREMIUM_AUDIO, false)
         spatialAudio.value = prefs.getBoolean(KEY_SPATIAL_AUDIO, false)
         autoPlayRecognizedSong.value = prefs.getBoolean(KEY_AUTO_PLAY_RECOGNIZED_SONG, false)
+        karaokeEnabled.value = prefs.getBoolean(KEY_KARAOKE_ENABLED, false)
+        karaokeVocalLevel.value = prefs.getFloat(KEY_KARAOKE_VOCAL_LEVEL, 0f).coerceIn(0f, 1f)
         equalizerEnabled.value = prefs.getBoolean(KEY_EQ_ENABLED, false)
         equalizerMode.value = runCatching {
             EqualizerMode.valueOf(prefs.getString(KEY_EQ_MODE, null) ?: EqualizerMode.DYNAMIC.name)
@@ -1283,6 +1390,12 @@ object AppSettings {
         autoplay.value = prefs.getBoolean(KEY_AUTOPLAY, true)
         autoPlayOnBluetoothConnection.value = prefs.getBoolean(KEY_AUTO_PLAY_ON_BLUETOOTH_CONNECTION, false)
         shuffleEnabled.value = prefs.getBoolean(KEY_SHUFFLE_ENABLED, false)
+        audioFocusOption.value = runCatching {
+            AudioFocusOption.valueOf(
+                prefs.getString(KEY_AUDIO_FOCUS_OPTION, null) ?: AudioFocusOption.AUTO_PAUSE.name,
+            )
+        }.getOrDefault(AudioFocusOption.AUTO_PAUSE)
+        rememberShuffleState.value = prefs.getBoolean(KEY_REMEMBER_SHUFFLE_STATE, true)
         repeatMode.value = prefs.getInt(KEY_REPEAT_MODE, Player.REPEAT_MODE_OFF)
         showNerdStats.value = prefs.getBoolean(KEY_NERD_STATS, false)
         showBestPart.value = prefs.getBoolean(KEY_BEST_PART, true)
@@ -1316,6 +1429,7 @@ object AppSettings {
         hideHomeVideos.value = prefs.getBoolean(KEY_HIDE_HOME_VIDEOS, false)
         hideTopPicks.value = prefs.getBoolean(KEY_HIDE_TOP_PICKS, false)
         hideHomeMoods.value = prefs.getBoolean(KEY_HIDE_HOME_MOODS, false)
+        hideTrending.value = prefs.getBoolean(KEY_HIDE_TRENDING, false)
         squareVideoThumbnails.value = prefs.getBoolean(KEY_SQUARE_VIDEO_THUMBNAILS, false)
         VideoThumbnails.square = squareVideoThumbnails.value
         smartVersionAlignment.value = prefs.getBoolean(KEY_SMART_VERSION_ALIGNMENT, true)
@@ -1327,6 +1441,10 @@ object AppSettings {
         lyricsBlur.value = prefs.getBoolean(KEY_LYRICS_BLUR, true)
         lyricsOffsetMs.value = prefs.getInt(KEY_LYRICS_OFFSET_MS, 0)
             .coerceIn(MIN_LYRICS_OFFSET_MS, MAX_LYRICS_OFFSET_MS)
+        songLyricsOffsets.value = readSongMap(KEY_SONG_LYRICS_OFFSETS, Int.serializer())
+        songLyricsProviders.value = readSongMap(KEY_SONG_LYRICS_PROVIDERS, String.serializer())
+            .mapNotNull { (id, name) -> LyricsSource.entries.firstOrNull { it.name == name }?.let { id to it } }
+            .toMap()
         translationLanguage.value = prefs.getString(KEY_TRANSLATION_LANGUAGE, "").orEmpty()
         animatedCanvasPref.value = prefs.getBoolean(KEY_ANIMATED_CANVAS, true)
         recomputeEffects()
@@ -1339,6 +1457,7 @@ object AppSettings {
         signatureApiEnabled.value = prefs.getBoolean(KEY_SIGNATURE_API_ENABLED, false)
         signatureApiUrl.value = normalizeSignatureApiUrl(prefs.getString(KEY_SIGNATURE_API_URL, "").orEmpty())
         fullBleedArtwork.value = prefs.getBoolean(KEY_FULL_BLEED_ARTWORK, true)
+        extendAnimatedArtwork.value = prefs.getBoolean(KEY_EXTEND_ANIMATED_ARTWORK, false)
         fullBleedDetailArtwork.value = prefs.getBoolean(KEY_FULL_BLEED_DETAIL_ARTWORK, false)
         disableDetailGradients.value = prefs.getBoolean(KEY_DISABLE_DETAIL_GRADIENTS, false)
         showTotalDuration.value = prefs.getBoolean(KEY_SHOW_TOTAL_DURATION, false)
@@ -1389,26 +1508,7 @@ object AppSettings {
             ?: LibrarySort.DEFAULT
         detailSongSorts.value = readDetailSongSorts()
         localMusicFolderUri.value = prefs.getString(KEY_LOCAL_MUSIC_FOLDER_URI, "").orEmpty()
-        webdavUrl.value = prefs.getString(KEY_WEBDAV_URL, "").orEmpty()
-        webdavUsername.value = prefs.getString(KEY_WEBDAV_USERNAME, "").orEmpty()
-        webdavPassword.value = authStore.webdavPassword.orEmpty()
-        smbHost.value = prefs.getString(KEY_SMB_HOST, "").orEmpty()
-        smbShare.value = prefs.getString(KEY_SMB_SHARE, "").orEmpty()
-        smbBasePath.value = prefs.getString(KEY_SMB_BASE_PATH, "").orEmpty()
-        smbUsername.value = prefs.getString(KEY_SMB_USERNAME, "").orEmpty()
-        smbPassword.value = authStore.smbPassword.orEmpty()
-        com.music.bitchord.data.smb.SmbAuth.update(
-            smbHost.value,
-            smbShare.value,
-            smbBasePath.value,
-            smbUsername.value,
-            smbPassword.value,
-        )
-        com.music.bitchord.data.webdav.WebDavAuth.update(
-            webdavUrl.value,
-            webdavUsername.value,
-            webdavPassword.value,
-        )
+
         pinnedPlaylists.value = readPinnedPlaylists()
         discordToken.value = authStore.discordToken.orEmpty()
         discordUsername.value = prefs.getString(KEY_DISCORD_USERNAME, "").orEmpty()
@@ -1566,7 +1666,23 @@ object AppSettings {
 
     fun setShuffleEnabled(value: Boolean) {
         shuffleEnabled.value = value
-        prefs.edit().putBoolean(KEY_SHUFFLE_ENABLED, value).apply()
+        if (this::prefs.isInitialized) {
+            prefs.edit().putBoolean(KEY_SHUFFLE_ENABLED, value).apply()
+        }
+    }
+
+    fun setAudioFocusOption(option: AudioFocusOption) {
+        audioFocusOption.value = option
+        if (this::prefs.isInitialized) {
+            prefs.edit().putString(KEY_AUDIO_FOCUS_OPTION, option.name).apply()
+        }
+    }
+
+    fun setRememberShuffleState(value: Boolean) {
+        rememberShuffleState.value = value
+        if (this::prefs.isInitialized) {
+            prefs.edit().putBoolean(KEY_REMEMBER_SHUFFLE_STATE, value).apply()
+        }
     }
 
     fun setRepeatMode(value: Int) {
@@ -1701,6 +1817,22 @@ object AppSettings {
     fun setAutoPlayRecognizedSong(value: Boolean) {
         autoPlayRecognizedSong.value = value
         prefs.edit().putBoolean(KEY_AUTO_PLAY_RECOGNIZED_SONG, value).apply()
+    }
+
+    /**
+     * Karaoke's master switch. Kept separate from [setKaraokeVocalLevel] so
+     * switching off does not discard the listener's chosen level.
+     */
+    fun setKaraokeEnabled(value: Boolean) {
+        karaokeEnabled.value = value
+        prefs.edit().putBoolean(KEY_KARAOKE_ENABLED, value).apply()
+    }
+
+    /** Sets the vocal level, clamped to 0 (maximum reduction) .. 1 (original mix). */
+    fun setKaraokeVocalLevel(value: Float) {
+        val clamped = value.coerceIn(0f, 1f)
+        karaokeVocalLevel.value = clamped
+        prefs.edit().putFloat(KEY_KARAOKE_VOCAL_LEVEL, clamped).apply()
     }
 
     fun setEqualizerEnabled(value: Boolean) {
@@ -2010,6 +2142,11 @@ object AppSettings {
         prefs.edit().putBoolean(KEY_HIDE_HOME_MOODS, value).apply()
     }
 
+    fun setHideTrending(value: Boolean) {
+        hideTrending.value = value
+        prefs.edit().putBoolean(KEY_HIDE_TRENDING, value).apply()
+    }
+
     fun setSquareVideoThumbnails(value: Boolean) {
         squareVideoThumbnails.value = value
         VideoThumbnails.square = value
@@ -2078,6 +2215,27 @@ object AppSettings {
         if (lyricsOffsetMs.value == normalized) return
         lyricsOffsetMs.value = normalized
         prefs.edit().putInt(KEY_LYRICS_OFFSET_MS, normalized).apply()
+    }
+
+    fun setSongLyricsOffsetMs(videoId: String, value: Int) {
+        val normalized = value.coerceIn(MIN_LYRICS_OFFSET_MS, MAX_LYRICS_OFFSET_MS)
+        if ((songLyricsOffsets.value[videoId] ?: 0) == normalized) return
+        songLyricsOffsets.value = songLyricsOffsets.value.withSongEntry(videoId, normalized.takeIf { it != 0 })
+        writeSongMap(KEY_SONG_LYRICS_OFFSETS, Int.serializer(), songLyricsOffsets.value)
+    }
+
+    fun setSongLyricsProvider(videoId: String, source: LyricsSource) {
+        songLyricsProviders.value = songLyricsProviders.value.withSongEntry(videoId, source)
+        writeSongMap(KEY_SONG_LYRICS_PROVIDERS, String.serializer(), songLyricsProviders.value.mapValues { it.value.name })
+    }
+
+    // JSON, not a delimited string: a video id can be a local file's URI, separators and all.
+    private fun <V> readSongMap(key: String, values: KSerializer<V>): Map<String, V> = runCatching {
+        Json.decodeFromString(MapSerializer(String.serializer(), values), prefs.getString(key, null) ?: "{}")
+    }.getOrDefault(emptyMap())
+
+    private fun <V> writeSongMap(key: String, values: KSerializer<V>, map: Map<String, V>) {
+        prefs.edit().putString(key, Json.encodeToString(MapSerializer(String.serializer(), values), map)).apply()
     }
 
     /** Blank restores "follow the app language"; see [translationLanguage]. */
@@ -2248,6 +2406,11 @@ object AppSettings {
     fun setFullBleedArtwork(value: Boolean) {
         fullBleedArtwork.value = value
         prefs.edit().putBoolean(KEY_FULL_BLEED_ARTWORK, value).apply()
+    }
+
+    fun setExtendAnimatedArtwork(value: Boolean) {
+        extendAnimatedArtwork.value = value
+        prefs.edit().putBoolean(KEY_EXTEND_ANIMATED_ARTWORK, value).apply()
     }
 
     fun setFullBleedDetailArtwork(value: Boolean) {
@@ -2567,94 +2730,91 @@ object AppSettings {
         prefs.edit().putString(KEY_LOCAL_MUSIC_FOLDER_URI, value).apply()
     }
 
-    fun setWebDavUrl(value: String) {
-        val normalized = value.trim().trimEnd('/')
-        webdavUrl.value = normalized
-        prefs.edit().putString(KEY_WEBDAV_URL, normalized).apply()
-        publishWebDavAuth()
+    fun setWebDavUrl(value: String) = mutateRemoteArtworkSettings {
+        prefs.edit().putString(KEY_WEBDAV_URL, value.trim().trimEnd('/')).apply()
     }
 
-    fun setWebDavUsername(value: String) {
-        val normalized = value.trim()
-        webdavUsername.value = normalized
-        prefs.edit().putString(KEY_WEBDAV_USERNAME, normalized).apply()
-        publishWebDavAuth()
+    fun setWebDavUsername(value: String) = mutateRemoteArtworkSettings {
+        prefs.edit().putString(KEY_WEBDAV_USERNAME, value.trim()).apply()
     }
 
     /** Writes through to the encrypted store; pass "" to forget. */
-    fun setWebDavPassword(value: String) {
-        webdavPassword.value = value
+    fun setWebDavPassword(value: String) = mutateRemoteArtworkSettings {
         authStore.webdavPassword = value.ifEmpty { null }
-        publishWebDavAuth()
     }
 
-    fun clearWebDav() {
-        setWebDavUrl("")
-        setWebDavUsername("")
-        setWebDavPassword("")
+    fun clearWebDav() = mutateRemoteArtworkSettings {
+        prefs.edit().remove(KEY_WEBDAV_URL).remove(KEY_WEBDAV_USERNAME).apply()
+        authStore.webdavPassword = null
     }
 
-    fun setSmbHost(value: String) {
-        val normalized = value.trim()
-        smbHost.value = normalized
-        prefs.edit().putString(KEY_SMB_HOST, normalized).apply()
-        publishSmbAuth()
+    fun setSmbHost(value: String) = mutateRemoteArtworkSettings {
+        prefs.edit().putString(KEY_SMB_HOST, value.trim()).apply()
     }
 
-    fun setSmbShare(value: String) {
-        val normalized = value.trim().trim('/')
-        smbShare.value = normalized
-        prefs.edit().putString(KEY_SMB_SHARE, normalized).apply()
-        publishSmbAuth()
+    fun setSmbShare(value: String) = mutateRemoteArtworkSettings {
+        prefs.edit().putString(KEY_SMB_SHARE, value.trim().trim('/')).apply()
     }
 
-    fun setSmbBasePath(value: String) {
-        val normalized = value.trim().trim('/')
-        smbBasePath.value = normalized
-        prefs.edit().putString(KEY_SMB_BASE_PATH, normalized).apply()
-        publishSmbAuth()
+    fun setSmbBasePath(value: String) = mutateRemoteArtworkSettings {
+        prefs.edit().putString(KEY_SMB_BASE_PATH, value.trim().trim('/')).apply()
     }
 
-    fun setSmbUsername(value: String) {
-        val normalized = value.trim()
-        smbUsername.value = normalized
-        prefs.edit().putString(KEY_SMB_USERNAME, normalized).apply()
-        publishSmbAuth()
+    fun setSmbUsername(value: String) = mutateRemoteArtworkSettings {
+        prefs.edit().putString(KEY_SMB_USERNAME, value.trim()).apply()
     }
 
     /** Writes through to the encrypted store; pass "" to forget. */
-    fun setSmbPassword(value: String) {
-        smbPassword.value = value
+    fun setSmbPassword(value: String) = mutateRemoteArtworkSettings {
         authStore.smbPassword = value.ifEmpty { null }
-        publishSmbAuth()
     }
 
-    fun clearSmb() {
-        setSmbHost("")
-        setSmbShare("")
-        setSmbBasePath("")
-        setSmbUsername("")
-        setSmbPassword("")
+    fun clearSmb() = mutateRemoteArtworkSettings {
+        prefs.edit().remove(KEY_SMB_HOST).remove(KEY_SMB_SHARE).remove(KEY_SMB_BASE_PATH).remove(KEY_SMB_USERNAME).apply()
+        authStore.smbPassword = null
     }
 
-    private fun publishSmbAuth() {
+    // The same transaction covers restore and setters, from storage mutation through publication.
+    private fun mutateRemoteArtworkSettings(edit: () -> Unit = {}) {
         if (!this::prefs.isInitialized || !this::authStore.isInitialized) return
-        com.music.bitchord.data.smb.SmbAuth.update(
-            smbHost.value,
-            smbShare.value,
-            smbBasePath.value,
-            smbUsername.value,
-            smbPassword.value,
-        )
-    }
-
-    private fun publishWebDavAuth() {
-        if (!this::prefs.isInitialized || !this::authStore.isInitialized) return
-        com.music.bitchord.data.webdav.WebDavAuth.update(
-            webdavUrl.value,
-            webdavUsername.value,
-            webdavPassword.value,
-        )
+        artworkRevision.update(
+            persistedScope = { source ->
+                restoredRemoteArtworkScope(authStore.settingSecret(KEY_REMOTE_ARTWORK_SCOPE), source.fingerprint)
+            },
+            persistScope = { scope, source ->
+                // A restart with a partially persisted edit must not adopt the old pixels.
+                val record = "$scope:${source.fingerprint}"
+                if (authStore.settingSecret(KEY_REMOTE_ARTWORK_SCOPE) != record) {
+                    authStore.setSettingSecret(KEY_REMOTE_ARTWORK_SCOPE, record)
+                }
+            },
+            editAndRead = {
+                edit()
+                webdavUrl.value = prefs.getString(KEY_WEBDAV_URL, "").orEmpty()
+                webdavUsername.value = prefs.getString(KEY_WEBDAV_USERNAME, "").orEmpty()
+                webdavPassword.value = authStore.webdavPassword.orEmpty()
+                smbHost.value = prefs.getString(KEY_SMB_HOST, "").orEmpty()
+                smbShare.value = prefs.getString(KEY_SMB_SHARE, "").orEmpty()
+                smbBasePath.value = prefs.getString(KEY_SMB_BASE_PATH, "").orEmpty()
+                smbUsername.value = prefs.getString(KEY_SMB_USERNAME, "").orEmpty()
+                smbPassword.value = authStore.smbPassword.orEmpty()
+                val config = com.music.bitchord.data.smb.SmbConfig
+                val (host, port) = config.splitHostPort(smbHost.value)
+                ArtworkSources(
+                    SmbSource(config.authority(host, port), smbShare.value.trim().trim('/'),
+                        smbBasePath.value.trim().trim('/').replace('\\', '/'), smbUsername.value.trim(), smbPassword.value),
+                    WebDavSource(webdavUrl.value.trim().trimEnd('/'), webdavUsername.value.trim(), webdavPassword.value),
+                )
+            },
+        ) { scope, next, previous ->
+            if (next.smb != previous?.smb) with(next.smb) {
+                com.music.bitchord.data.smb.SmbAuth.update(authority, share, basePath, username, password)
+            }
+            if (next.webDav != previous?.webDav) with(next.webDav) {
+                com.music.bitchord.data.webdav.WebDavAuth.update(url, username, password)
+            }
+            publishArtworkAuth(scope)
+        }
     }
 
     private fun readLocalMusicSort(key: String): LocalMusicSort =
@@ -2744,23 +2904,25 @@ object AppSettings {
      */
     fun importPrefs(values: Map<String, Any?>) {
         if (!this::prefs.isInitialized) return
-        val kept = prefs.all.filterKeys { it in SECRETS || it in DEVICE_LOCAL }
-        prefs.edit().apply {
-            clear()
-            val incoming = values.filterKeys { it !in SECRETS && it !in DEVICE_LOCAL }
-            (kept + incoming).forEach { (key, value) ->
-                when (value) {
-                    is Boolean -> putBoolean(key, value)
-                    is Int -> putInt(key, value)
-                    is Long -> putLong(key, value)
-                    is Float -> putFloat(key, value)
-                    is String -> putString(key, value)
-                    is Set<*> -> putStringSet(key, value.filterIsInstance<String>().toSet())
-                    else -> Unit
+        mutateRemoteArtworkSettings {
+            val kept = prefs.all.filterKeys { it in SECRETS || it in DEVICE_LOCAL }
+            prefs.edit().apply {
+                clear()
+                val incoming = values.filterKeys { it !in SECRETS && it !in DEVICE_LOCAL }
+                (kept + incoming).forEach { (key, value) ->
+                    when (value) {
+                        is Boolean -> putBoolean(key, value)
+                        is Int -> putInt(key, value)
+                        is Long -> putLong(key, value)
+                        is Float -> putFloat(key, value)
+                        is String -> putString(key, value)
+                        is Set<*> -> putStringSet(key, value.filterIsInstance<String>().toSet())
+                        else -> Unit
+                    }
                 }
-            }
-        }.apply()
-        reload()
+            }.apply()
+        }
+        readAll()
     }
 
     /**
@@ -2853,6 +3015,8 @@ object AppSettings {
     private const val KEY_YOUTUBE_PREMIUM_AUDIO = "youtube_premium_audio"
     private const val KEY_SPATIAL_AUDIO = "spatial_audio"
     private const val KEY_AUTO_PLAY_RECOGNIZED_SONG = "auto_play_recognized_song"
+    private const val KEY_KARAOKE_ENABLED = "karaoke_enabled"
+    private const val KEY_KARAOKE_VOCAL_LEVEL = "karaoke_vocal_level"
     private const val KEY_EQ_ENABLED = "equalizer_enabled"
     private const val KEY_EQ_MODE = "equalizer_mode"
     private const val KEY_EQ_TONE_X = "equalizer_tone_x"
@@ -2866,6 +3030,8 @@ object AppSettings {
     private const val KEY_AUTOPLAY = "autoplay"
     private const val KEY_AUTO_PLAY_ON_BLUETOOTH_CONNECTION = "auto_play_on_bluetooth_connection"
     private const val KEY_SHUFFLE_ENABLED = "shuffle_enabled"
+    private const val KEY_AUDIO_FOCUS_OPTION = "audio_focus_option"
+    private const val KEY_REMEMBER_SHUFFLE_STATE = "remember_shuffle_state"
     private const val KEY_REPEAT_MODE = "repeat_mode"
     private const val KEY_NERD_STATS = "show_nerd_stats"
     private const val KEY_BEST_PART = "show_best_part"
@@ -2918,6 +3084,7 @@ object AppSettings {
     private const val KEY_HIDE_HOME_VIDEOS = "hide_home_videos"
     private const val KEY_HIDE_TOP_PICKS = "hide_top_picks"
     private const val KEY_HIDE_HOME_MOODS = "hide_home_moods"
+    private const val KEY_HIDE_TRENDING = "hide_trending"
     private const val KEY_SQUARE_VIDEO_THUMBNAILS = "square_video_thumbnails"
     private const val KEY_SMART_VERSION_ALIGNMENT = "smart_version_alignment"
     private const val KEY_REDUCE_BLUR = "reduce_dynamic_blur"
@@ -2927,6 +3094,8 @@ object AppSettings {
     private const val KEY_PROGRESSIVE_BLUR = "progressive_blur"
     private const val KEY_LYRICS_BLUR = "lyrics_blur"
     private const val KEY_LYRICS_OFFSET_MS = "lyrics_offset_ms"
+    private const val KEY_SONG_LYRICS_OFFSETS = "song_lyrics_offsets"
+    private const val KEY_SONG_LYRICS_PROVIDERS = "song_lyrics_providers"
     private const val KEY_TRANSLATION_LANGUAGE = "translation_language"
     private const val KEY_ANIMATED_CANVAS = "animated_canvas"
     private const val KEY_DISABLE_ARTIST_VIDEO = "disable_artist_video"
@@ -2937,6 +3106,7 @@ object AppSettings {
     private const val KEY_SIGNATURE_API_ENABLED = "signature_api_enabled"
     private const val KEY_SIGNATURE_API_URL = "signature_api_url"
     private const val KEY_FULL_BLEED_ARTWORK = "full_bleed_artwork"
+    private const val KEY_EXTEND_ANIMATED_ARTWORK = "extend_animated_artwork"
     private const val KEY_FULL_BLEED_DETAIL_ARTWORK = "full_bleed_detail_artwork"
     private const val KEY_DISABLE_DETAIL_GRADIENTS = "disable_detail_gradients"
     private const val KEY_SHOW_TOTAL_DURATION = "show_total_duration"
@@ -2961,6 +3131,7 @@ object AppSettings {
     private const val KEY_DOWNLOADED_MUSIC_VIEW_TYPE = "downloaded_music_view_type"
     private const val KEY_LOCAL_MUSIC_FOLDER_URI = "local_music_folder_uri"
     private const val KEY_WEBDAV_URL = "webdav_url"
+    private const val KEY_REMOTE_ARTWORK_SCOPE = "remote_artwork_scope"
     private const val KEY_WEBDAV_USERNAME = "webdav_username"
     private const val KEY_SMB_HOST = "smb_host"
     private const val KEY_SMB_SHARE = "smb_share"
@@ -3003,4 +3174,20 @@ object AppSettings {
     private const val KEY_LAST_VERSION_CODE = "last_version_code"
 }
 
+/** How many songs keep a per-song lyrics choice; the least recently set fall off first. */
+internal const val MAX_SONG_LYRICS_ENTRIES = 500
 
+/**
+ * This map with [id] set to [value] as its newest entry, or removed when [value]
+ * is null, keeping only the newest [max] entries.
+ */
+internal fun <V : Any> Map<String, V>.withSongEntry(
+    id: String,
+    value: V?,
+    max: Int = MAX_SONG_LYRICS_ENTRIES,
+): Map<String, V> {
+    val next = LinkedHashMap(this)
+    next.remove(id)
+    if (value != null) next[id] = value
+    return next.entries.drop((next.size - max).coerceAtLeast(0)).associate { it.key to it.value }
+}

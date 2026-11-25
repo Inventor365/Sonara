@@ -1784,4 +1784,27 @@
     <string name="native_sign_in_subtitle">Bảng của chính Google, một chạm, không cần mật khẩu. Cần thiết lập đăng nhập Google cho Sonara; trước đó Sonara dùng đăng nhập trên web</string>
     <string name="native_sign_in_working">Đang đăng nhập bằng Google…</string>
     <string name="native_sign_in_fallback">Không dùng được đăng nhập Google nên đã mở đăng nhập trên web</string>
+    <string name="hide_trending">Ẩn đề xuất thịnh hành</string>
+    <string name="hide_trending_subtitle">Xóa bài hát thịnh hành và danh sách phát cộng đồng khỏi Trang chủ</string>
+    <string name="clear_listening_history">Xóa lịch sử trên thiết bị</string>
+    <string name="extend_animated_artwork">Chỉ mở rộng ảnh bìa động</string>
+    <string name="extend_animated_artwork_subtitle">Ảnh bìa động trải đến mép trình phát, ảnh tĩnh vẫn vuông</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">Mở Last.fm trong trình duyệt</string>
+    <string name="lastfm_complete_connection">Hoàn tất kết nối</string>
+    <string name="lastfm_oauth_description">Chấp thuận Sonara trên Last.fm trong trình duyệt để kết nối tài khoản. Mật khẩu không bao giờ được nhập ở đây.</string>
+    <string name="lastfm_oauth_waiting">Chấp thuận quyền truy cập trên Last.fm trong trình duyệt, rồi chạm bên dưới để hoàn tất kết nối.</string>
+    <string name="lastfm_oauth_error_pending">Chưa được chấp thuận. Hãy chấp thuận quyền truy cập trên Last.fm trong trình duyệt rồi thử lại.</string>
+    <string name="audio_focus">Tiêu điểm âm thanh</string>
+    <string name="audio_focus_auto_pause">Tạm dừng và tiếp tục</string>
+    <string name="audio_focus_auto_pause_subtitle">Tạm dừng khi ứng dụng khác bắt đầu phát âm thanh</string>
+    <string name="audio_focus_keep_playing">Luôn tiếp tục phát</string>
+    <string name="audio_focus_keep_playing_subtitle">Vẫn phát khi có âm thanh khác; chỉ tạm dừng khi có cuộc gọi</string>
+    <string name="audio_focus_footer">Cách Sonara phản ứng khi ứng dụng khác hoặc cuộc gọi muốn phát âm thanh.</string>
+    <string name="remember_shuffle_state">Ghi nhớ phát ngẫu nhiên</string>
+    <string name="remember_shuffle_state_subtitle">Giữ phát ngẫu nhiên khi bắt đầu album hoặc danh sách phát mới</string>
+    <string name="widget_lyrics_label">Lời bài hát đồng bộ 4×2</string>
+    <string name="widget_lyrics_description">Dòng đang được hát, kèm nút điều khiển phát.</string>
+    <string name="pipeline_karaoke">Karaoke</string>
 </resources>

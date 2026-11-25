@@ -87,6 +87,7 @@ import com.music.bitchord.playback.cast.CastPlayback
 import com.music.bitchord.playback.cast.CastSink
 import com.music.bitchord.playback.cast.RemoteSpeaker
 import com.music.bitchord.playback.cast.Speakers
+import com.music.bitchord.playback.dlna.DlnaOutput
 import com.music.bitchord.playback.cast.CastStream
 import com.music.bitchord.playback.audio.PrecisionAudioSink
 import com.music.bitchord.playback.dsd.DsdExtractorsFactory
@@ -138,6 +139,7 @@ import com.music.bitchord.data.discord.DiscordRPC
 import com.music.bitchord.data.discord.discordAudioQualityLine
 import com.music.bitchord.data.innertube.PlaybackTracker
 import com.music.bitchord.data.stats.ListeningRecorder
+import com.music.bitchord.data.LocalHistoryRepository
 import com.music.bitchord.data.innertube.PlayerClient
 import com.music.bitchord.data.innertube.StreamResolver
 import com.music.bitchord.data.model.LikeStatus
@@ -148,6 +150,7 @@ import com.music.bitchord.data.scrobbling.LastFM
 import com.music.bitchord.data.scrobbling.ListenBrainzManager
 import com.music.bitchord.data.scrobbling.ScrobbleManager
 import com.music.bitchord.data.settings.AppSettings
+import com.music.bitchord.data.settings.AudioFocusOption
 import com.music.bitchord.data.settings.AudioQuality
 import com.music.bitchord.data.settings.BitPerfectMode
 import com.music.bitchord.data.settings.permits
@@ -160,13 +163,22 @@ import com.music.bitchord.data.sources.StreamFormat
 import com.music.bitchord.data.sources.TrackMatcher
 import com.music.bitchord.playback.smart.AutomixAnalysisSource
 import com.music.bitchord.playback.smart.VersionAudioAligner
+import com.music.bitchord.ui.player.clearPrefetchedPlayerArtwork
 import com.music.bitchord.ui.player.discardBlockedAutoMixAmbient
-import com.music.bitchord.ui.player.prefetchAutoMixArtwork
+import com.music.bitchord.ui.player.hasPrefetchedFullPlayerArtwork
+import com.music.bitchord.ui.player.hasPreparedPlayerArtworkAmbient
+import com.music.bitchord.ui.player.prefetchAutoMixMiniArtwork
+import com.music.bitchord.ui.player.prefetchFullPlayerArtwork
+import com.music.bitchord.ui.player.preparePlayerArtworkAmbient
+import com.music.bitchord.ui.player.retainAutoMixPlayerAmbient
+import com.music.bitchord.ui.player.retainAutoMixPlayerCover
+import com.music.bitchord.widget.LyricsWidget
 import com.music.bitchord.widget.MediaWidget
 import com.music.bitchord.widget.MediaWidgetSnapshot
 import com.music.bitchord.widget.QuickPlayStore
 import com.music.bitchord.widget.QuickPlayWidget
 import com.music.bitchord.wear.WearBridge
+import com.music.bitchord.wear.WearLyricsSync
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -176,6 +188,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -359,25 +372,39 @@ class PlaybackService : MediaLibraryService() {
      * never has to wait this long for it.
      */
     /**
-     * [YtMusicRepository.recents] cached for Android Auto's browse tree.
+     * [YtMusicRepository.recents] cached for Android Auto's browse tree, with
+     * the owner it was fetched for: on-device history is per listener, and a
+     * cache that survived a profile switch would show one person's rows to
+     * another.
      */
-    private var cachedRecents: Pair<Long, List<Song>>? = null
+    private data class RecentsCache(val at: Long, val owner: String, val songs: List<Song>)
+    private var cachedRecents: RecentsCache? = null
     private val recentsMutex = Mutex()
     private val RECENTS_CACHE_TTL_MS = 30_000L
 
     private suspend fun cachedRecentsSongs(): List<Song> = recentsMutex.withLock {
-        cachedRecents?.let { (at, songs) ->
-            if (SystemClock.elapsedRealtime() - at < RECENTS_CACHE_TTL_MS && songs.isNotEmpty()) return songs
+        val owner = LocalHistoryRepository.ownerKey()
+        cachedRecents?.let { cache ->
+            if (
+                cache.owner == owner &&
+                SystemClock.elapsedRealtime() - cache.at < RECENTS_CACHE_TTL_MS &&
+                cache.songs.isNotEmpty()
+            ) {
+                return cache.songs
+            }
         }
-        val songs = try {
+        val remote = try {
             withTimeoutOrNull(4000L) {
                 YtMusicRepository.recents().getOrNull()
             } ?: emptyList()
         } catch (_: Exception) {
             emptyList()
         }
+        // Watch history paused, signed out, or offline: use what this device
+        // has actually played. The shared repository cannot reach this list.
+        val songs = remote.ifEmpty { LocalHistoryRepository.all() }
         if (songs.isNotEmpty()) {
-            cachedRecents = SystemClock.elapsedRealtime() to songs
+            cachedRecents = RecentsCache(SystemClock.elapsedRealtime(), owner, songs)
             songs.forEach { songCache[it.videoId] = it }
             if (QuickPlayStore.load(this@PlaybackService).isEmpty()) {
                 QuickPlayStore.saveSongs(this@PlaybackService, songs)
@@ -399,7 +426,7 @@ class PlaybackService : MediaLibraryService() {
         cachedQuickPicks?.let { (at, songs) ->
             if (SystemClock.elapsedRealtime() - at < QUICK_PICKS_CACHE_TTL_MS && songs.isNotEmpty()) return songs
         }
-        val recentsIds = cachedRecents?.second?.mapTo(HashSet()) { it.videoId } ?: emptySet()
+        val recentsIds = cachedRecents?.songs?.mapTo(HashSet()) { it.videoId } ?: emptySet()
         val songs = try {
             withTimeoutOrNull(4000L) {
                 YtMusicRepository.quickPicks(excludeSongIds = recentsIds).getOrNull()
@@ -574,7 +601,7 @@ class PlaybackService : MediaLibraryService() {
         cards
     }
 
-    private fun snapshotRecents(): List<Song> = cachedRecents?.second.orEmpty()
+    private fun snapshotRecents(): List<Song> = cachedRecents?.songs.orEmpty()
     private fun snapshotQuickPicks(): List<Song> = cachedQuickPicks?.second.orEmpty()
     private fun snapshotLiked(): List<Song> {
         val cookie = com.music.bitchord.data.innertube.Innertube.cookie
@@ -590,7 +617,7 @@ class PlaybackService : MediaLibraryService() {
         SystemClock.elapsedRealtime() - at < ttlMs
 
     private fun isRecentsFresh(): Boolean =
-        cachedRecents?.let { (at, songs) -> songs.isNotEmpty() && isFresh(at, RECENTS_CACHE_TTL_MS) } ?: false
+        cachedRecents?.let { it.songs.isNotEmpty() && isFresh(it.at, RECENTS_CACHE_TTL_MS) } ?: false
 
     private fun isQuickPicksFresh(): Boolean =
         cachedQuickPicks?.let { (at, songs) -> songs.isNotEmpty() && isFresh(at, QUICK_PICKS_CACHE_TTL_MS) } ?: false
@@ -622,6 +649,36 @@ class PlaybackService : MediaLibraryService() {
 
     private val audioManager by lazy { getSystemService(AudioManager::class.java) }
     private val bluetoothTracker by lazy { BluetoothAudioTracker(this) }
+    private var pausedForPhoneCall = false
+
+    private val audioModeListener by lazy {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            AudioManager.OnModeChangedListener { mode ->
+                handleAudioModeForCall(mode)
+            }
+        } else {
+            null
+        }
+    }
+
+    private fun handleAudioModeForCall(mode: Int) {
+        if (AppSettings.audioFocusOption.value != AudioFocusOption.KEEP_PLAYING) return
+        val inCall = mode == AudioManager.MODE_IN_CALL ||
+            mode == AudioManager.MODE_IN_COMMUNICATION ||
+            mode == AudioManager.MODE_RINGTONE ||
+            (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && mode == AudioManager.MODE_CALL_SCREENING)
+
+        val active = player ?: return
+        if (inCall) {
+            if (active.isPlaying) {
+                pausedForPhoneCall = true
+                active.pause()
+            }
+        } else if (pausedForPhoneCall && mode == AudioManager.MODE_NORMAL) {
+            pausedForPhoneCall = false
+            active.play()
+        }
+    }
     private var currentAudioInputFormat: Format? = null
     private val outputDeviceCallback = object : AudioDeviceCallback() {
         override fun onAudioDevicesAdded(addedDevices: Array<AudioDeviceInfo>) {
@@ -712,6 +769,15 @@ class PlaybackService : MediaLibraryService() {
     private val equalizerProcessorB = EqualizerProcessor()
     private val transitionFilterA = TransitionFilterProcessor()
     private val transitionFilterB = TransitionFilterProcessor()
+
+    /**
+     * Karaoke vocal reduction, one per player like the other stages — the
+     * filter history is per sink. Both always receive the same tuning from
+     * [applyKaraoke], so a crossfade can never change the vocal level
+     * mid-handoff.
+     */
+    private val vocalProcessorA = StereoVocalReductionProcessor()
+    private val vocalProcessorB = StereoVocalReductionProcessor()
 
     /**
      * Loudness normalization, one per player like the other stages — see
@@ -876,8 +942,22 @@ class PlaybackService : MediaLibraryService() {
         WearBridge.createSpeaker(this, scope, localPlayer = { player }, onChanged = { publishWidgetState() })
     }
 
+    /**
+     * A DLNA / UPnP renderer on the Wi-Fi as the speaker — the same model again,
+     * with the stream resolved here as for Cast. See [DlnaSpeaker].
+     */
+    private val dlnaSpeaker by lazy {
+        DlnaOutput.createSpeaker(
+            scope = scope,
+            localPlayer = { player },
+            resolve = ::resolveForCast,
+            say = { message -> Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show() },
+            onChanged = { publishWidgetState() },
+        )
+    }
+
     /** Every remote speaker, as the one the session player reports. */
-    private val speakers by lazy { Speakers(listOf(castPlayback, watchSpeaker)) }
+    private val speakers by lazy { Speakers(listOf(castPlayback, watchSpeaker, dlnaSpeaker)) }
 
     /**
      * Binds playback to a Listen Together party, when there is one.
@@ -1018,6 +1098,8 @@ class PlaybackService : MediaLibraryService() {
     private var lyricsTabLines: List<LyricLine>? = null
     /** Which sung line the Android Auto Lyrics tab starts at. lyricsTabItems reads it on the IO thread. */
     @Volatile private var lyricsTabStart = 0
+    /** The line the home-screen lyrics widget last showed; see LyricsWidget. */
+    private var lastWidgetLyric: String? = null
     private var lyricsTickerJob: Job? = null
 
     /**
@@ -1033,6 +1115,12 @@ class PlaybackService : MediaLibraryService() {
             val activePlayer = this@PlaybackService.player ?: return
             if (player === activePlayer) updateAudioEffectSession(activePlayer)
             if (player === activePlayer) {
+                if (events.containsAny(
+                        Player.EVENT_TIMELINE_CHANGED, Player.EVENT_MEDIA_ITEM_TRANSITION,
+                        Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED, Player.EVENT_REPEAT_MODE_CHANGED,
+                        Player.EVENT_PLAY_WHEN_READY_CHANGED, Player.EVENT_PLAYBACK_STATE_CHANGED,
+                    )
+                ) refreshNextArtwork(activePlayer)
                 queueUndoMutationSettled?.complete(Unit)
                 queueUndoRestoreBatch?.takeIf { it.matches(activePlayer) }?.settled?.complete(Unit)
             }
@@ -1314,6 +1402,11 @@ class PlaybackService : MediaLibraryService() {
             // Turning repeat-all back off can leave the current item at the end
             // of the queue, which is the same trigger as a normal transition.
             loadAutoplayForCurrentTrack()
+            player?.let { if (it.isPlaying) prefetchAround(it) }
+        }
+
+        override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
+            player?.let { if (it.isPlaying) prefetchAround(it) }
         }
 
         /**
@@ -1378,6 +1471,10 @@ class PlaybackService : MediaLibraryService() {
             publishNerdStats()
             currentAudioInputFormat = format
             applyOutputRoute()
+            // The new track's channels decide whether the vocal stage can
+            // run at all; the route recompute above does not guarantee a
+            // distinct AudioOutputStatus emission to hang that on.
+            publishKaraokeAvailability()
         }
 
         /**
@@ -1474,6 +1571,10 @@ class PlaybackService : MediaLibraryService() {
 
     override fun onCreate() {
         super.onCreate()
+        WearLyricsSync.start(applicationContext)
+        WearLyricsSync.playhead = {
+            player?.let { WearLyricsSync.Playhead(it.currentPosition, it.isPlaying, it.playbackParameters.speed) }
+        }
 
         if (com.music.bitchord.data.innertube.Innertube.cookie == null) {
             com.music.bitchord.data.innertube.Innertube.cookie = com.music.bitchord.auth.AuthStore(this).cookie
@@ -1532,6 +1633,17 @@ class PlaybackService : MediaLibraryService() {
                     publishWidgetState()
                     (mediaSession?.player as? SessionPlayer)?.onShuffleChanged(enabled)
                 }
+        }
+        scope.launch {
+            AppSettings.audioFocusOption.collectLatest { option ->
+                val handleFocus = option.isAutoPause
+                player?.setAudioAttributes(AUDIO_ATTRIBUTES, handleFocus)
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (audioModeListener as? AudioManager.OnModeChangedListener)?.let { listener ->
+                audioManager?.addOnModeChangedListener(mainExecutor, listener)
+            }
         }
         // While the watch is the speaker this process serves its audio, and a
         // paused service drops out of the foreground after ten minutes — after
@@ -1713,6 +1825,19 @@ class PlaybackService : MediaLibraryService() {
                     .setUri(Uri.parse(streamUrl))
                     .setHttpRequestHeaders(headers)
                     .build()
+            }
+            // A fresh play reading the upgrade an earlier play kept whole — see
+            // [AudioCache.keptUpgradeFor]. That copy is only ever chosen when
+            // every byte of it is on disk, so an open that reaches here means
+            // some of those bytes went missing underneath it, and nothing here
+            // knows the URL that wrote them: any stream resolved now would be a
+            // different file finished into the middle of that one. Failing
+            // hands the track to recovery, which drops the entry and plays it
+            // afresh.
+            if (QualityUpgrade.cacheTag(dataSpec.uri) == null &&
+                dataSpec.key?.let(::isReusableUpgradeKey) == true
+            ) {
+                throw java.io.IOException("kept rendition ${dataSpec.key} is no longer whole on disk")
             }
             // An upgraded item carries a marker and its stream has already
             // been found — see [QualityUpgrade]. Answered before anything
@@ -1972,6 +2097,7 @@ class PlaybackService : MediaLibraryService() {
             equalizerProcessorA,
             transitionFilterA,
             loudnessA,
+            vocalProcessorA,
             ownsSession = true,
         )
         val sparePlayer = buildPlayer(
@@ -1979,6 +2105,7 @@ class PlaybackService : MediaLibraryService() {
             equalizerProcessorB,
             transitionFilterB,
             loudnessB,
+            vocalProcessorB,
             ownsSession = false,
         )
         player = exoPlayer
@@ -1990,6 +2117,8 @@ class PlaybackService : MediaLibraryService() {
         sparePlayer.audioSessionId = exoPlayer.audioSessionId
         audioManager?.registerAudioDeviceCallback(outputDeviceCallback, null)
         applyOutputRoute()
+        applyKaraoke()
+        publishKaraokeAvailability()
 
         AppSettings.audioSessionId.value = exoPlayer.audioSessionId
         applySettings(exoPlayer)
@@ -2016,6 +2145,7 @@ class PlaybackService : MediaLibraryService() {
         } else {
             MediaWidgetSnapshot.save(this, MediaWidgetSnapshot.EMPTY)
             MediaWidget.refresh(this)
+            LyricsWidget.refresh(this)
         }
         // History pings fire once a track is actually audible — both when
         // playback starts and when the queue moves on while already playing.
@@ -2148,56 +2278,164 @@ class PlaybackService : MediaLibraryService() {
         }
     }
 
+    private data class UpcomingArtwork(
+        val windowUid: Any,
+        val mediaId: String,
+        val queueEntryId: String?,
+        val thumbnailUrl: String?,
+        val localUri: String?,
+        val remoteScope: Long?,
+    )
+
+    private val nextArtwork = NextArtworkPrefetch<UpcomingArtwork>(scope) { target, isCurrent ->
+        try {
+            prepareNextArtwork(target, isCurrent)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            // Optional artwork work must not take down the worker or alter playback.
+        }
+    }
+
+    private fun expectedNextArtwork(active: ExoPlayer): Pair<UpcomingArtwork, Song>? {
+        val arming = AutoMixVisualFeed.state.value?.phase == AutoMixVisualPhase.ARMED
+        val index = active.expectedArtworkIndex(arming) ?: return null
+        val window = active.currentTimeline.getWindow(index, Timeline.Window())
+        val song = window.mediaItem.toSong()
+        val remoteScope = AppSettings.remoteArtworkScope.value.takeIf { RemoteArtworkStore.supports(song) }
+        return UpcomingArtwork(window.uid, song.videoId, song.queueEntryId, song.thumbnailUrl, song.localUri, remoteScope) to song
+    }
+
+    private fun refreshNextArtwork(active: ExoPlayer) {
+        nextArtwork.replace(expectedNextArtwork(active)?.first)
+    }
+
+    private fun Song.cachedCoverSource(scope: Long): AutoMixCoverSource? =
+        RemoteArtworkStore.cachedArt(this, scope)?.let {
+            AutoMixCoverSource(it, scope.takeIf { RemoteArtworkStore.supports(this) })
+        }
+
+    private fun autoMixCanvasAllowed(): Boolean = AppSettings.animatedCanvas.value &&
+        (AppSettings.meteredConnection.value != true || AppSettings.canvasOverCellular.value)
+
+    /** Cache-only. A possible match can settle during the existing arming/read-ahead phase. */
+    private fun artworkAdmissionFor(active: ExoPlayer, nextIndex: Int): AutoMixArtworkAdmission {
+        val settings = AppSettings.autoMixArtwork.value
+        var from: AutoMixCoverSource? = null
+        var to: AutoMixCoverSource? = null
+        var fullUrl: String? = null
+        return artworkAdmission(
+            AppSettings.smartFadeEnabled.value, settings.artTransition, settings.miniPlayerTransition,
+            matchingSources = cover@{
+                if (active.expectedArtworkIndex(arming = true) != nextIndex) return@cover false
+                val outgoing = active.currentMediaItem?.toSong() ?: return@cover false
+                val incoming = active.getMediaItemAt(nextIndex).toSong()
+                val scope = AppSettings.remoteArtworkScope.value
+                from = outgoing.cachedCoverSource(scope)
+                to = incoming.cachedCoverSource(scope)
+                fullUrl = matchingAutoMixCover(from, to)
+                fullUrl != null
+            },
+            prepared = {
+                hasPrefetchedFullPlayerArtwork(requireNotNull(fullUrl)) &&
+                    (from == to || hasPreparedPlayerArtworkAmbient(requireNotNull(to).url))
+            },
+            matchingPresentation = presentation@{
+                val outgoing = active.currentMediaItem?.toSong() ?: return@presentation false
+                val incoming = active.getMediaItemAt(nextIndex).toSong()
+                // A video may cover the sleeve; do not infer its presentation from a still.
+                if (outgoing.isVideo || incoming.isVideo) return@presentation false
+                if (!autoMixCanvasAllowed()) return@presentation true
+                val first = CanvasRepository.cachedAutoMixPresentation(outgoing) ?: return@presentation null
+                val second = CanvasRepository.cachedAutoMixPresentation(incoming) ?: return@presentation null
+                sameAutoMixCanvas(first, second)
+            },
+        )
+    }
+
+    private fun settlePendingAutoMixArtwork(generation: Long? = AutoMixVisualFeed.state.value?.generation) {
+        if (generation != null && AutoMixVisualFeed.pending(generation)?.artworkDecisionPending == true) {
+            player?.let { crossfade?.resolvePendingAutoMixArtwork(it, generation) }
+        }
+    }
+
+    private suspend fun prepareNextArtwork(target: UpcomingArtwork, isCurrent: () -> Boolean) = coroutineScope {
+        val active = player ?: return@coroutineScope
+        val (expected, song) = expectedNextArtwork(active) ?: return@coroutineScope
+        if (expected != target || !isCurrent()) return@coroutineScope
+        fun valid() = isCurrent() && player?.let(::expectedNextArtwork)?.first == target
+
+        val context = this@PlaybackService
+        val url = if (target.remoteScope != null) {
+            withTimeoutOrNull(NEXT_ARTWORK_RESOLVE_TIMEOUT_MS) {
+                withContext(Dispatchers.IO) { RemoteArtworkStore.resolveArt(context, song, target.remoteScope, speculative = true) }
+            }
+        } else song.thumbnailUrl
+        if (url == null || !valid()) return@coroutineScope
+
+        val cover = async {
+            prefetchFullPlayerArtwork(context, url, ::valid).also { if (valid()) settlePendingAutoMixArtwork() }
+        }
+        val ambient = launch {
+            cover.await()?.let { preparePlayerArtworkAmbient(url, it, ::valid) }
+            if (valid()) settlePendingAutoMixArtwork()
+        }
+        AutoMixVisualFeed.state.map { visual ->
+            visual?.takeIf {
+                (it.phase == AutoMixVisualPhase.ARMED || it.mixActive && it.swapSeconds == null) && it.admitsArtwork &&
+                    (it.remoteArtworkScope == null || it.remoteArtworkScope == AppSettings.remoteArtworkScope.value) &&
+                    it.incoming.identity.mediaId == target.mediaId && it.incoming.identity.queueEntryId == target.queueEntryId &&
+                    it.incoming.artworkUrl == target.thumbnailUrl &&
+                    player?.nextMediaItemIndex == it.incoming.armedIndex && valid()
+            }?.generation
+        }.distinctUntilChanged().collectLatest { generation ->
+            if (generation == null || !valid()) return@collectLatest
+            coroutineScope {
+                fun stillArmed(mini: Boolean = false): Boolean = valid() && allowsAutoMixArtwork(generation, mini) &&
+                    AutoMixVisualFeed.pending(generation)?.let { visual ->
+                        (visual.phase == AutoMixVisualPhase.ARMED || visual.mixActive && visual.swapSeconds == null) &&
+                            (visual.remoteArtworkScope == null ||
+                            visual.remoteArtworkScope == AppSettings.remoteArtworkScope.value)
+                    } == true
+
+                if (stillArmed(mini = true)) launch {
+                    prefetchAutoMixMiniArtwork(context, url, generation) { stillArmed(mini = true) }
+                }
+                if (stillArmed()) {
+                    cover.await()?.takeIf { stillArmed() }?.let { retainAutoMixPlayerCover(generation, it) }
+                    ambient.join()
+                    if (stillArmed()) retainAutoMixPlayerAmbient(generation, url)
+                }
+            }
+        }
+    }
+
     private var autoMixArtworkJob: Job? = null
     private var autoMixArtworkGeneration: Long? = null
 
     private fun allowsAutoMixArtwork(generation: Long, mini: Boolean = false): Boolean =
-        AppSettings.autoMixArtwork.value.allows(AppSettings.smartFadeEnabled.value, generation, mini)
+        AutoMixVisualFeed.state.value?.let { it.generation == generation && !it.admitsArtwork } != true &&
+            AppSettings.autoMixArtwork.value.allows(AppSettings.smartFadeEnabled.value, generation, mini)
 
-    private fun allowsAnyAutoMixArtwork(generation: Long): Boolean =
-        allowsAutoMixArtwork(generation) || allowsAutoMixArtwork(generation, mini = true)
+    private fun canPrepareAutoMixCanvas(generation: Long): Boolean =
+        AutoMixVisualFeed.pending(generation)?.bypassArtwork == false &&
+            AppSettings.autoMixArtwork.value.allows(AppSettings.smartFadeEnabled.value, generation)
 
     private fun prefetchAutoMixIncoming(item: MediaItem) {
+        // The exact armed entry can attach to the existing next-track worker.
+        player?.let(::refreshNextArtwork)
         autoMixArtworkJob?.cancel()
         val coverGeneration = AutoMixVisualFeed.state.value?.takeIf {
-            it.phase == AutoMixVisualPhase.ARMED && allowsAnyAutoMixArtwork(it.generation)
+            it.phase == AutoMixVisualPhase.ARMED && !it.bypassArtwork &&
+                AppSettings.autoMixArtwork.value.allows(AppSettings.smartFadeEnabled.value, it.generation)
         }?.generation
         autoMixArtworkGeneration = coverGeneration
         if (coverGeneration == null) return
         autoMixArtworkJob = scope.launch {
-            val song = item.toSong()
-            // Canvas resolution is independent of still-art extraction and decoding.
-            launch {
-                if (allowsAutoMixArtwork(coverGeneration) &&
-                    AppSettings.animatedCanvas.value &&
-                    (AppSettings.meteredConnection.value != true || AppSettings.canvasOverCellular.value)
-                ) {
-                    // The repository handles provider settings and caches both hits and settled misses.
-                    CanvasRepository.canvasFor(song)
-                }
-            }
-
-            try {
-                val artUrl = song.thumbnailUrl ?: if (
-                    song.videoId.startsWith("webdav:") || song.videoId.startsWith("smb:")
-                ) {
-                    withContext(Dispatchers.IO) { RemoteArtworkStore.resolveArt(this@PlaybackService, song) }
-                } else {
-                    null
-                }
-                if (artUrl != null) {
-                    prefetchAutoMixArtwork(
-                        this@PlaybackService, artUrl, coverGeneration,
-                        prepareCover = { allowsAutoMixArtwork(it) },
-                        prepareMiniCover = { allowsAutoMixArtwork(it, mini = true) },
-                    ) { generation ->
-                        AutoMixVisualFeed.pending(generation)?.phase == AutoMixVisualPhase.ARMED
-                    }
-                }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.w("BitChord", "AutoMix artwork prefetch failed", e)
+            // Canvas lookup remains independent of still artwork.
+            if (canPrepareAutoMixCanvas(coverGeneration) && autoMixCanvasAllowed()) {
+                CanvasRepository.canvasFor(item.toSong())
+                settlePendingAutoMixArtwork(coverGeneration)
             }
         }
     }
@@ -2249,6 +2487,7 @@ class PlaybackService : MediaLibraryService() {
             // levelled on its own sink before it renders a frame, and the
             // outgoing track keeps its own gain for the rest of the blend.
             onArmIncoming = { item, nextId -> spareLoudness().track(item.mediaId, nextId) },
+            artworkAdmissionFor = ::artworkAdmissionFor,
             onArmAutoMixIncoming = ::prefetchAutoMixIncoming,
             // Both sinks, not a role: the trim is about what the pair sums to.
             onBlendHeadroom = { trim ->
@@ -3631,6 +3870,7 @@ class PlaybackService : MediaLibraryService() {
             queueWindow = window,
             preservedUserQueue = userQueue,
             repeatAll = repeatAll,
+            replaceUpcomingQueue = request.replaceUpcomingQueue,
         )
 
         // Off the main thread: this is the one step here that scales with the
@@ -4263,12 +4503,16 @@ class PlaybackService : MediaLibraryService() {
         equalizer: EqualizerProcessor,
         filter: TransitionFilterProcessor,
         loudness: LoudnessProcessor,
+        vocal: VocalProcessor,
         ownsSession: Boolean,
     ): ExoPlayer = ExoPlayer.Builder(this)
-        .setRenderersFactory(silenceSkippingRenderers(spatial, equalizer, filter, loudness))
+        .setRenderersFactory(silenceSkippingRenderers(spatial, equalizer, filter, loudness, vocal))
         .setMediaSourceFactory(requireNotNull(mediaSourceFactory))
         .setLoadControl(farBufferingLoadControl())
-        .setAudioAttributes(AUDIO_ATTRIBUTES, /* handleAudioFocus = */ ownsSession)
+        .setAudioAttributes(
+            AUDIO_ATTRIBUTES,
+            /* handleAudioFocus = */ ownsSession && AppSettings.audioFocusOption.value.isAutoPause,
+        )
         .setHandleAudioBecomingNoisy(ownsSession)
         // Keeps the CPU awake while this player is playing. Normal output gets
         // that from Android's audio server, but direct USB and AAudio exclusive
@@ -4344,7 +4588,8 @@ class PlaybackService : MediaLibraryService() {
      * the song you are listening to, which is whichever one the session is on.
      */
     private fun setSessionOwner(target: ExoPlayer, owns: Boolean) {
-        target.setAudioAttributes(AUDIO_ATTRIBUTES, /* handleAudioFocus = */ owns)
+        val handleFocus = owns && AppSettings.audioFocusOption.value.isAutoPause
+        target.setAudioAttributes(AUDIO_ATTRIBUTES, /* handleAudioFocus = */ handleFocus)
         target.setHandleAudioBecomingNoisy(owns)
     }
 
@@ -4414,7 +4659,9 @@ class PlaybackService : MediaLibraryService() {
     )
 
     private fun registerCurrentPlay() {
-        player?.currentMediaItem?.mediaId?.let(PlaybackTracker::onPlaying)
+        val current = player?.currentMediaItem
+        current?.mediaId?.let(PlaybackTracker::onPlaying)
+        current?.toSong()?.let(LocalHistoryRepository::record)
     }
 
     /**
@@ -4444,6 +4691,7 @@ class PlaybackService : MediaLibraryService() {
         alreadyAudible: Boolean = false,
     ) {
         val exoPlayer = player ?: return
+        refreshNextArtwork(exoPlayer)
         syncBoundedContextCursor(exoPlayer, mediaItem)
         if (boundedContextWindow != null && !ListenTogether.state.value.inParty) {
             saveBoundedContextSnapshot(exoPlayer)
@@ -4454,6 +4702,9 @@ class PlaybackService : MediaLibraryService() {
         // URI, so a size measured for the last track isn't kept past it.
         measuredBitrateCache.clear()
         AudioOutputStatus.onTrackTransition()
+        // The outgoing track's channel count no longer describes anything
+        // that is playing; the next format callback re-resolves this.
+        publishKaraokeAvailability()
         // The entry this track is read from now counts as played — the only
         // kind the Cached songs folder lists. See [AudioCache.Origin].
         mediaItem?.let { AudioCache.notePlayed(it.toSong(), it.localConfiguration?.uri) }
@@ -4622,7 +4873,7 @@ class PlaybackService : MediaLibraryService() {
         if (exoPlayer.isPlaying) registerCurrentPlay()
         savePlaybackState(exoPlayer)
         convertVideosAround(exoPlayer)
-        prefetchAround(exoPlayer)
+        if (exoPlayer.isPlaying) prefetchAround(exoPlayer)
         // The second look belongs to the track it was started for; the
         // queue moving on ends it — unless it is already proving what it
         // found, see [cancelStaleUpgradeJob] — and starts the new
@@ -5651,6 +5902,21 @@ class PlaybackService : MediaLibraryService() {
         }
 
         val upgradedUri = QualityUpgrade.upgradedUri(at.uri)
+        // A fresh play can already be reading the very rendition this would
+        // write — the upgrade an earlier play kept whole, see
+        // [AudioCache.keptUpgradeFor]. Swapping to it would cut the audio to
+        // land on the same bytes, and the audition's clean-slate discard below
+        // would pull them out from under the player first. Reached by a shelved
+        // upgrade re-offered on a return visit; nothing else gets this far for
+        // a track already playing its final copy.
+        val sameRendition = withContext(Dispatchers.IO) {
+            AudioCache.cacheKeyOf(Uri.parse(at.uri)) == AudioCache.cacheKeyOf(Uri.parse(upgradedUri))
+        }
+        if (sameRendition) {
+            QualityUpgrade.unshelve(mediaId)
+            TrackLog.d("BitChord", "no swap for $mediaId: it is already playing that rendition from disk", about = mediaId)
+            return
+        }
         // Whether the rendition entry already holds *this* stream's bytes,
         // asked before [force] overwrites the record of what filled it. True
         // only for a shelved upgrade being re-offered, where throwing the entry
@@ -5861,6 +6127,26 @@ class PlaybackService : MediaLibraryService() {
             if (!ListenTogether.state.value.inParty) {
                 launch(Dispatchers.IO) {
                     AudioCache.warmRange(Uri.parse(upgradedUri), 0, ANALYSIS_HEAD_BYTES)
+                }
+                // And the stretches nothing else downloads — between that head
+                // and the swap point, and whatever a seek jumps over — so the
+                // next play of the track can start on this copy instead of
+                // swapping up to it again. Only a copy that is final gets this;
+                // see [AudioCache.completeUpgrade] for when it stops. Under the
+                // service's scope rather than this job's, which a queue move
+                // cancels and the lossless pass waits on.
+                scope.launch(Dispatchers.IO + TrackLog.about(mediaId)) {
+                    AudioCache.completeUpgrade(
+                        uri = Uri.parse(upgradedUri),
+                        stream = stream,
+                        isPlaying = {
+                            withContext(Dispatchers.Main) {
+                                this@PlaybackService.player?.currentMediaItem
+                                    ?.localConfiguration?.uri?.toString() == upgradedUri
+                            }
+                        },
+                        permitted = { SourceRegistry.permitsForPlayback(stream.sourceConfigId) },
+                    )
                 }
             }
         }
@@ -7116,9 +7402,11 @@ class PlaybackService : MediaLibraryService() {
             isLiked = liked,
             canLike = canLike(exoPlayer.currentMediaItem),
             shuffleEnabled = QueueShuffle.enabled.value,
+            currentLyric = lastWidgetLyric,
         )
         MediaWidgetSnapshot.save(this, snapshot)
         MediaWidget.refresh(this)
+        LyricsWidget.refresh(this)
         // The watch app follows the widget — same moments, same snapshot.
         WearBridge.publish(this, snapshot, reported, playing)
     }
@@ -7217,7 +7505,7 @@ class PlaybackService : MediaLibraryService() {
             return
         }
         val nextIndex = player.nextMediaItemIndex
-        val upcomingSongs = if (nextIndex != C.INDEX_UNSET) {
+        val upcomingItems = if (nextIndex != C.INDEX_UNSET && nextIndex != player.currentMediaItemIndex) {
             // Data Saver and Low Power fetch only the next track ahead: still gapless, but no
             // spending on songs that may never play.
             val depth = if (com.music.bitchord.data.modes.ModeController.policy.value.prefetch == com.music.bitchord.data.modes.PrefetchPolicy.NEXT_ONLY) 1 else AudioCache.QUEUE_DEPTH
@@ -7226,10 +7514,11 @@ class PlaybackService : MediaLibraryService() {
             // byte warmed for it now would be wasted.
             (nextIndex..end).map(player::getMediaItemAt)
                 .filterNot(MusicOnlyPlayback::wants)
-                .map { it.toSong() }
+                .map { it.toSong() to it.localConfiguration?.uri }
         } else {
             emptyList()
         }
+        val upcomingSongs = upcomingItems.map { it.first }
         // So whatever read-ahead writes for these can be named in the Cached
         // songs folder; its own requests carry nothing but an id.
         AudioCache.noteSongs(upcomingSongs)
@@ -7237,21 +7526,22 @@ class PlaybackService : MediaLibraryService() {
         if (request == preferredPrefetchRequest) return
         preferredPrefetchRequest = request
 
-        fun warm(songs: List<Song>) {
+        fun warm(items: List<Pair<Song, Uri?>>) {
             AudioCache.prefetchQueue(
-                songs.map { song ->
+                items.map { (song, uri) ->
                     // The title, artist and runtime the item was built with —
                     // see [Song.toMediaItem]. Read from the queued item because
                     // read-ahead has no other way to reach this metadata.
                     AudioCache.Upcoming(
                         mediaId = song.videoId,
                         target = TrackMatcher.targetOf(song),
+                        uri = uri,
                     )
                 },
             )
         }
 
-        warm(upcomingSongs)
+        warm(upcomingItems)
     }
 
     /** Audio-version lookups running for the music-only setting, by video id. */
@@ -7657,6 +7947,7 @@ class PlaybackService : MediaLibraryService() {
         equalizer: EqualizerProcessor,
         transition: TransitionFilterProcessor,
         loudness: LoudnessProcessor,
+        vocal: VocalProcessor,
     ) = object : FfmpegFallbackRenderersFactory(this) {
         init {
             // Do not force PCM_FLOAT onto an OEM speaker mixer merely because
@@ -7729,6 +8020,12 @@ class PlaybackService : MediaLibraryService() {
                 )
                 .build()
 
+            // Vocal reduction in front of everything: it needs the decoder's
+            // original stereo relationship before widening or the listener's
+            // equaliser have changed it — and it must never be the EQ that
+            // gives, because the equaliser belongs to the user and the whole
+            // session, not to one feature.
+            //
             // Transition filtering last of the three: widening is a
             // property of the track, and a bass swap that ran before it
             // would have its own low end fed back in by the crossfeed —
@@ -7737,7 +8034,7 @@ class PlaybackService : MediaLibraryService() {
             // them for the same reason: it belongs to the listener and
             // the whole session, while the transition filter belongs to
             // one handoff and has to have the last word on it.
-            val dspChain = DspChain(spatial, equalizer, transition, loudness)
+            val dspChain = DspChain(spatial, equalizer, transition, loudness, vocal)
             val precision = PrecisionAudioSink(
                 delegate = defaultSink,
                 dspChain = dspChain,
@@ -7993,6 +8290,7 @@ class PlaybackService : MediaLibraryService() {
             equalizerProcessorA,
             transitionFilterA,
             loudnessA,
+            vocalProcessorA,
             ownsSession = true,
         )
         val newSpare = buildPlayer(
@@ -8000,6 +8298,7 @@ class PlaybackService : MediaLibraryService() {
             equalizerProcessorB,
             transitionFilterB,
             loudnessB,
+            vocalProcessorB,
             ownsSession = false,
         )
         player = newActive
@@ -8011,6 +8310,8 @@ class PlaybackService : MediaLibraryService() {
         newActive.repeatMode = repeatMode
         applyEqualizer()
         applySpatialAudioEnabled()
+        applyKaraoke()
+        publishKaraokeAvailability()
         if (items.isNotEmpty()) {
             newActive.setMediaItems(items, index.coerceIn(items.indices), position)
             // By hand, because the listener is attached below this: the
@@ -8096,8 +8397,17 @@ class PlaybackService : MediaLibraryService() {
 
     private fun observeSettings() {
         scope.launch {
+            AutoMixVisualFeed.state.map { it?.phase == AutoMixVisualPhase.ARMED }.distinctUntilChanged().collect {
+                // The end-of-item arm can outlive playWhenReady, but not a cancelled arm.
+                player?.takeUnless { it.playWhenReady }?.let(::refreshNextArtwork)
+            }
+        }
+        scope.launch {
+            AppSettings.remoteArtworkScope.collect { player?.let(::refreshNextArtwork) }
+        }
+        scope.launch {
             AppSettings.autoMixArtwork.collect {
-                if (autoMixArtworkGeneration?.let { !allowsAnyAutoMixArtwork(it) } == true) {
+                if (autoMixArtworkGeneration?.let { !canPrepareAutoMixCanvas(it) } == true) {
                     autoMixArtworkJob?.cancel()
                     autoMixArtworkGeneration = null
                 }
@@ -8243,6 +8553,30 @@ class PlaybackService : MediaLibraryService() {
                 AppSettings.equalizerBands,
             ) { }.collect { applyEqualizer() }
         }
+        scope.launch {
+            // One collector for both Karaoke settings, so an enable/level pair
+            // written together lands on both decks together.
+            combine(
+                AppSettings.karaokeEnabled,
+                AppSettings.karaokeVocalLevel,
+            ) { _, _ -> }.collect {
+                applyKaraoke()
+                publishKaraokeAvailability()
+            }
+        }
+        scope.launch {
+            // What the vocal stage cannot run on, as the routes and formats
+            // move: the output status on track and route changes (including
+            // the sink's own "no decoded PCM to filter"), the bit-perfect
+            // bypass, and the two speakers that play the original stream
+            // rather than this phone's PCM.
+            combine(
+                AudioOutputStatus.current,
+                BitPerfectOutput.status,
+                CastController.state,
+                WearBridge.watchOutput,
+            ) { _, _, _, _ -> }.collect { publishKaraokeAvailability() }
+        }
     }
 
     /**
@@ -8284,6 +8618,46 @@ class PlaybackService : MediaLibraryService() {
         val enabled = AppSettings.spatialAudio.value && !activeTrackIsDolbyAtmos
         spatialAudioProcessorA.enabled = enabled
         spatialAudioProcessorB.enabled = enabled
+    }
+
+    /**
+     * Hands the Karaoke settings to both decks, atomically and identically.
+     *
+     * Both, for the same reason as [applyEqualizer]: the idle player is the
+     * one the next transition starts a song on, and a blend whose two halves
+     * had different vocal levels would change the vocal reduction halfway
+     * through the handoff.
+     *
+     * The level is the user's slider and nothing is derived here — 0 means
+     * maximum reduction and 1 the original mix, and the processor glides
+     * between them so neither the switch nor a drag can click.
+     */
+    private fun applyKaraoke() {
+        val enabled = AppSettings.karaokeEnabled.value
+        val level = AppSettings.karaokeVocalLevel.value
+        vocalProcessorA.setTuning(enabled, level)
+        vocalProcessorB.setTuning(enabled, level)
+    }
+
+    /**
+     * Whether the vocal stage can run on what is actually playing, published
+     * for the player UI. Runtime fact, not preference: Karaoke left enabled
+     * on an incompatible route reads as paused rather than active, and comes
+     * back on its own when a compatible local route returns.
+     *
+     * Recomputed here and from the observers in [observeSettings] on every
+     * track, route, Cast, watch and bit-perfect change — see
+     * [KaraokeProcessingAvailability.resolve] for the ordering of the reasons.
+     */
+    private fun publishKaraokeAvailability() {
+        val channels = currentAudioInputFormat?.channelCount?.takeIf { it > 0 }
+            ?: NerdStats.current.value?.channels?.takeIf { it > 0 }
+        AppSettings.karaokeProcessingAvailability.value = KaraokeProcessingAvailability.resolve(
+            channels = channels,
+            dspAvailable = AudioOutputStatus.current.value.dspAvailable,
+            bitPerfectActive = BitPerfectOutput.status.value.active,
+            remoteOutputActive = CastController.state.value.casting || WearBridge.watchOutput.value.active,
+        )
     }
 
     /**
@@ -8711,8 +9085,10 @@ class PlaybackService : MediaLibraryService() {
         invalidateQueueUndo()
         queueUndoRestoreBatch = null
         queueUndoMutationSettled = null
+        WearLyricsSync.stop(applicationContext)
         WearBridge.attachStreams(null)
         WearBridge.releaseSpeaker()
+        DlnaOutput.releaseSpeaker()
         // Let go of the receiver's player but leave its session alone: a
         // service that idles out while casting is not the listener choosing to
         // stop, and the next one picks the session up where it was.
@@ -8721,6 +9097,11 @@ class PlaybackService : MediaLibraryService() {
         closeAudioEffectSession()
         bluetoothTracker.stop()
         audioManager?.unregisterAudioDeviceCallback(outputDeviceCallback)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            (audioModeListener as? AudioManager.OnModeChangedListener)?.let { listener ->
+                audioManager?.removeOnModeChangedListener(listener)
+            }
+        }
         partySync?.stop()
         partySync = null
         player?.let {
@@ -8788,6 +9169,7 @@ class PlaybackService : MediaLibraryService() {
             }
         }
         scope.cancel()
+        clearPrefetchedPlayerArtwork()
         QueueShuffle.isCrossfadeTransitioning = null
         crossfade?.release()
         crossfade = null
@@ -8819,6 +9201,7 @@ class PlaybackService : MediaLibraryService() {
         if (!AppSettings.syncedLyrics.value) {
             serviceLyrics = null
             stopLyricsTicker()
+            WearLyricsSync.publish(applicationContext, currentSong.videoId, currentSong.title, currentSong.artist, 0L, null, album = currentSong.albumName)
             return
         }
 
@@ -8846,6 +9229,7 @@ class PlaybackService : MediaLibraryService() {
             }
             withContext(Dispatchers.Main) {
                 serviceLyrics = lines
+                WearLyricsSync.publish(applicationContext, currentSong.videoId, currentSong.title, currentSong.artist, trackDurationMs, lines, album = currentSong.albumName)
                 if (player?.isPlaying == true) {
                     updateLyricSubtitle()
                 }
@@ -8955,6 +9339,14 @@ class PlaybackService : MediaLibraryService() {
             // the title and the subtitle instead of showing the next line.
             if (line.text.length > LYRIC_TITLE_MAX_CHARS) splitInHalf(line.text)
             else line.text to (sung.getOrNull(cur + 1)?.text ?: currentSong.artist)
+        }
+        // The home-screen lyrics widget follows the line being sung whatever the
+        // notification shows: it is a lyrics surface the listener put there.
+        val widgetLyric = sung.getOrNull(cur)?.text?.takeIf { it.isNotBlank() && AppSettings.syncedLyrics.value }
+        if (widgetLyric != lastWidgetLyric) {
+            lastWidgetLyric = widgetLyric
+            MediaWidgetSnapshot.saveLyric(this, widgetLyric)
+            LyricsWidget.refresh(this)
         }
         if (lyric != lastPublishedLyric) {
             lastPublishedLyric = lyric
@@ -10771,6 +11163,7 @@ class PlaybackService : MediaLibraryService() {
          * because whatever is tearing down is waiting on it.
          */
         const val DISCORD_TEARDOWN_TIMEOUT_MS = 3_000L
+        private const val NEXT_ARTWORK_RESOLVE_TIMEOUT_MS = 5_000L
 
         /** Upper bound per range; [PlayerClient.rangeBytesFor] narrows it per client. */
         const val STREAM_CHUNK_BYTES = 1L * 1024 * 1024

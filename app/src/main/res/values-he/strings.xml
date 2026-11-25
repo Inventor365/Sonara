@@ -1876,4 +1876,27 @@
     <string name="native_sign_in_subtitle">החלון של Google עצמה, הקשה אחת, בלי סיסמה. דורש הגדרה של כניסת Google ל-Sonara; עד אז Sonara משתמשת בכניסה דרך האינטרנט</string>
     <string name="native_sign_in_working">מתחברים עם Google…</string>
     <string name="native_sign_in_fallback">הכניסה עם Google לא זמינה, לכן נפתחה הכניסה דרך האינטרנט</string>
+    <string name="hide_trending">הסתר המלצות פופולריות</string>
+    <string name="hide_trending_subtitle">מסיר שירים פופולריים ופלייליסטים קהילתיים מדף הבית</string>
+    <string name="clear_listening_history">מחיקת ההיסטוריה במכשיר</string>
+    <string name="extend_animated_artwork">להרחיב רק עטיפות מונפשות</string>
+    <string name="extend_animated_artwork_subtitle">עטיפות מונפשות נפרשות עד קצות הנגן, וסטטיות נשארות ריבועיות</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">פתיחת Last.fm בדפדפן</string>
+    <string name="lastfm_complete_connection">השלמת החיבור</string>
+    <string name="lastfm_oauth_description">אשרו את Sonara ב-Last.fm בדפדפן כדי לחבר את החשבון. הסיסמה לא מוקלדת כאן אף פעם.</string>
+    <string name="lastfm_oauth_waiting">אשרו את הגישה ב-Last.fm בדפדפן ואז הקישו למטה כדי לסיים את החיבור.</string>
+    <string name="lastfm_oauth_error_pending">עדיין לא אושר. אשרו את הגישה ב-Last.fm בדפדפן ונסו שוב.</string>
+    <string name="audio_focus">מיקוד שמע</string>
+    <string name="audio_focus_auto_pause">השהיה והמשך</string>
+    <string name="audio_focus_auto_pause_subtitle">נעצר כשאפליקציה אחרת מתחילה להשמיע צליל</string>
+    <string name="audio_focus_keep_playing">להמשיך לנגן תמיד</string>
+    <string name="audio_focus_keep_playing_subtitle">ממשיך לנגן גם עם צלילים אחרים; נעצר רק בשיחות טלפון</string>
+    <string name="audio_focus_footer">איך Sonara מגיבה כשאפליקציה אחרת או שיחת טלפון רוצות להשמיע צליל.</string>
+    <string name="remember_shuffle_state">לזכור את הערבוב</string>
+    <string name="remember_shuffle_state_subtitle">משאיר את הערבוב פעיל כשמתחילים אלבום או פלייליסט חדשים</string>
+    <string name="widget_lyrics_label">מילים מסונכרנות 4×2</string>
+    <string name="widget_lyrics_description">השורה שמושרת עכשיו, עם פקדי ניגון.</string>
+    <string name="pipeline_karaoke">קריוקי</string>
 </resources>

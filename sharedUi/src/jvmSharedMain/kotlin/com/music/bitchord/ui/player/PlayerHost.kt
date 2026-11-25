@@ -1,6 +1,9 @@
 package com.music.bitchord.ui.player
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.ImageBitmap
@@ -37,6 +40,7 @@ interface PlayerHost {
 
     /** Optional in-process feed; platforms without AutoMix leave it absent. */
     val autoMixVisualState: StateFlow<AutoMixVisualState?>? get() = null
+    val remoteArtworkScope: StateFlow<Long>? get() = null
 
     /** Visual-only seek intent, before the scrubber dispatches its transport command. */
     fun onAutoMixScrubIntent() = Unit
@@ -163,6 +167,25 @@ interface PlayerHost {
     /** Make the watch the speaker. */
     fun selectWatchOutput() = Unit
 
+    /**
+     * Turns bit-perfect output off — the recovery action Karaoke's drawer
+     * offers while bit-perfect bypasses the DSP chain entirely. Only ever
+     * called on an explicit tap; the setting is never rewritten silently.
+     */
+    fun useNormalOutput() = Unit
+
+    /**
+     * DLNA / UPnP renderers on the Wi-Fi as outputs, each played to the way a
+     * Cast receiver is. Empty, and so never drawn, where the platform has none.
+     */
+    val networkSpeakers: StateFlow<List<NetworkSpeakerUi>> get() = NoNetworkSpeakers
+
+    /** The output drawer opening: look for network speakers again. */
+    fun refreshNetworkSpeakers() = Unit
+
+    /** Make the network speaker [id] the speaker. */
+    fun selectNetworkSpeaker(id: String) = Unit
+
     /** The device picker the output drawer's Cast row opens, in the pipeline dialog's card. */
     @Composable
     fun CastDialog(hazeState: HazeState, onDismiss: () -> Unit) = Unit
@@ -252,6 +275,17 @@ internal fun MusicVideoSurface(
 
 private val NoWatch = MutableStateFlow(WatchOutputUi())
 
+private val NoNetworkSpeakers = MutableStateFlow(emptyList<NetworkSpeakerUi>())
+
+/** A network (DLNA / UPnP) speaker, as a row in the output drawer. */
+data class NetworkSpeakerUi(
+    val id: String,
+    /** What the speaker calls itself. */
+    val name: String,
+    /** It is the speaker. */
+    val active: Boolean = false,
+)
+
 /** What the output drawer needs to draw the watch's row. */
 data class WatchOutputUi(
     /** A watch with BitChord on it is in reach. False (and not [active]) hides the row. */
@@ -292,6 +326,7 @@ interface PlayerSettingsSource {
     val audioQualityWifi: StateFlow<AudioQuality>
     val canvasOverCellular: StateFlow<Boolean>
     val fullBleedArtwork: StateFlow<Boolean>
+    val extendAnimatedArtwork: StateFlow<Boolean>
     val showTotalDuration: StateFlow<Boolean>
     val hideSongStatus: StateFlow<Boolean>
     /** Hides the lyrics preview strip on the main and mini player screens. */
@@ -304,6 +339,8 @@ interface PlayerSettingsSource {
     val playerTheme: StateFlow<PlayerTheme>
     val lyricsBlur: StateFlow<Boolean>
     val lyricsOffsetMs: StateFlow<Int>
+    /** Each song's own offset, by video id, added to [lyricsOffsetMs]; see [rememberLyricsOffsetMs]. */
+    val songLyricsOffsets: StateFlow<Map<String, Int>>
     val lyricsSourceOrder: StateFlow<List<LyricsSource>>
     val meteredConnection: StateFlow<Boolean?>
     /** A temporary cap over both ceilings, null when none applies — the watch's, on the phone. */
@@ -344,12 +381,68 @@ interface PlayerSettingsSource {
     val syncedLyrics: StateFlow<Boolean>
     val translationLanguage: StateFlow<String>
     val versionAlignmentInProgress: StateFlow<Boolean>
+    /** Karaoke vocal reduction, master switch — persisted, default off. */
+    val karaokeEnabled: StateFlow<Boolean>
+    /**
+     * 0 = maximum vocal reduction, 1 = the original mix — persisted, default
+     * 0 so the first activation is immediately audible. Kept while
+     * [karaokeEnabled] is off, so disabling does not discard the level the
+     * listener chose for the next time.
+     */
+    val karaokeVocalLevel: StateFlow<Float>
+    /**
+     * Whether the reduction can run on the audio that is actually playing —
+     * runtime fact published by the platform, never a preference. Enabled
+     * Karaoke on a route that bypasses processing reads as that route's
+     * [KaraokeAvailability] state rather than silently doing nothing, and
+     * resumes by itself when a compatible route comes back.
+     */
+    val karaokeAvailability: StateFlow<KaraokeAvailability>
 
     fun setLastPlayerScreen(value: LastPlayerScreen)
     fun setLyricsOffsetMs(value: Int)
     fun setShowTotalDuration(value: Boolean) = Unit
+    fun setSongLyricsOffsetMs(videoId: String, value: Int)
     /** Whether the mix popup is up, so the host lays out [smartMixPreview] for it. */
     fun setMixViewOpen(open: Boolean)
+    /**
+     * Turns synced lyrics on or off. The preference governs third-party
+     * network lookups, so it is only ever written from the listener's own
+     * tap: Karaoke's drawer offers that tap (see [offersSyncedLyricsEnable])
+     * rather than any activation flipping it silently.
+     */
+    fun setSyncedLyrics(value: Boolean)
+    fun setKaraokeEnabled(value: Boolean)
+    /** Sets the vocal level, clamped to 0 (maximum reduction) .. 1 (original mix). */
+    fun setKaraokeVocalLevel(value: Float)
+}
+
+/**
+ * Whether Karaoke's vocal reduction can run on the audio that is actually
+ * playing — the shared player's name for the playback pipeline's verdict,
+ * mapped one-for-one by the platform host (on the phone, from its
+ * `KaraokeProcessingAvailability`).
+ *
+ * Kept separate from the persisted [PlayerSettingsSource.karaokeEnabled]
+ * preference: a preference left enabled on an incompatible route reads as
+ * that route's state here and processing resumes by itself once the route
+ * allows it again.
+ */
+enum class KaraokeAvailability {
+    /** Local stereo decoded PCM through the normal processed sink: the vocal stage runs. */
+    AVAILABLE,
+
+    /** The track is mono or multichannel: channel cancellation needs stereo, and mono is not upmixed. */
+    NEEDS_STEREO,
+
+    /** The stream was never decoded to linear PCM (passthrough/offload): there is nothing to filter. */
+    NEEDS_LINEAR_PCM,
+
+    /** Bit-perfect output is active and bypasses the DSP chain entirely. */
+    BIT_PERFECT_ACTIVE,
+
+    /** Cast or the watch is the speaker, and it plays the original stream rather than this phone's PCM. */
+    REMOTE_OUTPUT_ACTIVE,
 }
 
 /** The player's name for the installed host's settings, read where AppSettings used to be. */
@@ -468,7 +561,19 @@ class CanvasOrganicReveal(
     val progress: () -> Float,
     val allowSpatialMask: Boolean,
     val outgoingStill: CanvasStillRevealTarget? = null,
+    val livePair: CanvasLiveRevealPair? = null,
+    val outgoingLiveAlpha: (() -> Float)? = null,
 )
+
+/** The outgoing slot only compensates a live destination actually drawing the shared mask. */
+class CanvasLiveRevealPair internal constructor(private val generation: Long, private val progress: () -> Float) {
+    var maskedIncomingBounds by mutableStateOf(IntSize.Zero)
+
+    internal val incoming = CanvasOrganicReveal(generation, progress, true, livePair = this)
+
+    internal fun outgoingLiveHeroReveal(presentationAlpha: () -> Float) =
+        CanvasOrganicReveal(generation, progress, true, livePair = this, outgoingLiveAlpha = presentationAlpha)
+}
 
 /** The still sleeve's full-width, top-aligned bounds in the outgoing view's pixels. */
 class CanvasStillRevealTarget(

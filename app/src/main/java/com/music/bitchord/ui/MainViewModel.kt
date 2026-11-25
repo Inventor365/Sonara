@@ -17,9 +17,12 @@ import com.music.bitchord.auth.profileId
 import com.music.bitchord.auth.sessionId
 import com.music.bitchord.auth.adjacentProfile
 import com.music.bitchord.data.AppUpdateChecker
+import com.music.bitchord.data.HistorySelection
+import com.music.bitchord.data.LocalHistoryRepository
 import com.music.bitchord.data.LocalMediaRepository
 import com.music.bitchord.data.LikeState
 import com.music.bitchord.data.YtMusicRepository
+import com.music.bitchord.data.selectHistory
 import com.music.bitchord.data.TopPicks
 import com.music.bitchord.data.AppleArtistPhotos
 import com.music.bitchord.widget.QuickPlayStore
@@ -55,6 +58,7 @@ import com.music.bitchord.auth.WebSessionMode
 import com.music.bitchord.data.model.Account
 import com.music.bitchord.data.model.AccountChannel
 import com.music.bitchord.data.model.BrowseType
+import com.music.bitchord.data.model.DetailLoadId
 import com.music.bitchord.data.model.DetailPage
 import com.music.bitchord.data.model.HomeShelf
 import com.music.bitchord.data.model.withoutRepeatsOf
@@ -434,7 +438,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         lyricsFor = key
         lyricsGeneration += 1
         val generation = lyricsGeneration
-        currentLyricsRequest = LyricsRequest(videoId, title, artist, durationMs, album)
+        val request = LyricsRequest(videoId, title, artist, durationMs, album)
+        currentLyricsRequest = request
         selectedLyricsSource = null
         manualLyricsJobs.values.forEach(Job::cancel)
         manualLyricsJobs.clear()
@@ -452,6 +457,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
         _lyricsChecked.value = false
+        // A provider picked by hand for this song last time is picked again,
+        // on its own request: the automatic lookup may never reach it.
+        val remembered = AppSettings.songLyricsProviders.value[videoId]
+        if (remembered != null && durationMs > 0L) {
+            selectedLyricsSource = remembered
+            fetchLyricsProvider(request, generation, remembered)
+        }
         lyricsJob = viewModelScope.launch {
             // The file first, and without the duration gate below: a length is
             // only needed to *match* a track against a stranger's database, and
@@ -466,6 +478,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             if (localUri != null) {
                 EmbeddedLyrics.forUri(getApplication(), localUri)?.let { embedded ->
                     _lyrics.value = embedded
+                    wearPublishLyrics(embedded)
                     // No source to name: what the file records is the lyrics,
                     // not which of the eight services they came from months ago.
                     _lyricsSource.value = null
@@ -500,8 +513,21 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 _lyrics.value = selected?.lines
                 _lyricsSource.value = selected?.source
             }
+            // The watch shows the same lyrics as the phone.
+            _lyrics.value?.let { wearPublishLyrics(it) }
             _lyricsChecked.value = true
         }
+    }
+
+    /** What the player is showing now goes to the watch too (see WearLyricsSync). */
+    private fun wearPublishLyrics(lines: List<com.music.bitchord.data.lyrics.LyricLine>) {
+        val request = currentLyricsRequest ?: return
+        com.music.bitchord.wear.WearLyricsSync.publish(
+            getApplication<android.app.Application>(),
+            request.videoId, request.title, request.artist, request.durationMs, lines,
+            album = request.album,
+            fromUi = true,
+        )
     }
 
     /**
@@ -513,7 +539,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         when (_lyricsProviderStates.value[source]) {
             LyricsProviderState.FOUND -> {
                 selectedLyricsSource = source
-                lyricsProviderResults[source]?.let(::showLyricsResult)
+                lyricsProviderResults[source]?.let { showLyricsResult(it); wearPublishLyrics(it.lines) }
             }
             LyricsProviderState.FETCHING -> {
                 // Apply it as soon as the already-running automatic attempt completes.
@@ -523,8 +549,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 selectedLyricsSource = source
                 fetchLyricsProvider(request, lyricsGeneration, source)
             }
-            LyricsProviderState.NOT_FOUND -> Unit
+            LyricsProviderState.NOT_FOUND -> return
         }
+        AppSettings.setSongLyricsProvider(request.videoId, source)
     }
 
     private fun fetchLyricsProvider(
@@ -569,7 +596,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         }
         lyricsProviderResults[source] = result
         _lyricsProviderStates.update { it + (source to LyricsProviderState.FOUND) }
-        if (selectedLyricsSource == source) showLyricsResult(result)
+        if (selectedLyricsSource == source) {
+            showLyricsResult(result)
+            wearPublishLyrics(result.lines)
+        }
     }
 
     private fun providerCancelled(generation: Long, source: LyricsSource) {
@@ -645,14 +675,18 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val _history = MutableStateFlow<UiState<List<Song>>>(UiState.Loading)
     val history: StateFlow<UiState<List<Song>>> = _history.asStateFlow()
 
+    /** True while [history] is showing [LocalHistoryRepository] rows. */
+    private val _historyOnDevice = MutableStateFlow(false)
+    val historyOnDevice: StateFlow<Boolean> = _historyOnDevice.asStateFlow()
+
     private val _library = MutableStateFlow<UiState<LibraryPage>>(UiState.Loading)
     val library: StateFlow<UiState<LibraryPage>> = _library.asStateFlow()
 
     /** In-memory cache is partitioned by account and profile; it is never shared. */
     private data class ListenerSnapshot(
         val account: Account?, val library: UiState<LibraryPage>,
-        val history: UiState<List<Song>>, val playlists: List<UserPlaylist>,
-        val owned: Map<String, Boolean>,
+        val history: UiState<List<Song>>, val historyOnDevice: Boolean,
+        val playlists: List<UserPlaylist>, val owned: Map<String, Boolean>,
     )
     private val listenerCache = mutableMapOf<String, ListenerSnapshot>()
 
@@ -724,7 +758,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     )
 
     /** UI-side continuation fetches that can be handed to the playback service. */
-    private val fillInJobs = mutableMapOf<String, Job>()
+    private val fillInJobs = mutableMapOf<DetailLoadId, Job>()
 
     private val _releaseLibrary = MutableStateFlow<Map<String, LibraryState>>(emptyMap())
 
@@ -2471,30 +2505,33 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     /**
-     * The account's listening history.
+     * Listening history: YouTube Music's cloud history when there is one,
+     * otherwise this listener's on-device records.
      *
      * Loaded on each visit rather than cached: it is a page whose whole subject
-     * is what happened most recently, and one that opened showing the state it
-     * was in last time would be answering a different question. Guests get the
-     * signed-out message straight away, since there is no account to have a
-     * history on.
+     * is what happened most recently. Signed-in accounts prefer YouTube's
+     * history, falling back to local history when it is empty (watch history
+     * paused) or the fetch fails (offline). Guests use local history directly.
      */
     fun loadHistory() {
-        if (!_signedIn.value) {
-            _history.value = UiState.Error(text(R.string.history_sign_in_required))
-            return
-        }
         val identity = listenerKey()
+        val signedIn = _signedIn.value
         _history.value = UiState.Loading
         viewModelScope.launch {
-            val next = YtMusicRepository.history().fold(
-                onSuccess = { songs ->
-                    if (songs.isEmpty()) UiState.Error(text(R.string.history_empty))
-                    else UiState.Success(songs)
-                },
-                onFailure = { UiState.Error(it.friendly()) },
-            )
-            if (identity == listenerKey()) _history.value = next
+            val local = LocalHistoryRepository.all()
+            val remote = if (signedIn) YtMusicRepository.history() else null
+            val selection = selectHistory(signedIn, remote, local)
+            val next = when (selection) {
+                is HistorySelection.Songs -> UiState.Success(selection.songs)
+                is HistorySelection.Failed -> UiState.Error(
+                    selection.error?.friendly() ?: text(R.string.history_empty),
+                )
+                HistorySelection.Empty -> UiState.Error(text(R.string.history_empty))
+            }
+            if (identity == listenerKey()) {
+                _historyOnDevice.value = selection is HistorySelection.Songs && selection.onDevice
+                _history.value = next
+            }
         }
     }
 
@@ -2516,6 +2553,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 onFailure(it)
             }
         }
+    }
+
+    /** Drops this listener's on-device history and leaves the page on its empty state. */
+    fun clearLocalHistory() {
+        LocalHistoryRepository.clear()
+        _historyOnDevice.value = false
+        _history.value = UiState.Error(text(R.string.history_empty))
     }
 
     /** Recent searches, kept on device as rich entity records. */
@@ -3248,6 +3292,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             return
         }
         val resolved = browseTypeOf(browseId, type)
+        val detailLoadId = DetailLoadId()
         _detailStack.value += DetailPage(
             browseId = browseId,
             title = title,
@@ -3255,6 +3300,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             thumbnailUrl = thumbnailUrl,
             songs = UiState.Loading,
             type = resolved,
+            detailLoadId = detailLoadId,
         )
         viewModelScope.launch {
             var sections = emptyList<HomeShelf>()
@@ -3299,7 +3345,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             }
             if (onDevice.isNotEmpty()) {
                 _detailStack.value = _detailStack.value.map {
-                    if (it.browseId == browseId && it.songs is UiState.Loading) it.copy(songs = UiState.Success(onDevice)) else it
+                    if (it.detailLoadId == detailLoadId && it.songs is UiState.Loading) it.copy(songs = UiState.Success(onDevice)) else it
                 }
             }
             if (localPlaylist != null) {
@@ -3380,11 +3426,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     )
                 }
             }
-            // Update by id — the user may have pushed another page meanwhile.
+            // Update only the entry that started this load, even if the same
+            // playlist was reopened while the first request was in flight.
             // A page showing its downloaded copy takes only a real listing: a
             // failed or empty fetch leaves the downloaded tracks up.
             _detailStack.value = _detailStack.value.map {
-                if (it.browseId == browseId &&
+                if (it.detailLoadId == detailLoadId &&
                     (it.songs is UiState.Loading || (onDevice.isNotEmpty() && state is UiState.Success))
                 ) {
                     it.copy(
@@ -3407,7 +3454,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             }
             // Only once the first page is on screen: [fillIn] appends to it,
             // and has nothing to append to before this.
-            more?.let { fillIn(browseId, it, thumbnailUrl ?: artwork) }
+            more?.let { fillIn(detailLoadId, it, thumbnailUrl ?: artwork) }
         }
     }
 
@@ -3638,9 +3685,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * for. A page that adds nothing new (below) is the other exit, for a feed
      * that loops back on itself instead of running dry.
      */
-    private fun fillIn(browseId: String, token: String, artworkFallback: String?) {
-        fillInJobs[browseId]?.cancel()
-        fillInJobs[browseId] = viewModelScope.launch {
+    private fun fillIn(detailLoadId: DetailLoadId, token: String, artworkFallback: String?) {
+        fillInJobs[detailLoadId]?.cancel()
+        fillInJobs[detailLoadId] = viewModelScope.launch {
             // Publish and draw the first response before spending the shared
             // connection on page two. On a long playlist the continuation can
             // otherwise start in the same main-loop turn as the state update,
@@ -3648,6 +3695,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             delay(150)
             var next: String? = token
             while (next != null) {
+                if (_detailStack.value.none { it.detailLoadId == detailLoadId }) return@launch
                 val token = next
                 // One dropped request used to end the walk for good, leaving a
                 // long playlist cut short on screen and in its menu (#1178).
@@ -3658,15 +3706,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 // an in-flight UI page append after the playback service has
                 // taken the continuation over.
                 currentCoroutineContext().ensureActive()
-                // The same page can be on the stack twice (opened again from
-                // inside itself). One walk per browseId grows every copy; a
-                // second walk replaces the first, so each copy merges by key
-                // and only takes a token from a page that taught it something.
+                // A different visit to the same playlist owns its own rows and
+                // token. A late result cannot attach to that visit.
                 val stack = _detailStack.value
-                if (stack.none { it.browseId == browseId }) return@launch
                 var progressed = false
                 val updated = stack.map { current ->
-                    if (current.browseId != browseId) return@map current
+                    if (current.detailLoadId != detailLoadId) return@map current
                     val existing = (current.songs as? UiState.Success)?.data ?: return@map current
                     val known = existing.mapTo(HashSet()) { it.contextEntryKey() }
                     val added = fetched.songs
@@ -3689,7 +3734,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                         continuation = fetched.continuation,
                     )
                 }
-                // A page with nothing new for any copy means the feed has looped
+                // A page with nothing new means the feed has looped
                 // back rather than run dry with a token still attached.
                 if (!progressed) return@launch
                 _detailStack.value = updated
@@ -3697,7 +3742,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             }
         }.also { job ->
             job.invokeOnCompletion {
-                if (fillInJobs[browseId] === job) fillInJobs.remove(browseId)
+                if (fillInJobs[detailLoadId] === job) fillInJobs.remove(detailLoadId)
             }
         }
     }
@@ -3710,21 +3755,20 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * page that appears to stop growing as soon as playback starts.
      */
     private fun applyBoundedContextSnapshot(snapshot: BoundedContextRequests.Snapshot) {
-        val browseId = snapshot.request.source.id ?: return
+        val detailLoadId = snapshot.request.detailLoadId ?: return
         val stack = _detailStack.value
-        val index = stack.indexOfLast { it.browseId == browseId }
+        val index = stack.indexOfLast(snapshot::canUpdateDetail)
         if (index < 0) return
         val page = stack[index]
-        if (page.type != BrowseType.ALBUM && page.type != BrowseType.PLAYLIST) return
         // Exactly one loader walks the continuation. While the service owns
         // it the page's own fill-in stops; when the service gives up (or never
         // took it — a party, a Cast race) the page resumes from the newest token.
         if (snapshot.serviceOwned) {
-            if (snapshot.continuationToken != null) fillInJobs.remove(browseId)?.cancel()
+            if (snapshot.continuationToken != null) fillInJobs.remove(detailLoadId)?.cancel()
         } else if (snapshot.released && snapshot.continuationToken != null &&
-            fillInJobs[browseId]?.isActive != true
+            fillInJobs[detailLoadId]?.isActive != true
         ) {
-            fillIn(browseId, snapshot.continuationToken, page.thumbnailUrl)
+            fillIn(detailLoadId, snapshot.continuationToken, page.thumbnailUrl)
         }
         val existing = (page.songs as? UiState.Success)?.data ?: return
         val known = existing.mapTo(HashSet()) { it.contextEntryKey() }
@@ -3751,12 +3795,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * tap may yet go down another path, and cancelling here left the page
      * permanently cut short whenever it did.
      */
-    fun takePlaybackContext(browseId: String): DetailPage? {
+    fun takePlaybackContext(page: DetailPage): DetailPage? {
         val stack = _detailStack.value
-        val index = stack.indexOfLast { it.browseId == browseId }
+        val index = stack.indexOfLast { it.browseId == page.browseId && it.detailLoadId == page.detailLoadId }
         if (index < 0) return null
         val mirrored = BoundedContextRequests.snapshot.value
-            ?.takeIf { it.request.source.id == browseId }
+            ?.takeIf { it.canUpdateDetail(stack[index]) }
         if (mirrored != null) {
             applyBoundedContextSnapshot(mirrored)
             return _detailStack.value.getOrNull(index)
@@ -4177,7 +4221,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private fun cacheCurrentListener() {
         val key = listenerKey() ?: return
         listenerCache[key] = ListenerSnapshot(
-            _account.value, _library.value, _history.value, _playlists.value, _playlistOwned.value,
+            _account.value, _library.value, _history.value, _historyOnDevice.value,
+            _playlists.value, _playlistOwned.value,
         )
     }
 
@@ -4200,10 +4245,12 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         _songMenu.value = null
         _library.value = UiState.Loading
         _history.value = UiState.Loading
+        _historyOnDevice.value = false
         if (restoreCached) listenerCache[listenerKey()]?.let { cached ->
             _account.value = cached.account
             _library.value = cached.library
             _history.value = cached.history
+            _historyOnDevice.value = cached.historyOnDevice
             _playlists.value = cached.playlists
             _playlistOwned.value = cached.owned
         }
@@ -4257,6 +4304,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         _activeAccountId.value = null
         _activeProfileId.value = null
         _library.value = UiState.Loading
+        // History belongs to the account that just left too. Without this the
+        // next person to open History as a guest would see it still on screen.
+        _history.value = UiState.Loading
+        _historyOnDevice.value = false
         // Ratings and playlists belong to the account that just left; keeping
         // them would show the next signed-in user someone else's hearts.
         likedSyncJob?.cancel()

@@ -1716,4 +1716,27 @@
     <string name="native_sign_in_subtitle">Google 자체 시트, 한 번 탭, 비밀번호 없음. Sonara의 Google 로그인 설정이 필요하며, 그 전까지는 웹 로그인을 사용해요</string>
     <string name="native_sign_in_working">Google로 로그인하는 중…</string>
     <string name="native_sign_in_fallback">Google 로그인을 쓸 수 없어 웹 로그인을 열었어요</string>
+    <string name="hide_trending">인기 급상승 추천 숨기기</string>
+    <string name="hide_trending_subtitle">홈에서 인기 급상승 곡 및 커뮤니티 재생목록을 제거합니다</string>
+    <string name="clear_listening_history">기기 내 기록 지우기</string>
+    <string name="extend_animated_artwork">움직이는 아트워크만 확장</string>
+    <string name="extend_animated_artwork_subtitle">움직이는 아트워크는 플레이어 가장자리까지 넓히고 정지 커버는 정사각형으로 둡니다</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">브라우저에서 Last.fm 열기</string>
+    <string name="lastfm_complete_connection">연결 완료</string>
+    <string name="lastfm_oauth_description">브라우저의 Last.fm에서 Sonara를 승인해 계정을 연결하세요. 비밀번호는 여기에 입력하지 않습니다.</string>
+    <string name="lastfm_oauth_waiting">브라우저의 Last.fm에서 접근을 승인한 뒤 아래를 탭해 연결을 마치세요.</string>
+    <string name="lastfm_oauth_error_pending">아직 승인되지 않았어요. 브라우저의 Last.fm에서 접근을 승인한 뒤 다시 시도하세요.</string>
+    <string name="audio_focus">오디오 포커스</string>
+    <string name="audio_focus_auto_pause">일시정지 후 재개</string>
+    <string name="audio_focus_auto_pause_subtitle">다른 앱에서 소리가 나면 일시정지합니다</string>
+    <string name="audio_focus_keep_playing">항상 계속 재생</string>
+    <string name="audio_focus_keep_playing_subtitle">다른 소리가 나도 계속 재생하고 전화가 올 때만 일시정지합니다</string>
+    <string name="audio_focus_footer">다른 앱이나 전화가 소리를 내려 할 때 Sonara가 하는 동작입니다.</string>
+    <string name="remember_shuffle_state">셔플 기억하기</string>
+    <string name="remember_shuffle_state_subtitle">새 앨범이나 플레이리스트를 시작해도 셔플을 켜 둡니다</string>
+    <string name="widget_lyrics_label">싱크 가사 4×2</string>
+    <string name="widget_lyrics_description">지금 부르는 가사 줄과 재생 컨트롤.</string>
+    <string name="pipeline_karaoke">노래방</string>
 </resources>

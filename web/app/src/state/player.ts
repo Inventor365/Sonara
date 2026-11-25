@@ -22,6 +22,7 @@ import {
   type QueueSource,
 } from '@/playback/queue/timeline';
 import { trackLog } from '@/playback/trackLog';
+import { checkSleepAfterTrack, setSleepTimerPauseHandler } from '@/playback/sleepTimer';
 import type { LoadedTrack, StreamStats, YouTubeEngine } from '@/playback/youtube/engine';
 import type { AutomixGraph, AutoDJSnapshot } from '@/playback/automix';
 
@@ -93,6 +94,7 @@ interface PlayerState extends Settings {
   next: () => void;
   previous: () => void;
   togglePlay: () => void;
+  pause: () => void;
   seek: (seconds: number) => void;
   toggleShuffle: () => void;
   cycleRepeat: () => void;
@@ -553,6 +555,15 @@ export const usePlayer = create<PlayerState>()((set, get) => ({
     intent();
   },
 
+  pause() {
+    const audio = getAudio();
+    if (audio && !audio.paused) {
+      cancelCrossfade();
+      audio.pause();
+      intent();
+    }
+  },
+
   seek(seconds) {
     const audio = getAudio();
     if (!audio) return;
@@ -728,6 +739,9 @@ function planNext(auto: boolean): NextPlan | null {
 }
 
 async function advance(auto: boolean): Promise<void> {
+  if (auto && checkSleepAfterTrack()) {
+    return;
+  }
   let plan = planNext(auto);
   if (!plan && usePlayer.getState().autoplay) {
     await refillAutoplay(true);
@@ -1105,6 +1119,16 @@ function updateMediaSession(track: NowPlaying | null) {
   handle('previoustrack', () => player().previous());
   handle('nexttrack', () => player().next());
 }
+
+setSleepTimerPauseHandler(() => {
+  const audio = getAudio();
+  if (audio && !audio.paused) {
+    cancelCrossfade();
+    audio.pause();
+    usePlayer.setState({ status: 'paused' });
+    intent();
+  }
+});
 
 function updatePositionState() {
   const audio = getAudio();

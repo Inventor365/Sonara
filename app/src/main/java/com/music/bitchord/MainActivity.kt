@@ -76,6 +76,7 @@ import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.CloudOff
+import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.IosShare
 import androidx.compose.material.icons.rounded.MoreHoriz
@@ -159,6 +160,7 @@ import com.music.bitchord.data.NerdStats
 import com.music.bitchord.data.TrackLog
 import com.music.bitchord.data.innertube.InnertubeParser
 import com.music.bitchord.data.model.BrowseType
+import com.music.bitchord.data.model.DetailLoadId
 import com.music.bitchord.data.model.HomeShelf
 import com.music.bitchord.data.model.LikeStatus
 import com.music.bitchord.data.model.PlaybackSourceType
@@ -169,6 +171,7 @@ import com.music.bitchord.data.model.Song
 import com.music.bitchord.data.model.isUnresolvedSpotify
 import com.music.bitchord.data.model.UiState
 import com.music.bitchord.data.model.withoutVideos
+import com.music.bitchord.data.model.withoutTrending
 import com.music.bitchord.data.model.UserPlaylist
 import com.music.bitchord.data.model.EntityType
 import com.music.bitchord.data.model.SearchHistoryEntity
@@ -422,6 +425,8 @@ import com.music.bitchord.data.canvas.keyColors
 import com.music.bitchord.ui.theme.SystemBarIcons
 import com.music.bitchord.widget.RecognitionNotificationActions
 import com.music.bitchord.widget.RecognitionNotifications
+import com.music.bitchord.ui.utils.LocalSheetTouchGuard
+import com.music.bitchord.ui.utils.SheetTouchGuard
 import com.music.bitchord.ui.utils.guardSheetFromContentTouches
 import com.music.bitchord.ui.utils.rememberIosOverscrollFactory
 import com.music.bitchord.ui.performance.resolvePerformanceRefreshRate
@@ -1080,13 +1085,15 @@ private fun BitChordApp(
     val hideHomeVideos by AppSettings.hideHomeVideos.collectAsStateWithLifecycle()
     val hideTopPicks by AppSettings.hideTopPicks.collectAsStateWithLifecycle()
     val hideHomeMoods by AppSettings.hideHomeMoods.collectAsStateWithLifecycle()
+    val hideTrending by AppSettings.hideTrending.collectAsStateWithLifecycle()
     // Only what Home draws: Top Picks reads the unfiltered feed from the view model.
-    val visibleHomeState = remember(homeState, hideHomeVideos, hideRecents) {
+    val visibleHomeState = remember(homeState, hideHomeVideos, hideRecents, hideTrending) {
         val loaded = homeState as? UiState.Success
-        if (loaded != null && (hideHomeVideos || hideRecents)) {
+        if (loaded != null && (hideHomeVideos || hideRecents || hideTrending)) {
             var shelves = loaded.data
             if (hideRecents) shelves = shelves.filterNot { it.title == YtMusicRepository.RECENT_TITLE }
             if (hideHomeVideos) shelves = shelves.withoutVideos()
+            if (hideTrending) shelves = shelves.withoutTrending()
             UiState.Success(shelves)
         } else {
             homeState
@@ -1204,6 +1211,7 @@ private fun BitChordApp(
         )
     }
     val historyState by viewModel.history.collectAsStateWithLifecycle()
+    val historyOnDevice by viewModel.historyOnDevice.collectAsStateWithLifecycle()
     val lyrics by viewModel.lyrics.collectAsStateWithLifecycle()
     val lyricsSource by viewModel.lyricsSource.collectAsStateWithLifecycle()
     val lyricsChecked by viewModel.lyricsChecked.collectAsStateWithLifecycle()
@@ -1472,6 +1480,18 @@ private fun BitChordApp(
         val locked = ListenTogether.state.value.controlsLocked
         if (locked) showHostOnlyNotice()
         locked
+    }
+
+    val dismissMiniPlayer: () -> Boolean = {
+        if (refusedByHost()) {
+            false
+        } else {
+            controller?.let { activeController ->
+                activeController.stop()
+                activeController.clearMediaItems()
+                true
+            } ?: false
+        }
     }
 
     /**
@@ -1884,6 +1904,8 @@ private fun BitChordApp(
         source: QueueSource,
         boundedContext: Boolean = false,
         continuationToken: String? = null,
+        replaceUpcomingQueue: Boolean = false,
+        detailLoadId: DetailLoadId? = null,
     ) {
         // A Spotify page lists songs it has not found on YouTube Music yet (or
         // never will); those can't be queued, so play the rest in their order.
@@ -1891,6 +1913,7 @@ private fun BitChordApp(
         val songs = allSongs.filterNot { it.isUnresolvedSpotify }
         if (songs.isEmpty()) return
         val index = songs.indexOf(allSongs.getOrNull(allIndex)).coerceAtLeast(0)
+        QueueShuffle.onNewQueueStarted()
         playRequestGeneration++
         activeRadioSeed = null
         scope.launch {
@@ -1931,7 +1954,10 @@ private fun BitChordApp(
                 // library re-sent to every media controller on each queue edit.
                 val bounded = boundedContext || songs.size > BoundedQueuePlanner.MAX_PHYSICAL_CONTEXT
                 if (bounded && !CastController.state.value.casting) {
-                    c.playBoundedContext(songs, index, source, continuationToken)
+                    c.playBoundedContext(
+                        songs, index, source, continuationToken,
+                        replaceUpcomingQueue = replaceUpcomingQueue, detailLoadId = detailLoadId,
+                    )
                 } else {
                     val result = QueueCoordinator.buildContextQueue(
                         currentTimeline = currentTimeline,
@@ -1939,6 +1965,7 @@ private fun BitChordApp(
                         newContextSongs = songs,
                         selectedIndex = index,
                         contextSource = source,
+                        replaceUpcomingQueue = replaceUpcomingQueue,
                     )
                     c.playSongs(result.timeline, result.startIndex)
                 }
@@ -1950,15 +1977,16 @@ private fun BitChordApp(
     // collection action fetched before this callback). The explicit wrappers
     // below are preferred because a track's album is not necessarily where it
     // was played from.
-    val play: (List<Song>, Int) -> Unit = { songs, index ->
+    fun playFromSongs(songs: List<Song>, index: Int, replaceUpcomingQueue: Boolean = false) {
         val first = songs.getOrNull(index)
         val source = QueueSource(
             title = first?.playbackSource ?: first?.albumName ?: queueLabel,
             type = first?.playbackSourceType ?: PlaybackSourceType.QUEUE,
             id = first?.playbackSourceId,
         )
-        playFrom(songs, index, source)
+        playFrom(songs, index, source, replaceUpcomingQueue = replaceUpcomingQueue)
     }
+    val play: (List<Song>, Int) -> Unit = { songs, index -> playFromSongs(songs, index) }
     LaunchedEffect(player.song?.videoId) {
         if (optimisticVersionSong?.videoId == player.song?.videoId ||
             (optimisticVersionSong != null && player.song?.videoId != convertedAudioId && player.song?.videoId != convertedVideoId && player.song?.videoId != keepVideoId)
@@ -3924,11 +3952,10 @@ private fun BitChordApp(
                                 }
                             }
                             // The visible list can be one render behind the page
-                            // while fill-in is completing. For a local release
-                            // handoff, cancel that fill and use the newest complete
-                            // page snapshot; Cast deliberately keeps the old full
-                            // queue path.
-                            fun playDetailSongs(songs: List<Song>, index: Int) {
+                            // while fill-in is completing. Hand the local player
+                            // the newest snapshot of this load; Cast keeps the
+                            // existing full queue path.
+                            fun playDetailSongs(songs: List<Song>, index: Int, replaceUpcomingQueue: Boolean = false) {
                                 // Do not cancel a page's fill-in merely because a
                                 // listener tapped while the host owns playback.
                                 if (ListenTogether.state.value.controlsLocked) {
@@ -3940,18 +3967,23 @@ private fun BitChordApp(
                                     PlaybackSourceType.BROWSE,
                                     page.browseId,
                                 )
-                                val selected = songs.getOrNull(index)
+                                val selectedKey = songs.getOrNull(index)?.contextEntryKey()
                                 val pageKeys =
                                     (page.songs as? UiState.Success)?.data.orEmpty().map { it.contextEntryKey() }
                                 val pageSongKeys = pageKeys.toHashSet()
                                 val useBounded =
                                     (page.type == BrowseType.ALBUM || page.type == BrowseType.PLAYLIST) &&
-                                        selected?.contextEntryKey()?.let(pageSongKeys::contains) == true &&
+                                        selectedKey?.let(pageSongKeys::contains) == true &&
                                         // A sorted list plays as sorted, not in the page's order.
                                         inPageOrder(songs.map { it.contextEntryKey() }, pageKeys) &&
                                         !CastController.state.value.casting
                                 val latestPage = if (useBounded) {
-                                    viewModel.takePlaybackContext(page.browseId)
+                                    viewModel.takePlaybackContext(page)?.takeIf { latest ->
+                                        // The downloaded preview may have just been replaced. If
+                                        // the tapped occurrence is gone, keep the queue it came from.
+                                        (latest.songs as? UiState.Success)?.data
+                                            ?.any { it.contextEntryKey() == selectedKey } == true
+                                    }
                                 } else {
                                     null
                                 }
@@ -3961,15 +3993,24 @@ private fun BitChordApp(
                                     ?.takeIf { it.isNotEmpty() }
                                 val queue = latestSongs ?: songs.map(withAlbum)
                                 if (queue.isEmpty()) return
-                                val queueIndex = selected?.let { tapped ->
-                                    queue.indexOfFirst { it.contextEntryKey() == tapped.contextEntryKey() }
+                                val queueIndex = selectedKey?.let { key ->
+                                    queue.indexOfFirst { it.contextEntryKey() == key }
                                 }?.takeIf { it >= 0 } ?: index
+                                val playbackPage = latestPage ?: page
+                                // Oversized sorted queues also use bounded playback. They keep
+                                // their visible order but hand off the same listing's continuation.
+                                val detailLoadId = playbackPage.detailLoadId.takeIf {
+                                    playbackPage.continuation != null &&
+                                        (latestPage != null || songs.all { it.contextEntryKey() in pageSongKeys })
+                                }
                                 playFrom(
                                     queue,
                                     queueIndex.coerceIn(queue.indices),
                                     source,
                                     boundedContext = useBounded,
-                                    continuationToken = latestPage?.continuation ?: page.continuation,
+                                    continuationToken = playbackPage.continuation,
+                                    detailLoadId = detailLoadId,
+                                    replaceUpcomingQueue = replaceUpcomingQueue,
                                 )
                             }
                             // This page's songs being rearranged, drawn in place of its list.
@@ -3986,7 +4027,7 @@ private fun BitChordApp(
                                 },
                                 // Album/playlist playback hands the page snapshot to
                                 // the service, which then owns continuation loading.
-                                onSongClick = ::playDetailSongs,
+                                onSongClick = { songs, index -> playDetailSongs(songs, index) },
                                 onSongLongPress = { openSongMenu(withAlbum(it)) },
                                 onSongSwipe = { onSongSwipe(withAlbum(it)) },
                                 onPlay = { songs ->
@@ -3994,7 +4035,10 @@ private fun BitChordApp(
                                         // Play is the release in order, so a shuffle left on
                                         // from the last queue goes off before this one is built.
                                         QueueShuffle.disableForNextQueue()
-                                        playDetailSongs(songs, 0)
+                                        playDetailSongs(
+                                            songs, 0,
+                                            replaceUpcomingQueue = page.type == BrowseType.ALBUM || page.type == BrowseType.PLAYLIST,
+                                        )
                                     }
                                 },
                                 onShuffle = { songs ->
@@ -4774,6 +4818,18 @@ private fun BitChordApp(
                         }
                     } else null,
                     actions = {
+                        // Only on the History page, and only when the rows are this
+                        // device's: clearing must not look like it clears YouTube's
+                        // account history, which this app cannot delete.
+                        if (route == AppRoute.History && historyOnDevice && historyState is UiState.Success) {
+                            IconButton(onClick = viewModel::clearLocalHistory) {
+                                Icon(
+                                    Icons.Rounded.DeleteSweep,
+                                    contentDescription = stringResource(R.string.clear_listening_history),
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                )
+                            }
+                        }
                         // This is intentionally scoped to Listen together: the
                         // round-trip time is meaningful while coordinating a
                         // party, but would be noise in the rest of the app.
@@ -5114,6 +5170,7 @@ private fun BitChordApp(
                         song = player.song,
                         isPlaying = player.isPlaying,
                         isLoading = playPauseBusy,
+                        onDismiss = dismissMiniPlayer,
                         animationsActive = !showNowPlaying,
                         onPlayPause = {
                             togglePlayPause()
@@ -5151,6 +5208,7 @@ private fun BitChordApp(
                     player.song?.let { song ->
                         MiniPlayer(
                             song = song,
+                            onDismiss = dismissMiniPlayer,
                             isPlaying = player.isPlaying,
                             isLoading = playPauseBusy,
                             animationsActive = !showNowPlaying,
@@ -5728,6 +5786,8 @@ private fun BitChordApp(
                     onDispose { }
                 }
                 val playerMenuHaze = remember { HazeState() }
+                val sheetTouchGuard = remember { SheetTouchGuard() }
+                CompositionLocalProvider(LocalSheetTouchGuard provides sheetTouchGuard) {
                 Box(
                     Modifier
                         // Where the app is holding the player, if it is — see
@@ -5751,7 +5811,7 @@ private fun BitChordApp(
                                 )
                             }
                         }
-                        .guardSheetFromContentTouches(nowPlayingSheetState)
+                        .guardSheetFromContentTouches(nowPlayingSheetState, sheetTouchGuard)
                         // The sheet fills the window, so its height is the
                         // whole of its travel: hidden sits that far down.
                         .onSizeChanged {
@@ -5814,6 +5874,7 @@ private fun BitChordApp(
                     ) { song ->
                         songMenuBody(song)
                     }
+                }
                 }
             }
         }
@@ -6311,7 +6372,10 @@ private fun BitChordApp(
                 onAddToQueue = act(addSongsToQueue),
                 onPlay = act { songs ->
                     QueueShuffle.disableForNextQueue()
-                    play(songs, 0)
+                    playFromSongs(
+                        songs, 0,
+                        replaceUpcomingQueue = target.type == BrowseType.ALBUM || target.type == BrowseType.PLAYLIST,
+                    )
                 }.takeIf { target.fromCard },
                 onShuffle = act { songs ->
                     // As on a release page: shuffle goes on before the queue
@@ -6980,19 +7044,16 @@ private fun BitChordApp(
         }
 
         if (showLastfmLogin) {
-            var usernameInput by remember { mutableStateOf("") }
-            var passwordInput by remember { mutableStateOf("") }
+            var lastfmToken by remember { mutableStateOf<String?>(null) }
             var lastfmError by remember { mutableStateOf<String?>(null) }
             var lastfmLoading by remember { mutableStateOf(false) }
+            val context = LocalContext.current
             LastfmLoginAlert(
                 hazeState = hazeState,
-                usernameInput = usernameInput,
-                onUsernameInputChange = { usernameInput = it },
-                passwordInput = passwordInput,
-                onPasswordInputChange = { passwordInput = it },
+                token = lastfmToken,
                 error = lastfmError,
                 loading = lastfmLoading,
-                onSignIn = {
+                onAuthorizeInBrowser = {
                     lastfmLoading = true
                     lastfmError = null
                     scope.launch {
@@ -7001,7 +7062,29 @@ private fun BitChordApp(
                                 apiKey = AppSettings.lastfmApiKey.value,
                                 secret = AppSettings.lastfmSecret.value,
                             )
-                            LastFM.getMobileSession(usernameInput.trim(), passwordInput)
+                            val token = lastfmToken ?: LastFM.getToken().getOrThrow().token
+                            lastfmToken = token
+                            val authUrl = LastFM.getAuthUrl(token)
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authUrl))
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            lastfmError = e.message ?: context.getString(R.string.login_failed)
+                        } finally {
+                            lastfmLoading = false
+                        }
+                    }
+                },
+                onCompleteLogin = {
+                    val token = lastfmToken ?: return@LastfmLoginAlert
+                    lastfmLoading = true
+                    lastfmError = null
+                    scope.launch {
+                        try {
+                            LastFM.initialize(
+                                apiKey = AppSettings.lastfmApiKey.value,
+                                secret = AppSettings.lastfmSecret.value,
+                            )
+                            LastFM.getSession(token)
                                 .onSuccess { auth ->
                                     AppSettings.setLastfmSessionKey(auth.session.key)
                                     AppSettings.setLastfmUsername(auth.session.name)
@@ -7009,7 +7092,11 @@ private fun BitChordApp(
                                     showLastfmLogin = false
                                 }
                                 .onFailure { e ->
-                                    lastfmError = e.message ?: context.getString(R.string.login_failed)
+                                    lastfmError = if (e is LastFM.LastFmException && (e.code == 14 || e.code == 4)) {
+                                        context.getString(R.string.lastfm_oauth_error_pending)
+                                    } else {
+                                        e.message ?: context.getString(R.string.login_failed)
+                                    }
                                 }
                         } catch (e: Exception) {
                             lastfmError = e.message ?: context.getString(R.string.login_failed)
@@ -7625,7 +7712,10 @@ private fun playingYouTubesOwn(videoId: String, controller: MediaController?): B
     val uri = item.localConfiguration?.uri
     return QualityUpgrade.isKnownToBePlayingYouTubesOwn(
         videoId,
-        uri?.let(QualityUpgrade::cacheTag),
+        // A fresh play of an upgraded track carries no marker and reads the
+        // upgrade kept from an earlier play all the same — see
+        // [AudioCache.keptRenditionOf].
+        uri?.let { QualityUpgrade.cacheTag(it) ?: AudioCache.keptRenditionOf(it) },
         uri?.let(AudioCache::originOf),
     )
 }

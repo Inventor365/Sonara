@@ -1842,4 +1842,27 @@
     <string name="native_sign_in_subtitle">Lembar milik Google, sekali ketuk, tanpa sandi. Perlu login Google untuk Sonara disiapkan; sampai itu, Sonara memakai login web</string>
     <string name="native_sign_in_working">Masuk dengan Google…</string>
     <string name="native_sign_in_fallback">Login Google tidak tersedia, jadi login web dibuka</string>
+    <string name="hide_trending">Sembunyikan rekomendasi tren</string>
+    <string name="hide_trending_subtitle">Menghapus lagu yang sedang tren dan playlist komunitas dari Beranda</string>
+    <string name="clear_listening_history">Hapus riwayat di perangkat</string>
+    <string name="extend_animated_artwork">Perluas hanya sampul animasi</string>
+    <string name="extend_animated_artwork_subtitle">Sampul animasi meluas ke tepi pemutar, sampul diam tetap persegi</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">Buka Last.fm di browser</string>
+    <string name="lastfm_complete_connection">Selesaikan koneksi</string>
+    <string name="lastfm_oauth_description">Setujui Sonara di Last.fm lewat browser untuk menghubungkan akunmu. Sandimu tidak pernah dimasukkan di sini.</string>
+    <string name="lastfm_oauth_waiting">Setujui akses di Last.fm lewat browser, lalu ketuk di bawah untuk menyelesaikan koneksi.</string>
+    <string name="lastfm_oauth_error_pending">Belum disetujui. Setujui akses di Last.fm lewat browser, lalu coba lagi.</string>
+    <string name="audio_focus">Fokus audio</string>
+    <string name="audio_focus_auto_pause">Jeda dan lanjutkan</string>
+    <string name="audio_focus_auto_pause_subtitle">Berhenti sejenak saat aplikasi lain mulai memutar suara</string>
+    <string name="audio_focus_keep_playing">Selalu tetap memutar</string>
+    <string name="audio_focus_keep_playing_subtitle">Tetap memutar meski ada suara lain; hanya berhenti saat ada panggilan</string>
+    <string name="audio_focus_footer">Cara Sonara merespons saat aplikasi lain atau panggilan ingin memutar suara.</string>
+    <string name="remember_shuffle_state">Ingat acak</string>
+    <string name="remember_shuffle_state_subtitle">Biarkan acak tetap aktif saat memulai album atau playlist baru</string>
+    <string name="widget_lyrics_label">Lirik sinkron 4×2</string>
+    <string name="widget_lyrics_description">Baris yang sedang dinyanyikan, dengan kontrol pemutaran.</string>
+    <string name="pipeline_karaoke">Karaoke</string>
 </resources>

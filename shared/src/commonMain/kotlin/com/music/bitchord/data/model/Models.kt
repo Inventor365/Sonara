@@ -594,6 +594,29 @@ fun List<HomeShelf>.withoutVideos(): List<HomeShelf> = mapNotNull { shelf ->
     if (items.isEmpty()) null else shelf.copy(items = items)
 }
 
+/** These shelves without trending songs or community playlists. */
+fun List<HomeShelf>.withoutTrending(): List<HomeShelf> = filterNot { shelf ->
+    val title = shelf.title.trim()
+    title.contains("Trending", ignoreCase = true) ||
+        title.contains("Trends", ignoreCase = true) ||
+        title.contains("Tendencias", ignoreCase = true) ||
+        title.contains("Tendances", ignoreCase = true) ||
+        title.contains("פופולרי עכשיו", ignoreCase = true) ||
+        title.contains("ट्रेंडिंग", ignoreCase = true) ||
+        title.contains("Sedang tren", ignoreCase = true) ||
+        title.contains("Tendenze", ignoreCase = true) ||
+        title.contains("急上昇", ignoreCase = true) ||
+        title.contains("인기 급상승", ignoreCase = true) ||
+        title.contains("Trendy", ignoreCase = true) ||
+        title.contains("Em alta", ignoreCase = true) ||
+        title.contains("В тренде", ignoreCase = true) ||
+        title.contains("Trendler", ignoreCase = true) ||
+        title.contains("Thịnh hành", ignoreCase = true) ||
+        title.contains("热门趋势", ignoreCase = true) ||
+        title.contains("熱門趨勢", ignoreCase = true)
+}
+
+
 /**
  * The layout a shelf of [items] gets, as the web player decides it: rows when
  * YouTube itself listed tracks as rows (or the shelf is Listen again, which the
@@ -679,6 +702,9 @@ data class LibraryPage(
         get() = likedSongs.isEmpty() && librarySongs.isEmpty() && shelves.isEmpty()
 }
 
+/** Process-local identity for one detail load, not the id of its collection. */
+class DetailLoadId
+
 /** A browsed album / artist / playlist page. */
 data class DetailPage(
     val browseId: String,
@@ -720,6 +746,7 @@ data class DetailPage(
      * fetched with a session; see [SubscriptionState].
      */
     val subscription: SubscriptionState? = null,
+    val detailLoadId: DetailLoadId? = null,
 )
 
 /**

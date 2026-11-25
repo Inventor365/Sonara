@@ -30,7 +30,9 @@ import com.music.bitchord.data.lyrics.LyricLine
 import com.music.bitchord.data.lyrics.LyricsTranslation
 import com.music.bitchord.data.model.Song
 import com.music.bitchord.data.settings.AppSettings
+import com.music.bitchord.data.settings.BitPerfectMode
 import com.music.bitchord.data.settings.LastPlayerScreen
+import com.music.bitchord.playback.KaraokeProcessingAvailability
 import com.music.bitchord.playback.MusicOnlyPlayback
 import com.music.bitchord.playback.AudioOutputStatus
 import com.music.bitchord.playback.AudioRouting
@@ -38,6 +40,7 @@ import com.music.bitchord.playback.AutoMixVisualFeed
 import com.music.bitchord.playback.audio.bitperfect.BitPerfectOutput
 import com.music.bitchord.playback.audio.bitperfect.DacVolume
 import com.music.bitchord.playback.cast.CastController
+import com.music.bitchord.playback.dlna.DlnaOutput
 import com.music.bitchord.ui.components.backdrop.backdrops.SnapshotBackdrop
 import com.music.bitchord.ui.components.backdrop.backdrops.rememberSnapshotBackdrop
 import com.music.bitchord.ui.components.backdrop.backdrops.snapshotBackdropSource
@@ -69,6 +72,7 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
     private val main = Handler(Looper.getMainLooper())
 
     override val autoMixVisualState get() = AutoMixVisualFeed.state
+    override val remoteArtworkScope get() = AppSettings.remoteArtworkScope
 
     override fun onAutoMixScrubIntent() = AutoMixVisualFeed.cancel()
 
@@ -90,6 +94,7 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
         override val audioQualityWifi get() = AppSettings.audioQualityWifi
         override val canvasOverCellular get() = AppSettings.canvasOverCellular
         override val fullBleedArtwork get() = AppSettings.fullBleedArtwork
+        override val extendAnimatedArtwork get() = AppSettings.extendAnimatedArtwork
         override val showTotalDuration get() = AppSettings.showTotalDuration
         override val hideSongStatus get() = AppSettings.hideSongStatus
         override val hideLyricsPreview get() = AppSettings.hideLyricsPreview
@@ -100,6 +105,7 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
         override val playerTheme get() = AppSettings.playerTheme
         override val lyricsBlur get() = AppSettings.lyricsBlur
         override val lyricsOffsetMs get() = AppSettings.lyricsOffsetMs
+        override val songLyricsOffsets get() = AppSettings.songLyricsOffsets
         override val lyricsSourceOrder get() = AppSettings.lyricsSourceOrder
         override val meteredConnection get() = AppSettings.meteredConnection
         override val streamCeilingOverride get() = AppSettings.streamCeilingOverride
@@ -126,13 +132,40 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
         override val syncedLyrics get() = AppSettings.syncedLyrics
         override val translationLanguage get() = AppSettings.translationLanguage
         override val versionAlignmentInProgress get() = AppSettings.versionAlignmentInProgress
+        override val karaokeEnabled get() = AppSettings.karaokeEnabled
+        override val karaokeVocalLevel get() = AppSettings.karaokeVocalLevel
+        override val karaokeAvailability get() = this@AndroidPlayerHost.karaokeAvailability
 
         override fun setLastPlayerScreen(value: LastPlayerScreen) = AppSettings.setLastPlayerScreen(value)
         override fun setLyricsOffsetMs(value: Int) = AppSettings.setLyricsOffsetMs(value)
         override fun setShowTotalDuration(value: Boolean) = AppSettings.setShowTotalDuration(value)
+        override fun setSongLyricsOffsetMs(videoId: String, value: Int) =
+            AppSettings.setSongLyricsOffsetMs(videoId, value)
         override fun setMixViewOpen(open: Boolean) {
             AppSettings.mixViewOpen.value = open
         }
+        // Only ever reached from the drawer's own Enable synced lyrics tap —
+        // the preference gates third-party lookups, so nothing writes it but
+        // the listener. See [PlayerSettingsSource.setSyncedLyrics].
+        override fun setSyncedLyrics(value: Boolean) = AppSettings.setSyncedLyrics(value)
+        override fun setKaraokeEnabled(value: Boolean) = AppSettings.setKaraokeEnabled(value)
+        override fun setKaraokeVocalLevel(value: Float) = AppSettings.setKaraokeVocalLevel(value)
+    }
+
+    /**
+     * Karaoke's runtime verdict, in the shared player's name for it. Eager so
+     * the drawer hears a route flip the moment the service publishes one —
+     * [AppSettings.karaokeProcessingAvailability] already only changes on
+     * format, route, Cast, watch and bit-perfect transitions.
+     */
+    private val karaokeAvailability: StateFlow<KaraokeAvailability> by lazy {
+        AppSettings.karaokeProcessingAvailability
+            .map { it.toKaraokeAvailabilityUi() }
+            .stateIn(
+                scope,
+                SharingStarted.Eagerly,
+                AppSettings.karaokeProcessingAvailability.value.toKaraokeAvailabilityUi(),
+            )
     }
 
     override fun cachedCanvas(song: Song): CanvasArtwork? = CanvasRepository.cached(song)
@@ -176,9 +209,10 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
         val outputs = rememberAndroidAudioOutputs()
         val cast by CastController.state.collectAsStateWithLifecycle()
         val watch by WearBridge.watchOutput.collectAsStateWithLifecycle()
+        val dlna by DlnaOutput.state.collectAsStateWithLifecycle()
         // While a receiver is the speaker no output of this phone is the one
-        // playing, so none of them is lit; the Cast or watch row is.
-        return if (cast.casting || watch.active) outputs.map { it.copy(isActive = false) } else outputs
+        // playing, so none of them is lit; the Cast, watch or network speaker row is.
+        return if (cast.casting || watch.active || dlna.active) outputs.map { it.copy(isActive = false) } else outputs
     }
 
     @Composable
@@ -190,6 +224,7 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
         if (CastController.state.value.casting) CastController.disconnect(resumeHere = true)
         AudioRouting.select(id)
         WearBridge.leaveWatchOutput()
+        DlnaOutput.leave(resumeHere = true)
     }
 
     override val watchOutput: StateFlow<WatchOutputUi> by lazy {
@@ -204,6 +239,7 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
         // One speaker at a time: a receiver lets go first, quietly, and the
         // watch picks the queue up from where the phone's player is.
         if (CastController.state.value.casting) CastController.disconnect(resumeHere = false)
+        DlnaOutput.leave(resumeHere = false)
         WearBridge.selectWatchOutput()
     }
 
@@ -219,6 +255,30 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
             family?.isGalaxyBuds == true -> painterResource(R.drawable.buds2)
             else -> null
         }
+    }
+
+    override fun useNormalOutput() {
+        // Karaoke's recovery action, on an explicit tap only: bit-perfect
+        // carries the track to the DAC untouched and so bypasses the vocal
+        // stage, and normal processed output is the way back to it.
+        AppSettings.setBitPerfectMode(BitPerfectMode.OFF)
+    }
+
+    override val networkSpeakers: StateFlow<List<NetworkSpeakerUi>> by lazy {
+        DlnaOutput.state
+            .map { state -> state.devices.map { NetworkSpeakerUi(id = it.id, name = it.name, active = it.id == state.activeId) } }
+            .stateIn(scope, SharingStarted.Eagerly, emptyList())
+    }
+
+    override fun refreshNetworkSpeakers() = DlnaOutput.refresh()
+
+    override fun selectNetworkSpeaker(id: String) {
+        // One speaker at a time: a Cast receiver lets go quietly; the watch
+        // hands the music back to the phone (playing on if it was), and the
+        // renderer picks the queue up from there.
+        if (CastController.state.value.casting) CastController.disconnect(resumeHere = false)
+        WearBridge.leaveWatchOutput()
+        DlnaOutput.select(id)
     }
 
     override val outputFormat: StateFlow<OutputFormatUi> by lazy {
@@ -305,6 +365,15 @@ class AndroidPlayerHost(context: Context) : PlayerHost {
     ) = AndroidLyricsShareSheet(hazeState = hazeState, request = request, onDismiss = onDismiss)
 }
 
+/** The service's Karaoke verdict, in the shared player's name for it. */
+private fun KaraokeProcessingAvailability.toKaraokeAvailabilityUi() = when (this) {
+    KaraokeProcessingAvailability.AVAILABLE -> KaraokeAvailability.AVAILABLE
+    KaraokeProcessingAvailability.NEEDS_STEREO -> KaraokeAvailability.NEEDS_STEREO
+    KaraokeProcessingAvailability.NEEDS_LINEAR_PCM -> KaraokeAvailability.NEEDS_LINEAR_PCM
+    KaraokeProcessingAvailability.BIT_PERFECT_ACTIVE -> KaraokeAvailability.BIT_PERFECT_ACTIVE
+    KaraokeProcessingAvailability.REMOTE_OUTPUT_ACTIVE -> KaraokeAvailability.REMOTE_OUTPUT_ACTIVE
+}
+
 /**
  * The output's format line, and whether the track is reaching the DAC
  * bit-perfect. On the exclusive output the format is the one written to
@@ -359,12 +428,15 @@ private class CastAwareVolume(
             else -> phone
         }
     }
+        // A network speaker is one more receiver; at most one of them plays at a time.
+        .combine(DlnaOutput.state) { level, dlna -> if (dlna.active) dlna.volume else level }
         .stateIn(scope, SharingStarted.Eagerly, system.level.value)
 
     override fun set(level: Float) {
         when {
             CastController.state.value.casting -> CastController.setVolume(level)
             WearBridge.watchOutput.value.active -> WearBridge.setWatchVolume(level)
+            DlnaOutput.state.value.active -> DlnaOutput.setVolume(level)
             DacVolume.level.value != null -> DacVolume.set(level)
             else -> system.set(level)
         }

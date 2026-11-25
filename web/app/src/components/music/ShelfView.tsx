@@ -123,7 +123,23 @@ export function TrackShelf({ title, to, tracks, source }: { title: string; to?: 
       <ShelfScroller key={tracks.length} kind="tracks">
         {tracks.map((track, i) => (
           <li key={track.videoId}>
-            <TrackLockup item={trackItem(track)} onPlay={() => playList(tracks, i, { source })} />
+            <TrackLockup item={trackItem(track)} onPlay={() => playList(tracks, i, { source })} plays={track.plays} />
+          </li>
+        ))}
+      </ShelfScroller>
+    </section>
+  );
+}
+
+/** A shelf of the app's own (the library, Spotify), titled with a link to its page. */
+export function ItemShelf({ title, to, items }: { title: string; to: string; items: MusicItem[] }) {
+  return (
+    <section className={shelfSection} aria-label={title}>
+      <ShelfTitle title={title} to={to} />
+      <ShelfScroller key={items.length} kind="square">
+        {items.map((item, i) => (
+          <li key={`${item.id}-${i}`}>
+            <SquareLockup item={item} />
           </li>
         ))}
       </ShelfScroller>

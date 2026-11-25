@@ -337,6 +337,7 @@ private fun PlayerMeshBackdrop(
     modifier: Modifier = Modifier,
     ambient: AutoMixAmbient,
     entry: QueueEntryIdentity?,
+    sourceScope: Long?,
 ) {
     val seed = ambient.incoming?.mesh
     val snapKey = rememberAmbientSnapKey(ambient.snapKey(seed != null))
@@ -357,7 +358,7 @@ private fun PlayerMeshBackdrop(
             }
         }
     }
-    key(snapKey) {
+    key(snapKey, sourceScope) {
         ArtworkMeshBackdrop(
             mesh = mesh,
             seam = { seam.value },
@@ -366,6 +367,7 @@ private fun PlayerMeshBackdrop(
             currentIsOutgoing = entry == mix?.outgoing,
             directSelection = ambient.direct,
             directStill = ambient.direct != null && frame == null,
+            selectionKey = (entry ?: trackKey) to url,
         )
     }
 }
@@ -380,6 +382,7 @@ private fun LegacyMeshBackdrop(
     modifier: Modifier,
     ambient: AutoMixAmbient,
     entry: QueueEntryIdentity?,
+    sourceScope: Long?,
 ) {
     val url = imageUrl ?: ambient.incoming?.resolvedUrl
     val settled = ambient.incoming?.palette
@@ -389,16 +392,20 @@ private fun LegacyMeshBackdrop(
     val frame = canvasFrame()
     val palette = key(snapKey) { rememberArtworkColors(url, frame, seed, canvasKey) }
     val mix = ambient.mixFor(settled != null)
-    MeshGradientBackground(
-        palette = palette,
-        trackKey = trackKey,
-        modifier = modifier,
-        mix = mix,
-        snapKey = snapKey,
-        settled = requestedSnap != null,
-        currentIsOutgoing = entry == mix?.outgoing,
-        directStill = ambient.direct != null && frame == null,
-    )
+    key(sourceScope) {
+        MeshGradientBackground(
+            palette = palette,
+            trackKey = trackKey,
+            modifier = modifier,
+            mix = mix,
+            snapKey = snapKey,
+            settled = requestedSnap != null,
+            currentIsOutgoing = entry == mix?.outgoing,
+            directStill = ambient.direct != null && frame == null,
+            selectionKey = (entry ?: trackKey) to url,
+            selectionReady = seed != null || frame != null || cachedArtworkPalette(url) != null,
+        )
+    }
 }
 
 /** How long a full-screen Spotify Canvas holds still after the player has opened. */
@@ -964,8 +971,8 @@ fun NowPlayingScreen(
      */
     windowHeight: Dp,
     /**
-     * Whether the host's ⋯ menu is up over the player. Like the player's own
-     * drawers it pauses a canvas — see [overlayOpen]. Asked rather than
+     * Whether the host's ⋯ menu is up over the player, for frost and chrome
+     * rather than pausing a canvas — see [overlayOpen]. Asked rather than
      * passed: as a value, every open and close of the menu re-ran all of this
      * screen, on the very frame the menu starts to grow.
      */
@@ -1011,6 +1018,7 @@ fun NowPlayingScreen(
     var showAudioOutput by remember { mutableStateOf(false) }
     var showVideoQuality by remember { mutableStateOf(false) }
     var showLyricsProviders by remember { mutableStateOf(false) }
+    var showKaraoke by remember { mutableStateOf(false) }
     // Gated on the Bluetooth permission the first time — see [rememberOutputPicker].
     val openAudioOutput = rememberOutputPicker { showAudioOutput = true }
     // Listening in a party whose host has taken the controls: the transport
@@ -1025,10 +1033,10 @@ fun NowPlayingScreen(
 
     val syncedLyricsEnabled by PlayerSettings.syncedLyrics.collectAsStateWithLifecycle()
     val hideLyricsPreview by PlayerSettings.hideLyricsPreview.collectAsStateWithLifecycle()
-    val lyricsOffsetMs by PlayerSettings.lyricsOffsetMs.collectAsStateWithLifecycle()
+    val lyricsOffsetMs by rememberLyricsOffsetMs(song.videoId)
     // A lambda, not a value: read by the lyric strip and panel in scopes of
     // their own, so a tick recomposes them and not the player around them.
-    val lyricsPlayhead = rememberLyricPlayhead(position)
+    val lyricsPlayhead = rememberLyricPlayhead(position, song.videoId)
     val seekToLyric: (Long) -> Unit = { lineTimeMs ->
         onSeek(adjustedLyricsSeekTarget(lineTimeMs, lyricsOffsetMs))
     }
@@ -1054,9 +1062,11 @@ fun NowPlayingScreen(
     // to it, in place of the full-width box at the video's shape.
     val squareVideo = videoMode && VideoThumbnails.square
     val fullCanvasWindow = playerFillsWindow(windowWidth)
-    val fullBleedArt by PlayerSettings.fullBleedArtwork.collectAsStateWithLifecycle()
+    val savedFullBleedArt by PlayerSettings.fullBleedArtwork.collectAsStateWithLifecycle()
+    val extendAnimatedArt by PlayerSettings.extendAnimatedArtwork.collectAsStateWithLifecycle()
+    val fullBleedArt = savedFullBleedArt && !extendAnimatedArt
     val sessionCanvas = rememberCanvasArtwork(song)?.takeUnless { videoMode }
-        ?.nowPlayingRendition(fullCanvasWindow)
+        ?.nowPlayingRendition(fullCanvasWindow, fullBleedArt)
     val coverEntry = remember(song.videoId, song.queueEntryId, queue, queueIndex) {
         coverOccurrence(song, queue, queueIndex)
     }
@@ -1074,7 +1084,10 @@ fun NowPlayingScreen(
     var fullscreenRequested by remember { mutableStateOf(false) }
     val sideways = landscapePlayerAvailable(windowWidth, windowHeight)
     val artworkGate = autoMixArtworkGate()
-    val canvasPair = rememberAutoMixCanvasPair(coverEntry, queue, isPlaying, sideways, fullCanvasWindow, fullBleedArt, artworkGate)
+    val ambientSourceScope = artworkGate.remoteArtworkScope.takeIf {
+        song.videoId.startsWith("smb:") || song.videoId.startsWith("webdav:")
+    }
+    val canvasPair = rememberAutoMixCanvasPair(coverEntry, queue, isPlaying, sideways, fullCanvasWindow, fullBleedArt, extendAnimatedArt, artworkGate)
     val pair = canvasPair.visual?.takeIf { artworkGate.allows(it.generation) && it.contains(coverEntry) }
     val promotedCanvas = canvasPair.promoted?.takeIf { it.incoming == coverEntry && !videoMode }
     // An outgoing Spotify Canvas fades back to its cover as the mix starts, well
@@ -1270,6 +1283,35 @@ fun NowPlayingScreen(
         queueOpen = opening
         if (opening) closeLyrics()
     }
+    // The Karaoke glyph's press turns the feature on at the level the
+    // listener last chose — 0% the first time, so the effect is immediate —
+    // and opens the drawer that holds both the level and the off switch. The
+    // setting itself is the service's to apply, to both decks alike; nothing
+    // about it ever touches the equalizer.
+    //
+    // The same press starts the sing-along when it can (see
+    // [opensLyricsOnKaraokeActivation]): on the enabling edge, with the vocal
+    // reduction actually running and synced lyrics already allowed, the
+    // existing lyrics panel comes up behind the drawer through this same
+    // [openLyrics] the Lyrics glyph uses — never a second lyric surface, and
+    // the queue goes with it exactly as the Lyrics button takes it. A route
+    // that cannot process, or synced lyrics the listener has turned off,
+    // leaves the drawer to explain instead: its availability rows, or the one
+    // "Enable synced lyrics" tap that alone flips that preference. A press
+    // while already on never touches the panel either way — closing lyrics
+    // did not stop Karaoke, and adjusting its level must not drag the words
+    // back up.
+    val openKaraoke: () -> Unit = {
+        val alreadyEnabled = PlayerSettings.karaokeEnabled.value
+        if (!alreadyEnabled) PlayerSettings.setKaraokeEnabled(true)
+        showKaraoke = true
+        if (opensLyricsOnKaraokeActivation(
+                alreadyEnabled,
+                PlayerSettings.karaokeAvailability.value,
+                PlayerSettings.syncedLyrics.value,
+            )
+        ) openLyrics()
+    }
     val lyricsLoadingLines = stringArrayResource(Res.array.lyrics_loading_lines)
     val lyricsLoadingText = remember(song.videoId) { lyricsLoadingLines.random() }
     val lyricsTranslation = rememberLyricsTranslation(
@@ -1290,9 +1332,8 @@ fun NowPlayingScreen(
     val backdropLayer = rememberGraphicsLayer()
     val shareScope = rememberCoroutineScope()
     // Whether anything is up over the player: a drawer, a popup, the ⋯ menu.
-    // A canvas holds still under them, as it does for the lyrics and the
-    // queue — each blurs a still of the player, and a clip playing on behind
-    // it is decoding and compositing for nothing anyone can see.
+    // Frost captures and chrome follow every overlay independently of
+    // whether that overlay pauses the clip.
     //
     // Derived, and read only where it is used: read here, opening any of them
     // re-ran this whole screen on the frame it starts to animate in.
@@ -1301,7 +1342,16 @@ fun NowPlayingScreen(
     val overlayOpen = remember {
         derivedStateOf {
             currentMenuOpen() || showAudioPipeline || showCast || showAudioOutput || showVideoQuality ||
-                showLyricsProviders || showListenTogetherMembers || lyricsShare != null || currentLyricsOffsetOpen
+                showLyricsProviders || showListenTogetherMembers || lyricsShare != null || currentLyricsOffsetOpen ||
+                showKaraoke
+        }
+    }
+    // Keep supplying frames under the flyout and Audio output so a replacement
+    // surface fills on return. Other overlays retain their independent pauses.
+    val overlayPausesCanvas = remember {
+        derivedStateOf {
+            showAudioPipeline || showCast || showVideoQuality || showLyricsProviders ||
+                showListenTogetherMembers || lyricsShare != null || currentLyricsOffsetOpen
         }
     }
     val lyricsShareEnabled = lyricsShareAvailable
@@ -1395,6 +1445,10 @@ fun NowPlayingScreen(
     PlayerBackHandler(enabled = showAudioPipeline) { showAudioPipeline = false }
 
     PlayerBackHandler(enabled = showCast) { showCast = false }
+
+    // Closing this drawer never switches Karaoke off — only its own master
+    // control does. See [KaraokeSheet].
+    PlayerBackHandler(enabled = showKaraoke) { showKaraoke = false }
 
     PlayerBackHandler(enabled = lyricsOffsetOpen, onBack = onDismissLyricsOffset)
 
@@ -1583,9 +1637,11 @@ fun NowPlayingScreen(
     // API level now, and both layers answer to this.
     val spotifyCanvasOnPhone = canvas?.source == CanvasSource.SPOTIFY &&
         playerFillsWindow(windowWidth)
-    // Spotify Canvas is the player background on a phone, independent of the
-    // still-art full-bleed preference. Other providers and static artwork keep
-    // answering to that preference exactly as before.
+    // Spotify Canvas is the player background on a phone, preserving its legacy
+    // behavior independently of either artwork preference. The animated-art
+    // option adds full bleed for other actual canvases; it never promotes
+    // static artwork. Other providers' still artwork only uses the general
+    // preference when animated-art mode is off.
     // A music video sits in the card's place at its own 16:9, never full bleed.
     // Space floats the cover in front of its black hole, framed by the lensed ring: a card, never
     // edge to edge, whatever the preference says.
@@ -1593,7 +1649,7 @@ fun NowPlayingScreen(
         com.music.bitchord.ui.theme.LocalThemeEffects.current.playerHole
     val heroMode = !videoMode && (
         spotifyCanvasOnPhone ||
-            (fullBleedArt && !spaceTheme && playerFillsWindow(windowWidth))
+            (((fullBleedArt && !extendAnimatedArt) || (extendAnimatedArt && canvas != null)) && !spaceTheme && playerFillsWindow(windowWidth))
         )
 
     // Whether there's a still image to blow out — a placeholder tile is a card
@@ -1904,6 +1960,7 @@ fun NowPlayingScreen(
             autoplayEnabled = autoplayEnabled,
             onToggleLyrics = toggleLyrics,
             onToggleQueue = toggleQueue,
+            onOpenKaraoke = openKaraoke,
             onToggleShuffle = onToggleShuffle,
             onCycleRepeat = onCycleRepeat,
             onToggleAutoplay = onToggleAutoplay,
@@ -1988,8 +2045,28 @@ fun NowPlayingScreen(
         }
         if (lyricsOffsetOpen) {
             LyricsOffsetSheet(
+                videoId = song.videoId,
                 hazeState = playerHaze,
                 onDismiss = onDismissLyricsOffset,
+            )
+        }
+        if (showKaraoke) {
+            KaraokeSheet(
+                hazeState = playerHaze,
+                onDismiss = { showKaraoke = false },
+                // The remote-speaker recovery: hand the music back to this
+                // phone's outputs, which starts by putting this drawer away.
+                onOpenOutputs = {
+                    showKaraoke = false
+                    openAudioOutput()
+                },
+                // The sing-along continuation: the drawer's Enable synced
+                // lyrics tap hands the words back to the player's own
+                // [openLyrics], so the panel that comes up behind this
+                // drawer is the same one the Lyrics glyph opens — queue
+                // closed, screen remembered, kept awake — never a second
+                // lyric surface.
+                onOpenLyrics = openLyrics,
             )
         }
         lyricsShare?.let { request ->
@@ -2027,7 +2104,7 @@ fun NowPlayingScreen(
         imageUrl = ambientBlurUrl,
         artPx = ART_PX,
         seed = blurSeed,
-        currentSelectionOnly = ambient.direct != null,
+        currentSelectionOnly = true,
         prepare = playerTheme == PlayerTheme.SIMPLE || landscape || tabletArtworkBackdrop ||
             lyricsOpen || queueOpen || playerPrewarmStage >= 1,
     )
@@ -2048,13 +2125,16 @@ fun NowPlayingScreen(
     val currentBlurSnapKey = rememberUpdatedState(blurSnapKey)
     val currentBlurIsOutgoing = rememberUpdatedState(coverEntry == blurMix?.outgoing)
     val directBlur = rememberUpdatedState(ambient.direct != null)
+    val currentBlurSelection = rememberUpdatedState(coverEntry to ambientBlurUrl)
+    val currentBlurSourceScope = rememberUpdatedState(ambientSourceScope)
     val fullArtworkBlurContent = remember {
         movableContentOf<Modifier> { backdropModifier ->
-            key(currentBlurSnapKey.value) {
+            key(currentBlurSnapKey.value, currentBlurSourceScope.value) {
                 FullArtworkBlurBackdrop(
                     currentFullArtworkBlurImage.value, backdropModifier,
                     currentBlurMix.value, currentBlurIsOutgoing.value,
                     immediate = directBlur.value,
+                    selectionKey = currentBlurSelection.value,
                 )
             }
         }
@@ -2425,7 +2505,7 @@ fun NowPlayingScreen(
                             onClipResumed = onClipResumed,
                             // A clip decoding behind a player on its way to the
                             // bar is work nobody sees — see [dockMoving].
-                            pausedForTransition = dockMoving || overlayOpen.value,
+                            pausedForTransition = dockMoving || overlayPausesCanvas.value,
                             sleeveShape = landscapeArtShape,
                             // Let go of on the way to the mini player, whose
                             // cover sits flat in its bar.
@@ -2773,6 +2853,7 @@ fun NowPlayingScreen(
                         LegacyMeshBackdrop(
                             ambient = ambient,
                             entry = coverEntry,
+                            sourceScope = ambientSourceScope,
                             imageUrl = remoteArt,
                             canvasFrame = { canvasFrame.takeIf { canvasOwnsAmbient } },
                             canvasKey = ambientCanvasKey,
@@ -2795,6 +2876,7 @@ fun NowPlayingScreen(
                         PlayerMeshBackdrop(
                             ambient = ambient,
                             entry = coverEntry,
+                            sourceScope = ambientSourceScope,
                             trackKey = song.videoId,
                             imageUrl = remoteArt,
                             canvasFrame = { canvasFrame.takeIf { canvasOwnsAmbient } },
@@ -2830,6 +2912,7 @@ fun NowPlayingScreen(
                     val standbyClip = pair?.incomingClip?.takeIf { !(lyricsOpen || queueOpen) || !collapseDone }
                     val matchedLiveHero = pair?.liveOutgoing == true && pair.liveIncoming &&
                         sharesHeroRevealFootprint(clipFullscreen, incomingFullWindow, canvasAspect, pair.incomingAspect)
+                    val liveHeroReveal = pair?.matchedHeroReveal(matchedLiveHero, !stillMoving && gesturePair == null)
                     if (staticHeroUnderlay != null && pair != null) {
                         val frame = if (heroMode) Modifier.fillMaxWidth().height(heroHeight) else Modifier.layout { measurable, constraints ->
                             val rect = expandedSquare
@@ -2879,7 +2962,7 @@ fun NowPlayingScreen(
                             // full-screen Spotify Canvas, though: that is the whole
                             // screen, and keeps playing under them, blurred live.
                             pausedForTransition = lyricsOpen || queueOpen || queueDragging ||
-                                collapseStarted || dockMoving || (overlayOpen.value && !fullscreen) ||
+                                collapseStarted || dockMoving || (overlayPausesCanvas.value && !fullscreen) ||
                                 (standby && pair?.started != true) || (!standby && freezeOutgoingCanvas),
                             // Spotify's 9:16 Canvas is the phone background, so it
                             // covers every edge. Other providers retain the contained
@@ -2949,7 +3032,11 @@ fun NowPlayingScreen(
                             },
                             nowPlaying = true,
                             organicReveal = if (standby) {
-                                pair?.standbyReveal(staticHeroUnderlay != null || (matchedLiveHero && !stillMoving))
+                                liveHeroReveal?.incoming ?: pair?.standbyReveal(
+                                    staticHeroUnderlay != null || (matchedLiveHero && !stillMoving),
+                                )
+                            } else if (liveHeroReveal != null) {
+                                liveHeroReveal.outgoingLiveHeroReveal(clipTransitionAlpha)
                             } else if (fullBleedArt && heroIncomingStill != null && !stillMoving && gesturePair == null) {
                                 pair?.outgoingStillBannerReveal(
                                     autoMixFrames,
@@ -3006,7 +3093,7 @@ fun NowPlayingScreen(
                 // only a modest floor rather than an opaque status-bar surface.
                 val playerSubviewOpen = lyricsOpen || queueOpen || lyricsOffsetOpen ||
                     showAudioPipeline || showCast || showAudioOutput || showVideoQuality || showLyricsProviders ||
-                    lyricsShare != null
+                    showKaraoke || lyricsShare != null
                 val topGradientAlpha = if (playerSubviewOpen) {
                     maxOf(artworkStatusScrimAlpha, SUBVIEW_STATUS_SCRIM_MIN_ALPHA)
                 } else {
@@ -3211,6 +3298,7 @@ fun NowPlayingScreen(
                                     onClick = openPlaybackOrigin,
                                     textAlign = TextAlign.Center,
                                     contentPadding = PaddingValues(start = PLAYER_GUTTER, end = PLAYER_GUTTER, bottom = 1.dp),
+                                    backdropLuminance = artTopLuminance ?: 0f,
                                     modifier = Modifier
                                         .align(Alignment.BottomCenter)
                                         .graphicsLayer { alpha = (1f - p()) * spotifyChromeAlpha },
@@ -3957,7 +4045,7 @@ fun NowPlayingScreen(
                                             isPlaying = isPlaying,
                                             // Pause as soon as the panels ask for the collapse.
                                             pausedForTransition = lyricsOpen || queueOpen || queueDragging ||
-                                                collapseStarted || dockMoving || overlayOpen.value ||
+                                                collapseStarted || dockMoving || overlayPausesCanvas.value ||
                                                 (standby && pair?.started != true) || (!standby && freezeOutgoingCanvas),
                                             presentationAlpha = {
                                                 if (gesturePair != null || stillTakesOver()) 0f

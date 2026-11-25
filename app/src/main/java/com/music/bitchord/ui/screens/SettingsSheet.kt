@@ -165,6 +165,7 @@ import com.music.bitchord.ui.performance.RefreshRatePolicy
 import com.music.bitchord.ui.performance.RefreshRatePreference
 import com.music.bitchord.ui.performance.supportedPerformanceRefreshRates
 import com.music.bitchord.data.model.Account
+import com.music.bitchord.data.model.artworkAt
 import com.music.bitchord.data.LocalMediaRepository
 import com.music.bitchord.data.NerdStats
 import com.music.bitchord.data.scrobbling.LastFM
@@ -186,6 +187,7 @@ import com.music.bitchord.data.settings.AudioQuality
 import com.music.bitchord.data.settings.DownloadQuality
 import com.music.bitchord.data.settings.ThemeMode
 import com.music.bitchord.data.settings.AppFont
+import com.music.bitchord.data.settings.AudioFocusOption
 import com.music.bitchord.data.settings.PlayerTheme
 import com.music.bitchord.data.stats.Backup
 import com.music.bitchord.playback.AudioCache
@@ -269,6 +271,8 @@ fun SettingsScreen(
     val skipSilence by AppSettings.skipSilence.collectAsStateWithLifecycle()
     val playbackSpeed by AppSettings.playbackSpeed.collectAsStateWithLifecycle()
     val sleepTimerFadeOut by AppSettings.sleepTimerFadeOut.collectAsStateWithLifecycle()
+    val audioFocusOption by AppSettings.audioFocusOption.collectAsStateWithLifecycle()
+    val rememberShuffleState by AppSettings.rememberShuffleState.collectAsStateWithLifecycle()
     val dolbyAtmos by AppSettings.dolbyAtmos.collectAsStateWithLifecycle()
     val directSourceStream by AppSettings.directSourceStream.collectAsStateWithLifecycle()
     // A property of the hardware, so it is read once rather than remembered
@@ -297,6 +301,7 @@ fun SettingsScreen(
     val signatureApiEnabled by AppSettings.signatureApiEnabled.collectAsStateWithLifecycle()
     val signatureApiUrl by AppSettings.signatureApiUrl.collectAsStateWithLifecycle()
     val fullBleedArtwork by AppSettings.fullBleedArtwork.collectAsStateWithLifecycle()
+    val extendAnimatedArtwork by AppSettings.extendAnimatedArtwork.collectAsStateWithLifecycle()
     val fullBleedDetailArtwork by AppSettings.fullBleedDetailArtwork.collectAsStateWithLifecycle()
     val disableDetailGradients by AppSettings.disableDetailGradients.collectAsStateWithLifecycle()
     val showTotalDuration by AppSettings.showTotalDuration.collectAsStateWithLifecycle()
@@ -352,6 +357,7 @@ fun SettingsScreen(
     val hideHomeVideos by AppSettings.hideHomeVideos.collectAsStateWithLifecycle()
     val hideTopPicks by AppSettings.hideTopPicks.collectAsStateWithLifecycle()
     val hideHomeMoods by AppSettings.hideHomeMoods.collectAsStateWithLifecycle()
+    val hideTrending by AppSettings.hideTrending.collectAsStateWithLifecycle()
     val smartVersionAlignment by AppSettings.smartVersionAlignment.collectAsStateWithLifecycle()
     val filterNonMusicAudio by AppSettings.filterNonMusicAudio.collectAsStateWithLifecycle()
     val localMusicFolderUri by AppSettings.localMusicFolderUri.collectAsStateWithLifecycle()
@@ -1119,6 +1125,37 @@ fun SettingsScreen(
                     onClick = { AppSettings.setAutoPlayOnBluetoothConnection(!autoPlayOnBluetoothConnection) },
                 )
             }
+            val audioFocusTitle = stringResource(R.string.audio_focus)
+            row(audioFocusTitle, "focus", "call", "pause", "background", "sound") {
+                SettingsRow(
+                    icon = SfIcons.VolumeUp,
+                    title = audioFocusTitle,
+                    subtitle = when (audioFocusOption) {
+                        AudioFocusOption.AUTO_PAUSE -> stringResource(R.string.audio_focus_auto_pause_subtitle)
+                        AudioFocusOption.KEEP_PLAYING -> stringResource(R.string.audio_focus_keep_playing_subtitle)
+                    },
+                    value = when (audioFocusOption) {
+                        AudioFocusOption.AUTO_PAUSE -> stringResource(R.string.audio_focus_auto_pause)
+                        AudioFocusOption.KEEP_PLAYING -> stringResource(R.string.audio_focus_keep_playing)
+                    },
+                    onClick = { onOpenChoice(SettingsChoiceKind.AUDIO_FOCUS) },
+                )
+            }
+            val rememberShuffleTitle = stringResource(R.string.remember_shuffle_state)
+            row(rememberShuffleTitle, "shuffle", "order", "album", "playlist") {
+                SettingsRow(
+                    icon = SfIcons.Shuffle,
+                    title = rememberShuffleTitle,
+                    subtitle = stringResource(R.string.remember_shuffle_state_subtitle),
+                    trailing = {
+                        IosSwitch(
+                            checked = rememberShuffleState,
+                            onCheckedChange = AppSettings::setRememberShuffleState,
+                        )
+                    },
+                    onClick = { AppSettings.setRememberShuffleState(!rememberShuffleState) },
+                )
+            }
             val spatialAudioTitle = stringResource(R.string.spatial_audio)
             row(spatialAudioTitle, "surround", "3d") {
                 BypassedByBitPerfect(bitPerfectReady) {
@@ -1253,6 +1290,21 @@ fun SettingsScreen(
                         )
                     },
                     onClick = { AppSettings.setHideHomeMoods(!hideHomeMoods) },
+                )
+            }
+            val hideTrendingTitle = stringResource(R.string.hide_trending)
+            row(hideTrendingTitle, "trending", "feed", "home", "recommendations") {
+                SettingsRow(
+                    icon = SfIcons.VisibilityOff,
+                    title = hideTrendingTitle,
+                    subtitle = stringResource(R.string.hide_trending_subtitle),
+                    trailing = {
+                        IosSwitch(
+                            checked = hideTrending,
+                            onCheckedChange = AppSettings::setHideTrending,
+                        )
+                    },
+                    onClick = { AppSettings.setHideTrending(!hideTrending) },
                 )
             }
             val squareVideoThumbnailsTitle = stringResource(R.string.square_video_thumbnails)
@@ -1444,13 +1496,15 @@ fun SettingsScreen(
                         icon = SfIcons.Fullscreen,
                         title = fullScreenCoverArtTitle,
                         subtitle = stringResource(R.string.full_screen_cover_art_subtitle),
+                        enabled = !extendAnimatedArtwork,
                         trailing = {
                             IosSwitch(
                                 checked = fullBleedArtwork,
+                                enabled = !extendAnimatedArtwork,
                                 onCheckedChange = AppSettings::setFullBleedArtwork,
                             )
                         },
-                        onClick = { AppSettings.setFullBleedArtwork(!fullBleedArtwork) },
+                        onClick = if (extendAnimatedArtwork) null else ({ AppSettings.setFullBleedArtwork(!fullBleedArtwork) }),
                     )
                 }
             }
@@ -1463,13 +1517,30 @@ fun SettingsScreen(
                     icon = SfIcons.Fullscreen,
                     title = fullScreenDetailCoverTitle,
                     subtitle = stringResource(R.string.full_screen_detail_cover_subtitle),
+                    enabled = !extendAnimatedArtwork,
                     trailing = {
                         IosSwitch(
                             checked = fullBleedDetailArtwork,
+                            enabled = !extendAnimatedArtwork,
                             onCheckedChange = AppSettings::setFullBleedDetailArtwork,
                         )
                     },
-                    onClick = { AppSettings.setFullBleedDetailArtwork(!fullBleedDetailArtwork) },
+                    onClick = if (extendAnimatedArtwork) null else ({ AppSettings.setFullBleedDetailArtwork(!fullBleedDetailArtwork) }),
+                )
+            }
+            val extendAnimatedArtworkTitle = stringResource(R.string.extend_animated_artwork)
+            row(extendAnimatedArtworkTitle, "animated", "canvas", "video", "artwork") {
+                SettingsRow(
+                    icon = SfIcons.Fullscreen,
+                    title = extendAnimatedArtworkTitle,
+                    subtitle = stringResource(R.string.extend_animated_artwork_subtitle),
+                    trailing = {
+                        IosSwitch(
+                            checked = extendAnimatedArtwork,
+                            onCheckedChange = AppSettings::setExtendAnimatedArtwork,
+                        )
+                    },
+                    onClick = { AppSettings.setExtendAnimatedArtwork(!extendAnimatedArtwork) },
                 )
             }
             val disableDetailGradientsTitle = stringResource(R.string.disable_detail_gradients)
@@ -2918,8 +2989,7 @@ fun SettingsScreen(
     }
 
     if (showLastfmLoginDialog) {
-        var usernameInput by remember { mutableStateOf("") }
-        var passwordInput by remember { mutableStateOf("") }
+        var lastfmToken by remember { mutableStateOf<String?>(null) }
         var lastfmError by remember { mutableStateOf<String?>(null) }
         var lastfmLoading by remember { mutableStateOf(false) }
         AlertDialog(
@@ -2935,55 +3005,79 @@ fun SettingsScreen(
                             modifier = Modifier.padding(bottom = 8.dp),
                         )
                     }
-                    OutlinedTextField(
-                        value = usernameInput,
-                        onValueChange = { usernameInput = it },
-                        label = { Text(stringResource(R.string.username)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = passwordInput,
-                        onValueChange = { passwordInput = it },
-                        label = { Text(stringResource(R.string.password)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
+                    Text(
+                        text = if (lastfmToken == null) {
+                            stringResource(R.string.lastfm_oauth_description)
+                        } else {
+                            stringResource(R.string.lastfm_oauth_waiting)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             },
             confirmButton = {
-                TextButton(
-                    onClick = {
-                        lastfmLoading = true
-                        lastfmError = null
-                        scrobbleScope.launch {
-                            try {
-                                // Use the credentials supplied for this build.
-                                LastFM.initialize(
-                                    apiKey = AppSettings.lastfmApiKey.value,
-                                    secret = AppSettings.lastfmSecret.value,
-                                )
-                                LastFM.getMobileSession(usernameInput.trim(), passwordInput)
-                                    .onSuccess { auth ->
-                                        AppSettings.setLastfmSessionKey(auth.session.key)
-                                        AppSettings.setLastfmUsername(auth.session.name)
-                                        AppSettings.setLastfmEnabled(true)
-                                        showLastfmLoginDialog = false
-                                    }
-                                    .onFailure { e ->
-                                        lastfmError = e.message ?: context.getString(R.string.login_failed)
-                                    }
-                            } catch (e: Exception) {
-                                lastfmError = e.message ?: context.getString(R.string.login_failed)
-                            } finally {
-                                lastfmLoading = false
+                if (lastfmToken == null) {
+                    TextButton(
+                        onClick = {
+                            lastfmLoading = true
+                            lastfmError = null
+                            scrobbleScope.launch {
+                                try {
+                                    LastFM.initialize(
+                                        apiKey = AppSettings.lastfmApiKey.value,
+                                        secret = AppSettings.lastfmSecret.value,
+                                    )
+                                    val token = LastFM.getToken().getOrThrow().token
+                                    lastfmToken = token
+                                    val authUrl = LastFM.getAuthUrl(token)
+                                    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(authUrl)))
+                                } catch (e: Exception) {
+                                    lastfmError = e.message ?: context.getString(R.string.login_failed)
+                                } finally {
+                                    lastfmLoading = false
+                                }
                             }
-                        }
-                    },
-                    enabled = !lastfmLoading && usernameInput.isNotBlank() && passwordInput.isNotBlank(),
-                ) {
-                    Text(stringResource(if (lastfmLoading) R.string.signing_in else R.string.sign_in))
+                        },
+                        enabled = !lastfmLoading,
+                    ) {
+                        Text(stringResource(if (lastfmLoading) R.string.signing_in else R.string.lastfm_authorize_in_browser))
+                    }
+                } else {
+                    TextButton(
+                        onClick = {
+                            lastfmLoading = true
+                            lastfmError = null
+                            scrobbleScope.launch {
+                                try {
+                                    LastFM.initialize(
+                                        apiKey = AppSettings.lastfmApiKey.value,
+                                        secret = AppSettings.lastfmSecret.value,
+                                    )
+                                    LastFM.getSession(lastfmToken!!)
+                                        .onSuccess { auth ->
+                                            AppSettings.setLastfmSessionKey(auth.session.key)
+                                            AppSettings.setLastfmUsername(auth.session.name)
+                                            AppSettings.setLastfmEnabled(true)
+                                            showLastfmLoginDialog = false
+                                        }
+                                        .onFailure { e ->
+                                            lastfmError = if (e is LastFM.LastFmException && (e.code == 14 || e.code == 4)) {
+                                                context.getString(R.string.lastfm_oauth_error_pending)
+                                            } else {
+                                                e.message ?: context.getString(R.string.login_failed)
+                                            }
+                                        }
+                                } catch (e: Exception) {
+                                    lastfmError = e.message ?: context.getString(R.string.login_failed)
+                                } finally {
+                                    lastfmLoading = false
+                                }
+                            }
+                        },
+                        enabled = !lastfmLoading,
+                    ) {
+                        Text(stringResource(if (lastfmLoading) R.string.signing_in else R.string.lastfm_complete_connection))
+                    }
                 }
             },
             dismissButton = {
@@ -3149,7 +3243,7 @@ internal fun AccountCard(
     ) {
         if (account?.thumbnailUrl != null) {
             AsyncImage(
-                model = account.thumbnailUrl,
+                model = account.thumbnailUrl.artworkAt(256),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(52.dp).clip(CircleShape).thumbnailBorder(CircleShape),
@@ -3949,6 +4043,7 @@ enum class SettingsChoiceKind(@param:StringRes val title: Int) {
     AUTOMIX_PERFORMANCE(R.string.automix_performance),
     BIT_PERFECT(R.string.bit_perfect_output),
     FONT(R.string.font),
+    AUDIO_FOCUS(R.string.audio_focus),
 }
 
 /**
@@ -4198,6 +4293,30 @@ fun SettingsChoicePage(
                     footer = stringResource(R.string.font_footer),
                 ) { font ->
                     AppSettings.setAppFont(font)
+                    onChosen()
+                }
+            }
+
+            SettingsChoiceKind.AUDIO_FOCUS -> {
+                val selected by AppSettings.audioFocusOption.collectAsStateWithLifecycle()
+                ChoiceGroup(
+                    options = AudioFocusOption.entries,
+                    selected = selected,
+                    label = {
+                        when (it) {
+                            AudioFocusOption.AUTO_PAUSE -> stringResource(R.string.audio_focus_auto_pause)
+                            AudioFocusOption.KEEP_PLAYING -> stringResource(R.string.audio_focus_keep_playing)
+                        }
+                    },
+                    detail = {
+                        when (it) {
+                            AudioFocusOption.AUTO_PAUSE -> stringResource(R.string.audio_focus_auto_pause_subtitle)
+                            AudioFocusOption.KEEP_PLAYING -> stringResource(R.string.audio_focus_keep_playing_subtitle)
+                        }
+                    },
+                    footer = stringResource(R.string.audio_focus_footer),
+                ) { option ->
+                    AppSettings.setAudioFocusOption(option)
                     onChosen()
                 }
             }

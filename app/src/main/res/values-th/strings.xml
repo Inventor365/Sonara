@@ -1849,4 +1849,27 @@
     <string name="native_sign_in_subtitle">หน้าต่างของ Google เอง แตะครั้งเดียว ไม่ต้องใช้รหัสผ่าน ต้องตั้งค่าการลงชื่อเข้าใช้ Google ของ Sonara ก่อน ระหว่างนี้ Sonara ใช้การลงชื่อเข้าใช้ทางเว็บ</string>
     <string name="native_sign_in_working">กำลังลงชื่อเข้าใช้ด้วย Google…</string>
     <string name="native_sign_in_fallback">ใช้การลงชื่อเข้าใช้ Google ไม่ได้ จึงเปิดการลงชื่อเข้าใช้ทางเว็บแทน</string>
+    <string name="hide_trending">ซ่อนการแนะนำที่กำลังเป็นกระแส</string>
+    <string name="hide_trending_subtitle">ลบเพลงที่กำลังมาแรงและเพลย์利สต์ของชุมชนออกจากหน้าแรก</string>
+    <string name="clear_listening_history">ล้างประวัติในอุปกรณ์</string>
+    <string name="extend_animated_artwork">ขยายเฉพาะภาพปกเคลื่อนไหว</string>
+    <string name="extend_animated_artwork_subtitle">ภาพปกเคลื่อนไหวขยายเต็มขอบเพลเยอร์ ส่วนภาพนิ่งยังเป็นสี่เหลี่ยมจัตุรัส</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">เปิด Last.fm ในเบราว์เซอร์</string>
+    <string name="lastfm_complete_connection">เชื่อมต่อให้เสร็จ</string>
+    <string name="lastfm_oauth_description">อนุมัติ Sonara บน Last.fm ในเบราว์เซอร์เพื่อเชื่อมต่อบัญชี ไม่ต้องกรอกรหัสผ่านที่นี่เลย</string>
+    <string name="lastfm_oauth_waiting">อนุมัติการเข้าถึงบน Last.fm ในเบราว์เซอร์ แล้วแตะด้านล่างเพื่อเชื่อมต่อให้เสร็จ</string>
+    <string name="lastfm_oauth_error_pending">ยังไม่ได้อนุมัติ อนุมัติการเข้าถึงบน Last.fm ในเบราว์เซอร์ แล้วลองอีกครั้ง</string>
+    <string name="audio_focus">โฟกัสเสียง</string>
+    <string name="audio_focus_auto_pause">หยุดชั่วคราวและเล่นต่อ</string>
+    <string name="audio_focus_auto_pause_subtitle">หยุดชั่วคราวเมื่อแอปอื่นเริ่มเล่นเสียง</string>
+    <string name="audio_focus_keep_playing">เล่นต่อเสมอ</string>
+    <string name="audio_focus_keep_playing_subtitle">เล่นต่อแม้มีเสียงอื่น หยุดเฉพาะตอนมีสายโทรเข้า</string>
+    <string name="audio_focus_footer">สิ่งที่ Sonara ทำเมื่อแอปอื่นหรือสายโทรเข้าต้องการเล่นเสียง</string>
+    <string name="remember_shuffle_state">จำการสุ่มเพลง</string>
+    <string name="remember_shuffle_state_subtitle">เปิดสุ่มเพลงต่อไว้เมื่อเริ่มอัลบั้มหรือเพลย์ลิสต์ใหม่</string>
+    <string name="widget_lyrics_label">เนื้อเพลงแบบซิงก์ 4×2</string>
+    <string name="widget_lyrics_description">ท่อนที่กำลังร้อง พร้อมปุ่มควบคุมการเล่น</string>
+    <string name="pipeline_karaoke">คาราโอเกะ</string>
 </resources>

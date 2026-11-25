@@ -26,6 +26,7 @@ import androidx.media3.session.SessionCommand
 import androidx.media3.session.SessionResult
 import androidx.media3.session.SessionToken
 import com.music.bitchord.data.model.ArtistRef
+import com.music.bitchord.data.model.DetailLoadId
 import com.music.bitchord.data.model.NOTIFICATION_ART_PX
 import com.music.bitchord.data.model.PlaybackSourceType
 import com.music.bitchord.data.model.QueueEntryIdentity
@@ -160,6 +161,8 @@ suspend fun MediaController.playBoundedContext(
     source: QueueSource,
     continuationToken: String?,
     shuffle: Boolean = QueueShuffle.enabled.value,
+    replaceUpcomingQueue: Boolean = false,
+    detailLoadId: DetailLoadId? = null,
 ) {
     val token = BoundedContextRequests.put(
         BoundedContextRequests.Request(
@@ -168,6 +171,8 @@ suspend fun MediaController.playBoundedContext(
             source = source,
             continuationToken = continuationToken,
             shuffle = shuffle,
+            replaceUpcomingQueue = replaceUpcomingQueue,
+            detailLoadId = detailLoadId,
         ),
     )
     try {

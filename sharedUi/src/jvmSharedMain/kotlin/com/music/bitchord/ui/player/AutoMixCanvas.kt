@@ -47,7 +47,7 @@ internal class AutoMixCanvasPair {
         entry: QueueEntryIdentity?,
         gate: AutoMixArtworkGate = AutoMixArtworkGate(),
     ): AutoMixCanvasTracks? {
-        if (!gate.allows(state.generation) || seenGeneration == state.generation || entry != state.outgoing.identity) return null
+        if (!gate.allows(state) || seenGeneration == state.generation || entry != state.outgoing.identity) return null
         // A not-yet-bound UI selection must not consume the generation.
         seenGeneration = state.generation
         return AutoMixCanvasTracks(
@@ -154,9 +154,13 @@ internal class AutoMixCanvasTracks(
     private val standbyProgress = ::standbyOpacity
     private val spatialStandby = CanvasOrganicReveal(generation, standbyProgress, allowSpatialMask = true)
     private val opacityStandby = CanvasOrganicReveal(generation, standbyProgress, allowSpatialMask = false)
+    private val liveHeroReveal = CanvasLiveRevealPair(generation, standbyProgress)
 
     fun standbyReveal(allowSpatialMask: Boolean): CanvasOrganicReveal =
         if (allowSpatialMask) spatialStandby else opacityStandby
+
+    fun matchedHeroReveal(matchesFootprint: Boolean, stationary: Boolean): CanvasLiveRevealPair? =
+        liveHeroReveal.takeIf { matchesFootprint && stationary && liveOutgoing && liveIncoming && !sharesClip }
 
     fun outgoingStillBannerReveal(
         frames: AutoMixCoverFrames?,
@@ -193,6 +197,7 @@ internal fun rememberAutoMixCanvasPair(
     landscape: Boolean,
     fullWindow: Boolean,
     fullBleed: Boolean,
+    extendAnimated: Boolean,
     artworkGate: AutoMixArtworkGate,
 ): AutoMixCanvasPair {
     val host = PlayerPlatform.host
@@ -208,11 +213,11 @@ internal fun rememberAutoMixCanvasPair(
     val currentQueue by rememberUpdatedState(queue)
     val pair = remember(feed) { AutoMixCanvasPair() }
     val canvasAllowed = enabled && (metered != true || cellular)
-    LaunchedEffect(canvasAllowed, spotifyDisabled, spotifyFirst, landscape, fullWindow, fullBleed) {
+    LaunchedEffect(canvasAllowed, spotifyDisabled, spotifyFirst, landscape, fullWindow, fullBleed, extendAnimated) {
         pair.invalidatePromotion()
     }
     // Rotation and layout changes cancel the effect, but cannot prepare the same generation again.
-    LaunchedEffect(feed, allowed, spotifyDisabled, spotifyFirst, landscape, fullWindow, fullBleed, artworkGate) {
+    LaunchedEffect(feed, allowed, spotifyDisabled, spotifyFirst, landscape, fullWindow, fullBleed, extendAnimated, artworkGate) {
         if (feed == null || !host.supportsAutoMixCanvas || !allowed || !artworkGate.enabled) return@LaunchedEffect
         var active: AutoMixCanvasTracks? = null
         var resolve: Job? = null
@@ -275,7 +280,7 @@ internal fun rememberAutoMixCanvasPair(
                             // An incoming Spotify Canvas reveals as its cover; the ordinary
                             // selected-track path brings the clip in once the mix has promoted.
                             ?.takeUnless { it.retiresBeforeAutoMix }
-                            ?.nowPlayingRendition(fullWindow) ?: return@launch
+                            ?.nowPlayingRendition(fullWindow, fullBleed) ?: return@launch
                         if (sealed || active !== tracks || !tracks.beforeIncomingDeadline(feed.value)) return@launch
                         tracks.incomingClip = tracks.pinnedClip?.takeIf { it.url == clip.url } ?: clip
                         if (clip.url == tracks.pinnedClip?.url) tracks.incomingReady = true
@@ -334,9 +339,12 @@ internal fun sharesHeroRevealFootprint(
 /** Spotify's full-screen Canvas never takes part in an AutoMix reveal; see [AutoMixCanvasPair.beginMix]. */
 internal val CanvasArtwork.retiresBeforeAutoMix: Boolean get() = source == CanvasSource.SPOTIFY
 
-internal fun CanvasArtwork.nowPlayingRendition(fullWindow: Boolean): CanvasArtwork {
+internal fun CanvasArtwork.nowPlayingRendition(fullWindow: Boolean, fullBleed: Boolean): CanvasArtwork {
     val tall = portraitUrl
-    return if (tall != null && fullWindow) copy(url = tall, fallbackUrl = url, portraitUrl = null) else this
+    // A phone-sized window alone is not enough: the tall edit belongs only
+    // under full-bleed artwork. In a sleeve, keep the square composition used
+    // by the album page, even when the player fills the window.
+    return if (tall != null && fullWindow && fullBleed) copy(url = tall, fallbackUrl = url, portraitUrl = null) else this
 }
 
 /** Both videos use one keyed call site within the same artwork layout. */

@@ -113,6 +113,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.util.lerp
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
@@ -138,7 +139,6 @@ import com.music.bitchord.data.listentogether.PartyMember
 import com.music.bitchord.data.settings.TrackAnalysisState
 import com.music.bitchord.data.settings.AudioQuality
 import com.music.bitchord.data.model.Song
-import com.music.bitchord.playback.AutoMixVisualPhase
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -189,29 +189,94 @@ internal fun PlaybackOriginCaption(
     /** Inside the touch target, so it widens what a finger can hit. */
     contentPadding: PaddingValues,
     modifier: Modifier = Modifier,
+    /**
+     * Relative luminance of the cover behind the caption; the drop shadow
+     * deepens with it so white stays legible over a light one. Null (the
+     * landscape player) keeps the fixed shadow.
+     */
+    backdropLuminance: Float? = null,
 ) {
     val chrome = LocalPlayerChrome.current
-    Text(
-        // The player's own face, not the monospace labels used elsewhere: over artwork and
-        // beside the title it has to read as part of the same set.
-        text = text,
-        style = MaterialTheme.typography.labelMedium.copy(
-            shadow = Shadow(
-                color = Color.Black.copy(alpha = 0.55f),
-                offset = Offset(0f, 1f),
-                blurRadius = 4f,
+    if (backdropLuminance == null) {
+        Text(
+            // The player's own face, not the monospace labels used elsewhere: over artwork and
+            // beside the title it has to read as part of the same set.
+            text = text,
+            style = MaterialTheme.typography.labelMedium.copy(
+                shadow = Shadow(
+                    color = Color.Black.copy(alpha = 0.55f),
+                    offset = Offset(0f, 1f),
+                    blurRadius = 4f,
+                ),
             ),
-        ),
-        color = Color.White.copy(alpha = if (chrome) CHROME_FULL_ALPHA else 1f),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        textAlign = textAlign,
+            color = Color.White.copy(alpha = if (chrome) CHROME_FULL_ALPHA else 1f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = textAlign,
+            modifier = modifier
+                .additiveChrome(chrome)
+                .clickable(onClick = onClick)
+                .padding(contentPadding),
+        )
+        return
+    }
+    // Eased across a track change, so the shadow doesn't jump with the cover.
+    val shade by animateFloatAsState(
+        captionShadeStrength(backdropLuminance),
+        animationSpec = tween(CAPTION_CROSSFADE_MS),
+        label = "captionShade",
+    )
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = modifier
-            .additiveChrome(chrome)
             .clickable(onClick = onClick)
             .padding(contentPadding),
-    )
+    ) {
+        Crossfade(
+            targetState = text,
+            animationSpec = tween(CAPTION_CROSSFADE_MS),
+            label = "captionCrossfade",
+        ) { shown ->
+            // Not blended additively: that can only brighten, which would erase the shadow.
+            Text(
+                text = shown,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    shadow = Shadow(
+                        color = CaptionShadowColor.copy(
+                            alpha = lerp(CAPTION_SHADOW_ALPHA_MIN, CAPTION_SHADOW_ALPHA_MAX, shade),
+                        ),
+                        offset = Offset(0f, 1f),
+                        blurRadius = CAPTION_SHADOW_BLUR,
+                    ),
+                ),
+                color = Color.White,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = textAlign,
+            )
+        }
+    }
 }
+
+/** How long the caption and its shadow take to swap on a track change. */
+private const val CAPTION_CROSSFADE_MS = 350
+
+/** The caption's drop shadow blur, wider than the 4 of other text so it spreads softer. */
+private const val CAPTION_SHADOW_BLUR = 40f
+
+/** The caption shadow's colour: a charcoal rather than black, so it reads softer on a light cover. */
+private val CaptionShadowColor = Color(0xFF3A3A3C)
+
+/** The caption's drop shadow opacity over a dark cover and a light one. */
+private const val CAPTION_SHADOW_ALPHA_MIN = 0.55f
+private const val CAPTION_SHADOW_ALPHA_MAX = 1.00f
+
+/** Cover luminance at which the caption's shadow is at its deepest; few sleeves average brighter. */
+private const val CAPTION_SHADE_FULL_LUMINANCE = 0.6f
+
+/** How deep the caption's shadow goes, 0..1, for the cover's relative luminance. Unknown reads as dark. */
+internal fun captionShadeStrength(luminance: Float?): Float =
+    ((luminance ?: 0f) / CAPTION_SHADE_FULL_LUMINANCE).coerceIn(0f, 1f)
 
 /** How far [PlayerScrubber] draws its times above the slot they are laid out in. */
 internal val SCRUBBER_LABEL_LIFT = 9.dp
@@ -785,6 +850,7 @@ internal fun PlayerActionRow(
     autoplayEnabled: Boolean,
     onToggleLyrics: () -> Unit,
     onToggleQueue: () -> Unit,
+    onOpenKaraoke: () -> Unit,
     onToggleShuffle: () -> Unit,
     onCycleRepeat: () -> Unit,
     onToggleAutoplay: () -> Unit,
@@ -794,6 +860,7 @@ internal fun PlayerActionRow(
     onOpenListenTogetherMembers: () -> Unit,
 ) {
     val showPartyButton by PlayerSettings.showListenTogetherButton.collectAsStateWithLifecycle()
+    val karaokeOn by PlayerSettings.karaokeEnabled.collectAsStateWithLifecycle()
     val inParty = rememberPartyBadge().inParty
     // Just the output glyph in the middle.
     val compact = !queueOpen && !showPartyButton && !inParty
@@ -898,6 +965,8 @@ internal fun PlayerActionRow(
                     }
                 } else {
                     OutputPartyPill(
+                        karaokeOn = karaokeOn,
+                        onKaraoke = onOpenKaraoke,
                         onOutput = onOpenOutput,
                         onParty = onListenTogether,
                         onOpenMembers = onOpenListenTogetherMembers,
@@ -1119,8 +1188,9 @@ private fun discFill(chrome: Boolean, alpha: Float = CIRCLE_DISC_ALPHA): Color =
 internal fun rememberAutoMixFrostHold(): () -> Boolean {
     val feed = PlayerPlatform.host.autoMixVisualState ?: return { false }
     val visual = feed.collectAsStateWithLifecycle()
-    val hold = remember(visual) {
-        derivedStateOf { visual.value?.let { it.mixActive || it.phase == AutoMixVisualPhase.ARMED } == true }
+    val gate = autoMixArtworkGate()
+    val hold = remember(visual, gate) {
+        derivedStateOf { visual.value?.let(gate::holdsArtworkResources) == true }
     }
     return { hold.value }
 }
@@ -1478,19 +1548,28 @@ private fun PillDivider() {
 }
 
 /**
- * The two ends of "where is this playing": the output capsule.
+ * The sound capsule: where the music is leaving from, what this phone is
+ * doing to it on the way out, and — when there is one — the party it is
+ * all for.
  *
- * Both halves answer the same question and so belong to one control rather than
- * two glyphs that happen to sit side by side — the device the sound leaves by
- * (see [rememberOutputGlyph]), the party for which *people* it reaches.
+ * The output half answers "where" (see [rememberOutputGlyph]). The Karaoke
+ * half is the vocal reduction's switch — a state rather than a pane, lit
+ * while it is on, and the drawer it opens holds the level and the off
+ * switch. The party half answers "for *people*". Three controls joined
+ * rather than glyphs that happen to sit side by side, because that is the
+ * shape this player reads as one control.
  *
  * Video vs audio-only used to live here as a third segment; it now lives in
  * the player's own three-dot menu, beside Revert to original and Upgrade
- * quality — the same kind of choice, offered the same way. This capsule is
- * back to the two icons it always otherwise had, at their original spacing.
+ * quality — the same kind of choice, offered the same way. Karaoke is not
+ * that kind of choice: it is audio processing this phone owns outright,
+ * which is the capsule's own question, and it has no other home on these
+ * controls — the row has no room for a third edge glyph at phone widths.
  */
 @Composable
 private fun OutputPartyPill(
+    karaokeOn: Boolean,
+    onKaraoke: () -> Unit,
     onOutput: () -> Unit,
     onParty: () -> Unit,
     /** Who's in it, before the settings page — see [ListenTogetherMembersSheet]. */
@@ -1500,16 +1579,22 @@ private fun OutputPartyPill(
     val shown by PlayerSettings.showListenTogetherButton.collectAsStateWithLifecycle()
     val output = rememberOutputGlyph()
     // Party half hidden only outside a party: once in one, this is the way to
-    // who's in it. Without it the output glyph stands alone, drawn like the
-    // lyrics and queue glyphs either side rather than as half a capsule.
+    // who's in it. Without one the capsule is the sound alone — the output it
+    // leaves by and what is being done to it — two segments wide, the very
+    // width the row's compact spacing was always sized for, where the output
+    // glyph used to stand alone.
     if (!shown && !badge.inParty) {
-        BottomGlyph(
-            icon = output.icon,
-            iconSize = output.size * (BOTTOM_ICON_SIZE / PILL_OUTPUT_SIZE),
-            contentDescription = stringResource(Res.string.audio_output),
-            onClick = onOutput,
-            vibrant = true,
-        )
+        Pill {
+            PillSegment(
+                icon = output.icon,
+                iconSize = output.size,
+                contentDescription = stringResource(Res.string.audio_output),
+                onClick = onOutput,
+                vibrant = true,
+            )
+            PillDivider()
+            KaraokeSegment(karaokeOn = karaokeOn, onClick = onKaraoke)
+        }
         return
     }
     Pill {
@@ -1520,6 +1605,8 @@ private fun OutputPartyPill(
             onClick = onOutput,
             vibrant = true,
         )
+        PillDivider()
+        KaraokeSegment(karaokeOn = karaokeOn, onClick = onKaraoke)
         PillDivider()
         PillSegment(
             // Person rather than Groups: the three-person glyph is drawn half
@@ -1547,6 +1634,24 @@ private fun OutputPartyPill(
 }
 
 /**
+ * The vocal reduction's half of the sound capsule. Lit while it is on; the
+ * press turns it on at the level the listener last chose and opens the
+ * drawer that holds the level, the off switch, and the reasons it might be
+ * paused.
+ */
+@Composable
+private fun KaraokeSegment(karaokeOn: Boolean, onClick: () -> Unit) {
+    PillSegment(
+        icon = BitChordIcons.KaraokeMic,
+        contentDescription = stringResource(if (karaokeOn) Res.string.karaoke_button_on else Res.string.karaoke),
+        onClick = onClick,
+        highlighted = karaokeOn,
+        haptic = if (karaokeOn) Haptic.Tap else Haptic.ToggleOn,
+        vibrant = true,
+    )
+}
+
+/**
  * What the output segment shows: the thing the music is coming out of, the way
  * Apple Music's AirPlay button does — the phone, buds, a speaker — rather than
  * headphones whatever is actually playing it.
@@ -1558,10 +1663,12 @@ private fun OutputPartyPill(
 private fun rememberOutputGlyph(): OutputGlyph {
     val cast by PlayerPlatform.host.castState.collectAsStateWithLifecycle()
     val watch by PlayerPlatform.host.watchOutput.collectAsStateWithLifecycle()
+    val networkSpeakers by PlayerPlatform.host.networkSpeakers.collectAsStateWithLifecycle()
     val active = rememberAudioOutputs().firstOrNull { it.isActive }
     return when {
         cast.connectedName != null -> OutputGlyph(Icons.Rounded.CastConnected, PILL_OUTPUT_WIDE_SIZE)
         watch.active -> OutputGlyph(Icons.Rounded.Watch, PILL_OUTPUT_TALL_SIZE)
+        networkSpeakers.any { it.active } -> OutputGlyph(vectorResource(Res.drawable.ic_output_speaker))
         else -> when (active?.kind) {
             // No active row is the phone too — the caption under the pill
             // says "This phone" in the same case. AirPlay rather than a phone:

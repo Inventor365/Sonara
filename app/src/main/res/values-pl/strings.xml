@@ -1923,4 +1923,27 @@
     <string name="native_sign_in_subtitle">Okno Google, jedno dotknięcie, bez hasła. Wymaga skonfigurowanego logowania Google dla Sonary; do tego czasu Sonara używa logowania w przeglądarce</string>
     <string name="native_sign_in_working">Logowanie przez Google…</string>
     <string name="native_sign_in_fallback">Logowanie Google jest niedostępne, więc otwarto logowanie w przeglądarce</string>
+    <string name="hide_trending">Ukryj rekomendacje z trendów</string>
+    <string name="hide_trending_subtitle">Usuwa utwory z trendów i playlisty społeczności ze strony głównej</string>
+    <string name="clear_listening_history">Wyczyść historię na urządzeniu</string>
+    <string name="extend_animated_artwork">Rozciągaj tylko animowane okładki</string>
+    <string name="extend_animated_artwork_subtitle">Animowane okładki sięgają krawędzi odtwarzacza, nieruchome pozostają kwadratowe</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">Otwórz Last.fm w przeglądarce</string>
+    <string name="lastfm_complete_connection">Dokończ łączenie</string>
+    <string name="lastfm_oauth_description">Zatwierdź Sonarę na Last.fm w przeglądarce, aby połączyć konto. Hasła nigdy nie wpisujesz tutaj.</string>
+    <string name="lastfm_oauth_waiting">Zatwierdź dostęp na Last.fm w przeglądarce, a potem dotknij poniżej, aby dokończyć łączenie.</string>
+    <string name="lastfm_oauth_error_pending">Jeszcze nie zatwierdzono. Zatwierdź dostęp na Last.fm w przeglądarce i spróbuj ponownie.</string>
+    <string name="audio_focus">Priorytet dźwięku</string>
+    <string name="audio_focus_auto_pause">Wstrzymaj i wznów</string>
+    <string name="audio_focus_auto_pause_subtitle">Wstrzymuje, gdy inna aplikacja zaczyna odtwarzać dźwięk</string>
+    <string name="audio_focus_keep_playing">Zawsze odtwarzaj dalej</string>
+    <string name="audio_focus_keep_playing_subtitle">Gra mimo innych dźwięków; wstrzymuje tylko przy połączeniach</string>
+    <string name="audio_focus_footer">Jak Sonara reaguje, gdy inna aplikacja lub połączenie chcą odtworzyć dźwięk.</string>
+    <string name="remember_shuffle_state">Zapamiętaj losowanie</string>
+    <string name="remember_shuffle_state_subtitle">Pozostawia losowanie włączone przy nowym albumie lub playliście</string>
+    <string name="widget_lyrics_label">Zsynchronizowane teksty 4×2</string>
+    <string name="widget_lyrics_description">Śpiewany właśnie wers, z przyciskami odtwarzania.</string>
+    <string name="pipeline_karaoke">Karaoke</string>
 </resources>

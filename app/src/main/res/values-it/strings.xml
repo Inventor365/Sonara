@@ -1810,4 +1810,27 @@
     <string name="native_sign_in_subtitle">Il pannello di Google, un tocco, senza password. Serve che l’accesso Google di Sonara sia configurato; fino ad allora Sonara usa l’accesso web</string>
     <string name="native_sign_in_working">Accesso con Google…</string>
     <string name="native_sign_in_fallback">L’accesso Google non è disponibile, quindi si è aperto l’accesso web</string>
+    <string name="hide_trending">Nascondi i consigli di tendenza</string>
+    <string name="hide_trending_subtitle">Rimuove i brani di tendenza e le playlist della community dalla Home</string>
+    <string name="clear_listening_history">Cancella cronologia sul dispositivo</string>
+    <string name="extend_animated_artwork">Estendi solo le copertine animate</string>
+    <string name="extend_animated_artwork_subtitle">Le copertine animate arrivano ai bordi del player, quelle fisse restano quadrate</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">Apri Last.fm nel browser</string>
+    <string name="lastfm_complete_connection">Completa il collegamento</string>
+    <string name="lastfm_oauth_description">Approva Sonara su Last.fm nel browser per collegare il tuo account. La password non viene mai inserita qui.</string>
+    <string name="lastfm_oauth_waiting">Approva l’accesso su Last.fm nel browser, poi tocca qui sotto per completare il collegamento.</string>
+    <string name="lastfm_oauth_error_pending">Non ancora approvato. Approva l’accesso su Last.fm nel browser e riprova.</string>
+    <string name="audio_focus">Focus audio</string>
+    <string name="audio_focus_auto_pause">Metti in pausa e riprendi</string>
+    <string name="audio_focus_auto_pause_subtitle">Va in pausa quando un’altra app inizia a riprodurre suoni</string>
+    <string name="audio_focus_keep_playing">Continua sempre a suonare</string>
+    <string name="audio_focus_keep_playing_subtitle">Continua con altri suoni; si ferma solo per le chiamate</string>
+    <string name="audio_focus_footer">Come reagisce Sonara quando un’altra app o una chiamata vogliono riprodurre suoni.</string>
+    <string name="remember_shuffle_state">Ricorda la riproduzione casuale</string>
+    <string name="remember_shuffle_state_subtitle">Mantiene la riproduzione casuale quando avvii un altro album o una playlist</string>
+    <string name="widget_lyrics_label">Testi sincronizzati 4×2</string>
+    <string name="widget_lyrics_description">La riga che si sta cantando, con i controlli di riproduzione.</string>
+    <string name="pipeline_karaoke">Karaoke</string>
 </resources>
