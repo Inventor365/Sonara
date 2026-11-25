@@ -1874,4 +1874,20 @@
     <string name="extend_animated_artwork_subtitle">Animierte Cover reichen bis an die Ränder des Players, unbewegte bleiben quadratisch</string>
     <string name="replay_summary_separator"></string>
     <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">Last.fm im Browser öffnen</string>
+    <string name="lastfm_complete_connection">Verbindung abschließen</string>
+    <string name="lastfm_oauth_description">Bestätige Sonara bei Last.fm im Browser, um dein Konto zu verbinden. Dein Passwort wird hier nie eingegeben.</string>
+    <string name="lastfm_oauth_waiting">Bestätige den Zugriff bei Last.fm im Browser und tippe dann unten, um die Verbindung abzuschließen.</string>
+    <string name="lastfm_oauth_error_pending">Noch nicht bestätigt. Bestätige den Zugriff bei Last.fm im Browser und versuche es erneut.</string>
+    <string name="audio_focus">Audiofokus</string>
+    <string name="audio_focus_auto_pause">Pausieren und fortsetzen</string>
+    <string name="audio_focus_auto_pause_subtitle">Pausiert, sobald eine andere App Ton abspielt</string>
+    <string name="audio_focus_keep_playing">Immer weiterspielen</string>
+    <string name="audio_focus_keep_playing_subtitle">Spielt bei anderen Tönen weiter und pausiert nur bei Anrufen</string>
+    <string name="audio_focus_footer">Wie Sonara reagiert, wenn eine andere App oder ein Anruf Ton abspielen möchte.</string>
+    <string name="remember_shuffle_state">Zufallswiedergabe merken</string>
+    <string name="remember_shuffle_state_subtitle">Lässt die Zufallswiedergabe an, wenn du ein neues Album oder eine Playlist startest</string>
+    <string name="widget_lyrics_label">Synchronisierte Songtexte 4×2</string>
+    <string name="widget_lyrics_description">Die gerade gesungene Zeile, mit Wiedergabesteuerung.</string>
+    <string name="pipeline_karaoke">Karaoke</string>
 </resources>

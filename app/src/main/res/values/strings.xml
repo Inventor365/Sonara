@@ -1755,25 +1755,25 @@
     <string name="hide_trending">Hide Trending recommendations</string>
     <string name="hide_trending_subtitle">Removes trending songs and community shelves from Home</string>
     <string name="clear_listening_history">Clear on-device history</string>
-    <string name="lastfm_authorize_in_browser" translatable="false">Open Last.fm in browser</string>
-    <string name="lastfm_complete_connection" translatable="false">Complete connection</string>
-    <string name="lastfm_oauth_description" translatable="false">Authorize BitChord in your web browser to securely connect your Last.fm account without entering your password.</string>
-    <string name="lastfm_oauth_waiting" translatable="false">Approve access on Last.fm in your browser, then tap below to finish connecting.</string>
-    <string name="lastfm_oauth_error_pending" translatable="false">Authorization not yet completed. Please approve access on Last.fm in your browser and try again.</string>
-    <string name="audio_focus" translatable="false">Audio focus</string>
-    <string name="audio_focus_auto_pause" translatable="false">Auto pause and resume</string>
-    <string name="audio_focus_auto_pause_subtitle" translatable="false">Pause playback whenever other apps start playing audio</string>
-    <string name="audio_focus_keep_playing" translatable="false">Always keep playing</string>
-    <string name="audio_focus_keep_playing_subtitle" translatable="false">Keep music playing in background, only pause for phone calls</string>
-    <string name="audio_focus_footer" translatable="false">Controls how BitChord responds when other applications or phone calls request audio focus.</string>
-    <string name="remember_shuffle_state" translatable="false">Remember shuffle state</string>
-    <string name="remember_shuffle_state_subtitle" translatable="false">Keep shuffle turned on when starting a new queue or album</string>
-    <string name="widget_lyrics_label" translatable="false">Synced lyrics 4×2</string>
-    <string name="widget_lyrics_description" translatable="false">Displays real-time synced lyrics of the playing track with playback controls.</string>
+    <string name="lastfm_authorize_in_browser">Open Last.fm in browser</string>
+    <string name="lastfm_complete_connection">Complete connection</string>
+    <string name="lastfm_oauth_description">Approve Sonara on Last.fm in your browser to connect your account. Your password is never entered here.</string>
+    <string name="lastfm_oauth_waiting">Approve access on Last.fm in your browser, then tap below to finish connecting.</string>
+    <string name="lastfm_oauth_error_pending">Not approved yet. Approve access on Last.fm in your browser, then try again.</string>
+    <string name="audio_focus">Audio focus</string>
+    <string name="audio_focus_auto_pause">Pause and resume</string>
+    <string name="audio_focus_auto_pause_subtitle">Pauses whenever another app starts playing sound</string>
+    <string name="audio_focus_keep_playing">Always keep playing</string>
+    <string name="audio_focus_keep_playing_subtitle">Keeps playing through other sounds; pauses only for phone calls</string>
+    <string name="audio_focus_footer">How Sonara reacts when another app or a phone call asks to play sound.</string>
+    <string name="remember_shuffle_state">Remember shuffle</string>
+    <string name="remember_shuffle_state_subtitle">Keeps shuffle on when you start a new album or playlist</string>
+    <string name="widget_lyrics_label">Synced lyrics 4×2</string>
+    <string name="widget_lyrics_description">The line being sung, with playback controls.</string>
     <string name="widget_no_lyrics" translatable="false">♪ Sonara</string>
     <string name="extend_animated_artwork">Extend animated artwork only</string>
     <string name="extend_animated_artwork_subtitle">Extends animated canvas artwork to the player edges while keeping still covers square</string>
-    <string name="pipeline_karaoke" translatable="false">Karaoke</string>
+    <string name="pipeline_karaoke">Karaoke</string>
     <string name="replay_summary_separator">\u0020</string>
     <string name="replay_summary_suffix">in music.</string>
 </resources>

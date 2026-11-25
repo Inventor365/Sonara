@@ -1879,4 +1879,20 @@
     <string name="replay_summary_suffix">听歌回顾</string>
     <string name="extend_animated_artwork">仅扩展动态封面</string>
     <string name="extend_animated_artwork_subtitle">动态封面延伸到播放器边缘，静态封面保持方形</string>
+    <string name="lastfm_authorize_in_browser">在浏览器中打开 Last.fm</string>
+    <string name="lastfm_complete_connection">完成连接</string>
+    <string name="lastfm_oauth_description">在浏览器中于 Last.fm 批准 Sonara 以连接帐号。密码绝不会在这里输入。</string>
+    <string name="lastfm_oauth_waiting">在浏览器中于 Last.fm 批准访问，然后点按下方完成连接。</string>
+    <string name="lastfm_oauth_error_pending">尚未批准。请在浏览器中于 Last.fm 批准访问后重试。</string>
+    <string name="audio_focus">音频焦点</string>
+    <string name="audio_focus_auto_pause">暂停并恢复</string>
+    <string name="audio_focus_auto_pause_subtitle">其他应用开始播放声音时暂停</string>
+    <string name="audio_focus_keep_playing">始终继续播放</string>
+    <string name="audio_focus_keep_playing_subtitle">遇到其他声音也继续播放，只在通话时暂停</string>
+    <string name="audio_focus_footer">其他应用或来电要播放声音时，Sonara 的处理方式。</string>
+    <string name="remember_shuffle_state">记住随机播放</string>
+    <string name="remember_shuffle_state_subtitle">开始新的专辑或歌单时保持随机播放</string>
+    <string name="widget_lyrics_label">同步歌词 4×2</string>
+    <string name="widget_lyrics_description">正在演唱的歌词行，附带播放控制。</string>
+    <string name="pipeline_karaoke">卡拉 OK</string>
 </resources>

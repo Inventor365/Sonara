@@ -1918,4 +1918,20 @@
     <string name="extend_animated_artwork_subtitle">Анимированные обложки растягиваются до краёв плеера, обычные остаются квадратными</string>
     <string name="replay_summary_separator"></string>
     <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">Открыть Last.fm в браузере</string>
+    <string name="lastfm_complete_connection">Завершить подключение</string>
+    <string name="lastfm_oauth_description">Разрешите Sonara доступ на Last.fm в браузере, чтобы подключить аккаунт. Пароль здесь никогда не вводится.</string>
+    <string name="lastfm_oauth_waiting">Разрешите доступ на Last.fm в браузере, затем нажмите ниже, чтобы завершить подключение.</string>
+    <string name="lastfm_oauth_error_pending">Доступ ещё не разрешён. Разрешите его на Last.fm в браузере и повторите попытку.</string>
+    <string name="audio_focus">Аудиофокус</string>
+    <string name="audio_focus_auto_pause">Пауза и продолжение</string>
+    <string name="audio_focus_auto_pause_subtitle">Ставит на паузу, когда другое приложение начинает воспроизводить звук</string>
+    <string name="audio_focus_keep_playing">Всегда продолжать воспроизведение</string>
+    <string name="audio_focus_keep_playing_subtitle">Играет поверх других звуков и встаёт на паузу только при звонках</string>
+    <string name="audio_focus_footer">Как Sonara реагирует, когда другое приложение или звонок хотят воспроизвести звук.</string>
+    <string name="remember_shuffle_state">Запоминать перемешивание</string>
+    <string name="remember_shuffle_state_subtitle">Оставляет перемешивание включённым при запуске нового альбома или плейлиста</string>
+    <string name="widget_lyrics_label">Синхронизированный текст 4×2</string>
+    <string name="widget_lyrics_description">Строка, которая звучит сейчас, и кнопки управления.</string>
+    <string name="pipeline_karaoke">Караоке</string>
 </resources>

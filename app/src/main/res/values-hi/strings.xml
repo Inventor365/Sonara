@@ -1874,4 +1874,20 @@
     <string name="extend_animated_artwork_subtitle">एनिमेटेड आर्टवर्क प्लेयर के किनारों तक फैलता है, स्थिर कवर चौकोर रहते हैं</string>
     <string name="replay_summary_separator"></string>
     <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">ब्राउज़र में Last.fm खोलें</string>
+    <string name="lastfm_complete_connection">कनेक्शन पूरा करें</string>
+    <string name="lastfm_oauth_description">अपना खाता जोड़ने के लिए ब्राउज़र में Last.fm पर Sonara को मंज़ूरी दें। आपका पासवर्ड यहाँ कभी नहीं डाला जाता।</string>
+    <string name="lastfm_oauth_waiting">ब्राउज़र में Last.fm पर पहुँच को मंज़ूरी दें, फिर कनेक्ट करना पूरा करने के लिए नीचे टैप करें।</string>
+    <string name="lastfm_oauth_error_pending">अभी मंज़ूरी नहीं मिली। ब्राउज़र में Last.fm पर पहुँच को मंज़ूरी दें, फिर दोबारा कोशिश करें।</string>
+    <string name="audio_focus">ऑडियो फ़ोकस</string>
+    <string name="audio_focus_auto_pause">रोकें और फिर चलाएँ</string>
+    <string name="audio_focus_auto_pause_subtitle">कोई दूसरा ऐप आवाज़ चलाए तो रुक जाता है</string>
+    <string name="audio_focus_keep_playing">हमेशा चलते रहें</string>
+    <string name="audio_focus_keep_playing_subtitle">दूसरी आवाज़ों के बीच भी चलता रहता है; सिर्फ़ फ़ोन कॉल पर रुकता है</string>
+    <string name="audio_focus_footer">जब कोई दूसरा ऐप या फ़ोन कॉल आवाज़ चलाना चाहे, तब Sonara क्या करता है।</string>
+    <string name="remember_shuffle_state">शफ़ल याद रखें</string>
+    <string name="remember_shuffle_state_subtitle">नया एल्बम या प्लेलिस्ट शुरू करने पर शफ़ल चालू रखता है</string>
+    <string name="widget_lyrics_label">सिंक किए गए बोल 4×2</string>
+    <string name="widget_lyrics_description">अभी गाई जा रही पंक्ति, प्लेबैक कंट्रोल के साथ।</string>
+    <string name="pipeline_karaoke">कराओके</string>
 </resources>

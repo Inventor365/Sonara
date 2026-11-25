@@ -1846,4 +1846,20 @@
     <string name="extend_animated_artwork_subtitle">動くアートワークはプレーヤーの端まで広げ、静止画は正方形のままにします</string>
     <string name="replay_summary_separator"></string>
     <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">ブラウザで Last.fm を開く</string>
+    <string name="lastfm_complete_connection">接続を完了</string>
+    <string name="lastfm_oauth_description">ブラウザの Last.fm で Sonara を承認してアカウントを接続します。パスワードをここで入力することはありません。</string>
+    <string name="lastfm_oauth_waiting">ブラウザの Last.fm でアクセスを承認し、下をタップして接続を完了してください。</string>
+    <string name="lastfm_oauth_error_pending">まだ承認されていません。ブラウザの Last.fm でアクセスを承認してから、もう一度お試しください。</string>
+    <string name="audio_focus">オーディオフォーカス</string>
+    <string name="audio_focus_auto_pause">一時停止して再開</string>
+    <string name="audio_focus_auto_pause_subtitle">別のアプリが音を鳴らし始めると一時停止します</string>
+    <string name="audio_focus_keep_playing">常に再生を続ける</string>
+    <string name="audio_focus_keep_playing_subtitle">ほかの音が鳴っても再生を続け、通話のときだけ一時停止します</string>
+    <string name="audio_focus_footer">ほかのアプリや通話が音を鳴らそうとしたときの Sonara の動作です。</string>
+    <string name="remember_shuffle_state">シャッフルを記憶</string>
+    <string name="remember_shuffle_state_subtitle">新しいアルバムやプレイリストを再生してもシャッフルをオンのままにします</string>
+    <string name="widget_lyrics_label">同期歌詞 4×2</string>
+    <string name="widget_lyrics_description">いま歌われている行と再生コントロール。</string>
+    <string name="pipeline_karaoke">カラオケ</string>
 </resources>

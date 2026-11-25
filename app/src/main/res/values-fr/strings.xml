@@ -1875,4 +1875,20 @@
     <string name="extend_animated_artwork_subtitle">Les pochettes animées vont jusqu’aux bords du lecteur, les fixes restent carrées</string>
     <string name="replay_summary_separator"></string>
     <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">Ouvrir Last.fm dans le navigateur</string>
+    <string name="lastfm_complete_connection">Terminer la connexion</string>
+    <string name="lastfm_oauth_description">Autorise Sonara sur Last.fm dans ton navigateur pour connecter ton compte. Ton mot de passe n’est jamais saisi ici.</string>
+    <string name="lastfm_oauth_waiting">Autorise l’accès sur Last.fm dans ton navigateur, puis touche ci-dessous pour terminer.</string>
+    <string name="lastfm_oauth_error_pending">Pas encore autorisé. Autorise l’accès sur Last.fm dans ton navigateur, puis réessaie.</string>
+    <string name="audio_focus">Focus audio</string>
+    <string name="audio_focus_auto_pause">Mettre en pause et reprendre</string>
+    <string name="audio_focus_auto_pause_subtitle">Se met en pause dès qu’une autre app joue du son</string>
+    <string name="audio_focus_keep_playing">Toujours continuer la lecture</string>
+    <string name="audio_focus_keep_playing_subtitle">Continue malgré les autres sons ; se met en pause seulement pour les appels</string>
+    <string name="audio_focus_footer">Comment Sonara réagit quand une autre app ou un appel veut jouer du son.</string>
+    <string name="remember_shuffle_state">Mémoriser la lecture aléatoire</string>
+    <string name="remember_shuffle_state_subtitle">Garde la lecture aléatoire quand tu lances un autre album ou une playlist</string>
+    <string name="widget_lyrics_label">Paroles synchronisées 4×2</string>
+    <string name="widget_lyrics_description">La ligne chantée en ce moment, avec les commandes de lecture.</string>
+    <string name="pipeline_karaoke">Karaoké</string>
 </resources>

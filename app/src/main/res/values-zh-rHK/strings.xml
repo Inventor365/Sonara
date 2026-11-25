@@ -1863,4 +1863,20 @@
     <string name="replay_summary_suffix"></string>
     <string name="hide_trending">隱藏熱門趨勢推薦</string>
     <string name="hide_trending_subtitle">從首頁移除熱門趨勢歌曲和社群播放清單</string>
+    <string name="lastfm_authorize_in_browser">在瀏覽器中開啟 Last.fm</string>
+    <string name="lastfm_complete_connection">完成連線</string>
+    <string name="lastfm_oauth_description">在瀏覽器中於 Last.fm 核准 Sonara 以連結帳戶。密碼絕不會在這裡輸入。</string>
+    <string name="lastfm_oauth_waiting">在瀏覽器中於 Last.fm 核准存取，然後輕觸下方完成連線。</string>
+    <string name="lastfm_oauth_error_pending">尚未核准。請在瀏覽器中於 Last.fm 核准存取後重試。</string>
+    <string name="audio_focus">音訊焦點</string>
+    <string name="audio_focus_auto_pause">暫停並繼續</string>
+    <string name="audio_focus_auto_pause_subtitle">其他應用程式開始播放聲音時暫停</string>
+    <string name="audio_focus_keep_playing">一律繼續播放</string>
+    <string name="audio_focus_keep_playing_subtitle">遇到其他聲音也繼續播放，只在通話時暫停</string>
+    <string name="audio_focus_footer">其他應用程式或來電要播放聲音時，Sonara 的處理方式。</string>
+    <string name="remember_shuffle_state">記住隨機播放</string>
+    <string name="remember_shuffle_state_subtitle">開始新的專輯或播放清單時維持隨機播放</string>
+    <string name="widget_lyrics_label">同步歌詞 4×2</string>
+    <string name="widget_lyrics_description">正在演唱的歌詞行，附播放控制。</string>
+    <string name="pipeline_karaoke">卡拉 OK</string>
 </resources>

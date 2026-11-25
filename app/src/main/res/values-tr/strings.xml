@@ -1857,4 +1857,20 @@
     <string name="extend_animated_artwork_subtitle">Hareketli kapaklar oynatıcının kenarlarına uzanır, sabit kapaklar kare kalır</string>
     <string name="replay_summary_separator"></string>
     <string name="replay_summary_suffix"></string>
+    <string name="lastfm_authorize_in_browser">Last.fm’i tarayıcıda aç</string>
+    <string name="lastfm_complete_connection">Bağlantıyı tamamla</string>
+    <string name="lastfm_oauth_description">Hesabını bağlamak için tarayıcıda Last.fm’de Sonara’yı onayla. Şifren burada asla girilmez.</string>
+    <string name="lastfm_oauth_waiting">Tarayıcıda Last.fm’de erişimi onayla, ardından bağlantıyı tamamlamak için aşağıya dokun.</string>
+    <string name="lastfm_oauth_error_pending">Henüz onaylanmadı. Tarayıcıda Last.fm’de erişimi onayla ve tekrar dene.</string>
+    <string name="audio_focus">Ses odağı</string>
+    <string name="audio_focus_auto_pause">Duraklat ve sürdür</string>
+    <string name="audio_focus_auto_pause_subtitle">Başka bir uygulama ses çalmaya başlayınca duraklatır</string>
+    <string name="audio_focus_keep_playing">Her zaman çalmaya devam et</string>
+    <string name="audio_focus_keep_playing_subtitle">Diğer seslerde çalmaya devam eder; yalnızca aramalarda duraklar</string>
+    <string name="audio_focus_footer">Başka bir uygulama ya da arama ses çalmak istediğinde Sonara’nın tepkisi.</string>
+    <string name="remember_shuffle_state">Karıştırmayı hatırla</string>
+    <string name="remember_shuffle_state_subtitle">Yeni bir albüm ya da çalma listesi başlatınca karıştırmayı açık tutar</string>
+    <string name="widget_lyrics_label">Senkronize sözler 4×2</string>
+    <string name="widget_lyrics_description">Şu an söylenen satır ve oynatma denetimleri.</string>
+    <string name="pipeline_karaoke">Karaoke</string>
 </resources>
