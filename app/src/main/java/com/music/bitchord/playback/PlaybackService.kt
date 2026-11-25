@@ -7402,7 +7402,7 @@ class PlaybackService : MediaLibraryService() {
             isLiked = liked,
             canLike = canLike(exoPlayer.currentMediaItem),
             shuffleEnabled = QueueShuffle.enabled.value,
-            currentLyric = lastPublishedLyric,
+            currentLyric = lastWidgetLyric,
         )
         MediaWidgetSnapshot.save(this, snapshot)
         MediaWidget.refresh(this)
