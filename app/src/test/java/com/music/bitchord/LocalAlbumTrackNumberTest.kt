@@ -4,6 +4,8 @@ import com.music.bitchord.data.LocalMediaRepository
 import com.music.bitchord.data.model.Song
 import com.music.bitchord.data.sortedForAlbum
 import com.music.bitchord.data.useTrackTags
+import com.music.bitchord.data.settings.SongSort
+import com.music.bitchord.ui.screens.sortedForDetail
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

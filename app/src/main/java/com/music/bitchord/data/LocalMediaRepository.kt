@@ -527,6 +527,7 @@ object LocalMediaRepository {
         var trackNumber: Int? = null
         var discNumber: Int? = null
         var embeddedArt: String? = null
+        var discNumber: Int? = null
 
         runCatching {
             val retriever = MediaMetadataRetriever()
@@ -551,6 +552,7 @@ object LocalMediaRepository {
                 if (scanned?.artworkUrl == null) {
                     embeddedArt = cachedEmbeddedArt(File(context.cacheDir, EMBEDDED_ART_DIR), uriStr, retriever.embeddedPicture)
                 }
+                discNumber = trackNumberFromTag(metaDisc)
             } finally {
                 retriever.release()
             }
