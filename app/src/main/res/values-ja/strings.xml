@@ -1842,4 +1842,8 @@
     <string name="hide_trending">急上昇のおすすめを非表示</string>
     <string name="hide_trending_subtitle">ホームから急上昇の曲やコミュニティ再生リストを削除します</string>
     <string name="clear_listening_history">デバイス上の履歴を消去</string>
+    <string name="extend_animated_artwork">アニメーションのアートワークだけを拡大</string>
+    <string name="extend_animated_artwork_subtitle">動くアートワークはプレーヤーの端まで広げ、静止画は正方形のままにします</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

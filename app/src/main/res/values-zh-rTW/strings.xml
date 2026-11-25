@@ -1858,4 +1858,8 @@
     <string name="hide_trending">隱藏熱門趨勢推薦</string>
     <string name="hide_trending_subtitle">從首頁移除熱門趨勢歌曲和社群播放清單</string>
     <string name="clear_listening_history">清除裝置上的記錄</string>
+    <string name="extend_animated_artwork">僅延伸動態封面</string>
+    <string name="extend_animated_artwork_subtitle">動態封面延伸到播放器邊緣，靜態封面維持方形</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

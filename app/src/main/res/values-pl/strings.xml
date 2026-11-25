@@ -1922,4 +1922,8 @@
     <string name="hide_trending">Ukryj rekomendacje z trendów</string>
     <string name="hide_trending_subtitle">Usuwa utwory z trendów i playlisty społeczności ze strony głównej</string>
     <string name="clear_listening_history">Wyczyść historię na urządzeniu</string>
+    <string name="extend_animated_artwork">Rozciągaj tylko animowane okładki</string>
+    <string name="extend_animated_artwork_subtitle">Animowane okładki sięgają krawędzi odtwarzacza, nieruchome pozostają kwadratowe</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

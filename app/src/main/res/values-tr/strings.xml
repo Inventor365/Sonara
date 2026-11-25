@@ -1853,4 +1853,8 @@
     <string name="hide_trending">Trend önerilerini gizle</string>
     <string name="hide_trending_subtitle">Ana sayfadan trend şarkıları ve topluluk çalma listelerini kaldırır</string>
     <string name="clear_listening_history">Cihazdaki geçmişi temizle</string>
+    <string name="extend_animated_artwork">Yalnızca hareketli kapakları genişlet</string>
+    <string name="extend_animated_artwork_subtitle">Hareketli kapaklar oynatıcının kenarlarına uzanır, sabit kapaklar kare kalır</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

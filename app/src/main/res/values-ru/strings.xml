@@ -1914,4 +1914,8 @@
     <string name="hide_trending">Скрыть рекомендации в тренде</string>
     <string name="hide_trending_subtitle">Удаляет популярные треки и плейлисты сообщества с главной</string>
     <string name="clear_listening_history">Очистить историю на устройстве</string>
+    <string name="extend_animated_artwork">Растягивать только анимированные обложки</string>
+    <string name="extend_animated_artwork_subtitle">Анимированные обложки растягиваются до краёв плеера, обычные остаются квадратными</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

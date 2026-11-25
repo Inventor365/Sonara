@@ -1870,4 +1870,8 @@
     <string name="hide_trending">Trends ausblenden</string>
     <string name="hide_trending_subtitle">Entfernt Trends und Community-Playlists von der Startseite</string>
     <string name="clear_listening_history">Geräteverlauf löschen</string>
+    <string name="extend_animated_artwork">Nur animierte Cover erweitern</string>
+    <string name="extend_animated_artwork_subtitle">Animierte Cover reichen bis an die Ränder des Players, unbewegte bleiben quadratisch</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

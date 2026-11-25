@@ -1871,4 +1871,8 @@
     <string name="hide_trending">Masquer les tendances</string>
     <string name="hide_trending_subtitle">Supprime les titres tendances et les playlists communautaires de l’accueil</string>
     <string name="clear_listening_history">Effacer l’historique de l’appareil</string>
+    <string name="extend_animated_artwork">Étendre seulement les pochettes animées</string>
+    <string name="extend_animated_artwork_subtitle">Les pochettes animées vont jusqu’aux bords du lecteur, les fixes restent carrées</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

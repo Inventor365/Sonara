@@ -1772,7 +1772,7 @@
     <string name="remember_shuffle_state_subtitle" translatable="false">Keep shuffle turned on when starting a new queue or album</string>
     <string name="widget_lyrics_label" translatable="false">Synced lyrics 4×2</string>
     <string name="widget_lyrics_description" translatable="false">Displays real-time synced lyrics of the playing track with playback controls.</string>
-    <string name="widget_no_lyrics" translatable="false">♪ BitChord</string>
+    <string name="widget_no_lyrics" translatable="false">♪ Sonara</string>
     <string name="extend_animated_artwork">Extend animated artwork only</string>
     <string name="extend_animated_artwork_subtitle">Extends animated canvas artwork to the player edges while keeping still covers square</string>
     <string name="pipeline_karaoke" translatable="false">Karaoke</string>

@@ -1870,4 +1870,8 @@
     <string name="hide_trending">ट्रेंडिंग सुझाव छिपाएं</string>
     <string name="hide_trending_subtitle">होम से ट्रेंडिंग गाने और कम्युनिटी प्लेलिस्ट हटाता है</string>
     <string name="clear_listening_history">डिवाइस पर इतिहास साफ़ करें</string>
+    <string name="extend_animated_artwork">केवल एनिमेटेड आर्टवर्क फैलाएँ</string>
+    <string name="extend_animated_artwork_subtitle">एनिमेटेड आर्टवर्क प्लेयर के किनारों तक फैलता है, स्थिर कवर चौकोर रहते हैं</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

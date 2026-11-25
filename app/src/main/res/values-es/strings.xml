@@ -1842,4 +1842,8 @@
     <string name="hide_trending">Ocultar recomendaciones de tendencias</string>
     <string name="hide_trending_subtitle">Elimina canciones en tendencia y listas de la comunidad de Inicio</string>
     <string name="clear_listening_history">Borrar historial del dispositivo</string>
+    <string name="extend_animated_artwork">Ampliar solo las portadas animadas</string>
+    <string name="extend_animated_artwork_subtitle">Las portadas animadas llegan hasta los bordes del reproductor y las fijas siguen cuadradas</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

@@ -1877,4 +1877,6 @@
     <string name="spotify_import_language_hint" translatable="false">例如：旁遮普语、马拉地语、韩语…</string>
     <string name="replay_summary_separator"></string>
     <string name="replay_summary_suffix">听歌回顾</string>
+    <string name="extend_animated_artwork">仅扩展动态封面</string>
+    <string name="extend_animated_artwork_subtitle">动态封面延伸到播放器边缘，静态封面保持方形</string>
 </resources>

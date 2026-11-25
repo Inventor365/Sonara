@@ -1875,4 +1875,8 @@
     <string name="hide_trending">הסתר המלצות פופולריות</string>
     <string name="hide_trending_subtitle">מסיר שירים פופולריים ופלייליסטים קהילתיים מדף הבית</string>
     <string name="clear_listening_history">מחיקת ההיסטוריה במכשיר</string>
+    <string name="extend_animated_artwork">להרחיב רק עטיפות מונפשות</string>
+    <string name="extend_animated_artwork_subtitle">עטיפות מונפשות נפרשות עד קצות הנגן, וסטטיות נשארות ריבועיות</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

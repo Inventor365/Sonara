@@ -1809,4 +1809,8 @@
     <string name="hide_trending">Nascondi i consigli di tendenza</string>
     <string name="hide_trending_subtitle">Rimuove i brani di tendenza e le playlist della community dalla Home</string>
     <string name="clear_listening_history">Cancella cronologia sul dispositivo</string>
+    <string name="extend_animated_artwork">Estendi solo le copertine animate</string>
+    <string name="extend_animated_artwork_subtitle">Le copertine animate arrivano ai bordi del player, quelle fisse restano quadrate</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

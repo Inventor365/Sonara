@@ -1875,4 +1875,8 @@
     <string name="hide_trending">Ocultar recomendações em alta</string>
     <string name="hide_trending_subtitle">Remove músicas em alta e playlists da comunidade da página inicial</string>
     <string name="clear_listening_history">Limpar histórico no dispositivo</string>
+    <string name="extend_animated_artwork">Expandir só as capas animadas</string>
+    <string name="extend_animated_artwork_subtitle">As capas animadas vão até as bordas do player e as fixas continuam quadradas</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

@@ -1841,4 +1841,8 @@
     <string name="hide_trending">Sembunyikan rekomendasi tren</string>
     <string name="hide_trending_subtitle">Menghapus lagu yang sedang tren dan playlist komunitas dari Beranda</string>
     <string name="clear_listening_history">Hapus riwayat di perangkat</string>
+    <string name="extend_animated_artwork">Perluas hanya sampul animasi</string>
+    <string name="extend_animated_artwork_subtitle">Sampul animasi meluas ke tepi pemutar, sampul diam tetap persegi</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

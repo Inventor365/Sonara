@@ -1848,4 +1848,8 @@
     <string name="hide_trending">ซ่อนการแนะนำที่กำลังเป็นกระแส</string>
     <string name="hide_trending_subtitle">ลบเพลงที่กำลังมาแรงและเพลย์利สต์ของชุมชนออกจากหน้าแรก</string>
     <string name="clear_listening_history">ล้างประวัติในอุปกรณ์</string>
+    <string name="extend_animated_artwork">ขยายเฉพาะภาพปกเคลื่อนไหว</string>
+    <string name="extend_animated_artwork_subtitle">ภาพปกเคลื่อนไหวขยายเต็มขอบเพลเยอร์ ส่วนภาพนิ่งยังเป็นสี่เหลี่ยมจัตุรัส</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>

@@ -1783,4 +1783,8 @@
     <string name="hide_trending">Ẩn đề xuất thịnh hành</string>
     <string name="hide_trending_subtitle">Xóa bài hát thịnh hành và danh sách phát cộng đồng khỏi Trang chủ</string>
     <string name="clear_listening_history">Xóa lịch sử trên thiết bị</string>
+    <string name="extend_animated_artwork">Chỉ mở rộng ảnh bìa động</string>
+    <string name="extend_animated_artwork_subtitle">Ảnh bìa động trải đến mép trình phát, ảnh tĩnh vẫn vuông</string>
+    <string name="replay_summary_separator"></string>
+    <string name="replay_summary_suffix"></string>
 </resources>
