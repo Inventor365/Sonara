@@ -1806,4 +1806,6 @@
     <string name="reset_app_message">Rivedere il benvenuto mantiene libreria, statistiche, impostazioni e accessi. Cancellare rimuove tutto ciò che Sonara conserva su questo telefono (impostazioni, statistiche di ascolto, download e accessi), poi lo riapre da zero.</string>
     <string name="reset_app_welcome">Mostra di nuovo il benvenuto</string>
     <string name="reset_app_erase">Cancella tutto e ricomincia</string>
+    <string name="hide_trending">Nascondi i consigli di tendenza</string>
+    <string name="hide_trending_subtitle">Rimuove i brani di tendenza e le playlist della community dalla Home</string>
 </resources>

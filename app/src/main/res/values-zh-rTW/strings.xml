@@ -1855,4 +1855,6 @@
     <string name="reset_app_message">僅重新顯示歡迎頁面會保留你的資料庫、統計、設定和登入。清除會刪除 Sonara 在這支手機上儲存的所有內容（設定、收聽統計、下載和登入），然後重新開啟。</string>
     <string name="reset_app_welcome">重新顯示歡迎頁面</string>
     <string name="reset_app_erase">清除全部並重新開始</string>
+    <string name="hide_trending">隱藏熱門趨勢推薦</string>
+    <string name="hide_trending_subtitle">從首頁移除熱門趨勢歌曲和社群播放清單</string>
 </resources>

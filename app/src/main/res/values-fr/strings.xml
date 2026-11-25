@@ -1868,4 +1868,6 @@
     <string name="reset_app_message">Revoir l’accueil garde ta bibliothèque, tes statistiques, tes réglages et tes connexions. Tout effacer supprime ce que Sonara garde sur ce téléphone (réglages, statistiques d’écoute, téléchargements et connexions), puis l’ouvre à neuf.</string>
     <string name="reset_app_welcome">Revoir l’écran d’accueil</string>
     <string name="reset_app_erase">Tout effacer et repartir de zéro</string>
+    <string name="hide_trending">Masquer les tendances</string>
+    <string name="hide_trending_subtitle">Supprime les titres tendances et les playlists communautaires de l’accueil</string>
 </resources>

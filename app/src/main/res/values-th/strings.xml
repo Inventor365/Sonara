@@ -1845,4 +1845,6 @@
     <string name="reset_app_message">การแสดงหน้าต้อนรับอีกครั้งจะเก็บคลังเพลง สถิติ การตั้งค่า และการลงชื่อเข้าใช้ไว้ การลบจะล้างทุกอย่างที่ Sonara เก็บไว้ในโทรศัพท์นี้ (การตั้งค่า สถิติการฟัง ดาวน์โหลด และการลงชื่อเข้าใช้) แล้วเปิดใหม่</string>
     <string name="reset_app_welcome">แสดงหน้าต้อนรับอีกครั้ง</string>
     <string name="reset_app_erase">ลบทุกอย่างแล้วเริ่มใหม่</string>
+    <string name="hide_trending">ซ่อนการแนะนำที่กำลังเป็นกระแส</string>
+    <string name="hide_trending_subtitle">ลบเพลงที่กำลังมาแรงและเพลย์利สต์ของชุมชนออกจากหน้าแรก</string>
 </resources>

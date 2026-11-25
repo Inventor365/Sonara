@@ -1752,4 +1752,6 @@
     <string name="reset_app_message">Showing the welcome again keeps your library, stats, settings and sign-ins. Erasing removes everything Sonara keeps on this phone (settings, listening stats, downloads and sign-ins), then opens it fresh.</string>
     <string name="reset_app_welcome">Show the welcome screen again</string>
     <string name="reset_app_erase">Erase everything and start fresh</string>
+    <string name="hide_trending">Hide Trending recommendations</string>
+    <string name="hide_trending_subtitle">Removes trending songs and community shelves from Home</string>
 </resources>

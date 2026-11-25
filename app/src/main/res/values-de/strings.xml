@@ -1867,4 +1867,6 @@
     <string name="reset_app_message">Der Willkommensbildschirm allein behält Mediathek, Statistiken, Einstellungen und Anmeldungen. Löschen entfernt alles, was Sonara auf diesem Telefon speichert (Einstellungen, Hörstatistiken, Downloads und Anmeldungen), und öffnet die App dann neu.</string>
     <string name="reset_app_welcome">Willkommensbildschirm erneut zeigen</string>
     <string name="reset_app_erase">Alles löschen und neu anfangen</string>
+    <string name="hide_trending">Trends ausblenden</string>
+    <string name="hide_trending_subtitle">Entfernt Trends und Community-Playlists von der Startseite</string>
 </resources>

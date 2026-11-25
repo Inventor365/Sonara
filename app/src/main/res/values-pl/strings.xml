@@ -1919,4 +1919,6 @@
     <string name="reset_app_message">Ekran powitalny zachowuje bibliotekę, statystyki, ustawienia i logowania. Wyczyszczenie usuwa wszystko, co Sonara przechowuje na tym telefonie (ustawienia, statystyki słuchania, pobrane pliki i logowania), a potem otwiera ją od nowa.</string>
     <string name="reset_app_welcome">Pokaż ekran powitalny ponownie</string>
     <string name="reset_app_erase">Wyczyść wszystko i zacznij od nowa</string>
+    <string name="hide_trending">Ukryj rekomendacje z trendów</string>
+    <string name="hide_trending_subtitle">Usuwa utwory z trendów i playlisty społeczności ze strony głównej</string>
 </resources>

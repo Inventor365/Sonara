@@ -1850,4 +1850,6 @@
     <string name="reset_app_message">Karşılamayı yeniden göstermek kitaplığını, istatistiklerini, ayarlarını ve oturumlarını korur. Silmek, Sonara’nın bu telefonda tuttuğu her şeyi (ayarlar, dinleme istatistikleri, indirmeler ve oturumlar) kaldırır ve uygulamayı sıfırdan açar.</string>
     <string name="reset_app_welcome">Karşılama ekranını yeniden göster</string>
     <string name="reset_app_erase">Her şeyi sil ve baştan başla</string>
+    <string name="hide_trending">Trend önerilerini gizle</string>
+    <string name="hide_trending_subtitle">Ana sayfadan trend şarkıları ve topluluk çalma listelerini kaldırır</string>
 </resources>

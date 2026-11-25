@@ -1839,4 +1839,6 @@
     <string name="reset_app_message">Ver la bienvenida conserva tu biblioteca, estadísticas, ajustes e inicios de sesión. Borrar elimina todo lo que Sonara guarda en este teléfono (ajustes, estadísticas de escucha, descargas e inicios de sesión) y lo abre desde cero.</string>
     <string name="reset_app_welcome">Mostrar otra vez la bienvenida</string>
     <string name="reset_app_erase">Borrarlo todo y empezar de cero</string>
+    <string name="hide_trending">Ocultar recomendaciones de tendencias</string>
+    <string name="hide_trending_subtitle">Elimina canciones en tendencia y listas de la comunidad de Inicio</string>
 </resources>

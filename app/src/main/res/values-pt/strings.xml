@@ -1872,4 +1872,6 @@
     <string name="reset_app_message">Ver as boas-vindas mantém sua biblioteca, estatísticas, configurações e logins. Apagar remove tudo o que o Sonara guarda neste celular (configurações, estatísticas de audição, downloads e logins) e o abre do zero.</string>
     <string name="reset_app_welcome">Mostrar as boas-vindas de novo</string>
     <string name="reset_app_erase">Apagar tudo e começar do zero</string>
+    <string name="hide_trending">Ocultar recomendações em alta</string>
+    <string name="hide_trending_subtitle">Remove músicas em alta e playlists da comunidade da página inicial</string>
 </resources>

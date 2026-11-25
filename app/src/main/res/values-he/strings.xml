@@ -1872,4 +1872,6 @@
     <string name="reset_app_message">הצגת מסך הפתיחה שומרת על הספרייה, הסטטיסטיקות, ההגדרות וההתחברויות. מחיקה מסירה את כל מה ש-Sonara שומרת בטלפון הזה (הגדרות, סטטיסטיקות האזנה, הורדות והתחברויות) ופותחת אותה מחדש.</string>
     <string name="reset_app_welcome">הצגת מסך הפתיחה שוב</string>
     <string name="reset_app_erase">למחוק הכול ולהתחיל מחדש</string>
+    <string name="hide_trending">הסתר המלצות פופולריות</string>
+    <string name="hide_trending_subtitle">מסיר שירים פופולריים ופלייליסטים קהילתיים מדף הבית</string>
 </resources>

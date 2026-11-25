@@ -1712,4 +1712,6 @@
     <string name="reset_app_message">시작 화면만 다시 보면 보관함, 통계, 설정, 로그인은 그대로예요. 지우면 Sonara가 이 휴대폰에 저장한 모든 것(설정, 감상 통계, 다운로드, 로그인)을 삭제하고 새로 열어요.</string>
     <string name="reset_app_welcome">시작 화면 다시 보기</string>
     <string name="reset_app_erase">모두 지우고 새로 시작</string>
+    <string name="hide_trending">인기 급상승 추천 숨기기</string>
+    <string name="hide_trending_subtitle">홈에서 인기 급상승 곡 및 커뮤니티 재생목록을 제거합니다</string>
 </resources>

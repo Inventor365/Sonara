@@ -1838,4 +1838,6 @@
     <string name="reset_app_message">Menampilkan sambutan lagi tetap menyimpan perpustakaan, statistik, pengaturan, dan akun masukmu. Menghapus menghilangkan semua yang disimpan Sonara di ponsel ini (pengaturan, statistik dengar, unduhan, dan akun masuk), lalu membukanya dari awal.</string>
     <string name="reset_app_welcome">Tampilkan layar sambutan lagi</string>
     <string name="reset_app_erase">Hapus semuanya dan mulai dari awal</string>
+    <string name="hide_trending">Sembunyikan rekomendasi tren</string>
+    <string name="hide_trending_subtitle">Menghapus lagu yang sedang tren dan playlist komunitas dari Beranda</string>
 </resources>

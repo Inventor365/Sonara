@@ -1911,4 +1911,6 @@
     <string name="reset_app_message">Приветствие сохранит библиотеку, статистику, настройки и входы. Стирание удалит всё, что Sonara хранит на этом телефоне (настройки, статистику прослушивания, загрузки и входы), и откроет приложение заново.</string>
     <string name="reset_app_welcome">Показать приветствие снова</string>
     <string name="reset_app_erase">Стереть всё и начать заново</string>
+    <string name="hide_trending">Скрыть рекомендации в тренде</string>
+    <string name="hide_trending_subtitle">Удаляет популярные треки и плейлисты сообщества с главной</string>
 </resources>

@@ -1867,4 +1867,6 @@
     <string name="reset_app_message">स्वागत फिर से दिखाने पर आपकी लाइब्रेरी, आंकड़े, सेटिंग्स और साइन-इन बने रहते हैं। मिटाने पर Sonara इस फ़ोन पर जो कुछ रखता है (सेटिंग्स, सुनने के आंकड़े, डाउनलोड और साइन-इन) सब हट जाता है, फिर ऐप नए सिरे से खुलता है।</string>
     <string name="reset_app_welcome">स्वागत स्क्रीन फिर से दिखाएँ</string>
     <string name="reset_app_erase">सब कुछ मिटाएँ और नए सिरे से शुरू करें</string>
+    <string name="hide_trending">ट्रेंडिंग सुझाव छिपाएं</string>
+    <string name="hide_trending_subtitle">होम से ट्रेंडिंग गाने और कम्युनिटी प्लेलिस्ट हटाता है</string>
 </resources>

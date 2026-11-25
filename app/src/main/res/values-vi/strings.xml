@@ -1780,4 +1780,6 @@
     <string name="reset_app_message">Xem lại màn hình chào mừng vẫn giữ thư viện, thống kê, cài đặt và đăng nhập. Xóa sẽ gỡ mọi thứ Sonara lưu trên điện thoại này (cài đặt, thống kê nghe, bản tải xuống và đăng nhập), rồi mở lại từ đầu.</string>
     <string name="reset_app_welcome">Hiện lại màn hình chào mừng</string>
     <string name="reset_app_erase">Xóa hết và bắt đầu lại</string>
+    <string name="hide_trending">Ẩn đề xuất thịnh hành</string>
+    <string name="hide_trending_subtitle">Xóa bài hát thịnh hành và danh sách phát cộng đồng khỏi Trang chủ</string>
 </resources>
