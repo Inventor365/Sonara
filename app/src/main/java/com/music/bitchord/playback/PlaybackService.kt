@@ -171,6 +171,7 @@ import com.music.bitchord.ui.player.prefetchFullPlayerArtwork
 import com.music.bitchord.ui.player.preparePlayerArtworkAmbient
 import com.music.bitchord.ui.player.retainAutoMixPlayerAmbient
 import com.music.bitchord.ui.player.retainAutoMixPlayerCover
+import com.music.bitchord.widget.LyricsWidget
 import com.music.bitchord.widget.MediaWidget
 import com.music.bitchord.widget.MediaWidgetSnapshot
 import com.music.bitchord.widget.QuickPlayStore
@@ -1072,6 +1073,8 @@ class PlaybackService : MediaLibraryService() {
     private var lyricsTabLines: List<LyricLine>? = null
     /** Which sung line the Android Auto Lyrics tab starts at. lyricsTabItems reads it on the IO thread. */
     @Volatile private var lyricsTabStart = 0
+    /** The line the home-screen lyrics widget last showed; see LyricsWidget. */
+    private var lastWidgetLyric: String? = null
     private var lyricsTickerJob: Job? = null
 
     /**
@@ -2105,6 +2108,7 @@ class PlaybackService : MediaLibraryService() {
         } else {
             MediaWidgetSnapshot.save(this, MediaWidgetSnapshot.EMPTY)
             MediaWidget.refresh(this)
+            LyricsWidget.refresh(this)
         }
         // History pings fire once a track is actually audible — both when
         // playback starts and when the queue moves on while already playing.
@@ -7357,9 +7361,11 @@ class PlaybackService : MediaLibraryService() {
             isLiked = liked,
             canLike = canLike(exoPlayer.currentMediaItem),
             shuffleEnabled = QueueShuffle.enabled.value,
+            currentLyric = lastPublishedLyric,
         )
         MediaWidgetSnapshot.save(this, snapshot)
         MediaWidget.refresh(this)
+        LyricsWidget.refresh(this)
         // The watch app follows the widget — same moments, same snapshot.
         WearBridge.publish(this, snapshot, reported, playing)
     }
@@ -9213,6 +9219,14 @@ class PlaybackService : MediaLibraryService() {
             // the title and the subtitle instead of showing the next line.
             if (line.text.length > LYRIC_TITLE_MAX_CHARS) splitInHalf(line.text)
             else line.text to (sung.getOrNull(cur + 1)?.text ?: currentSong.artist)
+        }
+        // The home-screen lyrics widget follows the line being sung whatever the
+        // notification shows: it is a lyrics surface the listener put there.
+        val widgetLyric = sung.getOrNull(cur)?.text?.takeIf { it.isNotBlank() && AppSettings.syncedLyrics.value }
+        if (widgetLyric != lastWidgetLyric) {
+            lastWidgetLyric = widgetLyric
+            MediaWidgetSnapshot.saveLyric(this, widgetLyric)
+            LyricsWidget.refresh(this)
         }
         if (lyric != lastPublishedLyric) {
             lastPublishedLyric = lyric

@@ -1770,4 +1770,7 @@
     <string name="audio_focus_footer" translatable="false">Controls how BitChord responds when other applications or phone calls request audio focus.</string>
     <string name="remember_shuffle_state" translatable="false">Remember shuffle state</string>
     <string name="remember_shuffle_state_subtitle" translatable="false">Keep shuffle turned on when starting a new queue or album</string>
+    <string name="widget_lyrics_label" translatable="false">Synced lyrics 4×2</string>
+    <string name="widget_lyrics_description" translatable="false">Displays real-time synced lyrics of the playing track with playback controls.</string>
+    <string name="widget_no_lyrics" translatable="false">♪ BitChord</string>
 </resources>
