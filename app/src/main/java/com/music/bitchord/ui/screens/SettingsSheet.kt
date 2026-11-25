@@ -165,6 +165,7 @@ import com.music.bitchord.ui.performance.RefreshRatePolicy
 import com.music.bitchord.ui.performance.RefreshRatePreference
 import com.music.bitchord.ui.performance.supportedPerformanceRefreshRates
 import com.music.bitchord.data.model.Account
+import com.music.bitchord.data.model.artworkAt
 import com.music.bitchord.data.LocalMediaRepository
 import com.music.bitchord.data.NerdStats
 import com.music.bitchord.data.scrobbling.LastFM
@@ -3194,7 +3195,7 @@ internal fun AccountCard(
     ) {
         if (account?.thumbnailUrl != null) {
             AsyncImage(
-                model = account.thumbnailUrl,
+                model = account.thumbnailUrl.artworkAt(256),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(52.dp).clip(CircleShape).thumbnailBorder(CircleShape),
