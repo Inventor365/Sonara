@@ -1867,4 +1867,8 @@
     <string name="reset_app_message">Der Willkommensbildschirm allein behält Mediathek, Statistiken, Einstellungen und Anmeldungen. Löschen entfernt alles, was Sonara auf diesem Telefon speichert (Einstellungen, Hörstatistiken, Downloads und Anmeldungen), und öffnet die App dann neu.</string>
     <string name="reset_app_welcome">Willkommensbildschirm erneut zeigen</string>
     <string name="reset_app_erase">Alles löschen und neu anfangen</string>
+    <string name="native_sign_in">Mit dem Google-Konto des Telefons anmelden</string>
+    <string name="native_sign_in_subtitle">Googles eigenes Fenster, ein Tippen, kein Passwort. Erfordert die eingerichtete Google-Anmeldung für Sonara; bis dahin nutzt Sonara die Web-Anmeldung</string>
+    <string name="native_sign_in_working">Anmeldung bei Google …</string>
+    <string name="native_sign_in_fallback">Die Google-Anmeldung ist nicht verfügbar, daher wurde die Web-Anmeldung geöffnet</string>
 </resources>

@@ -1868,4 +1868,8 @@
     <string name="reset_app_message">Revoir l’accueil garde ta bibliothèque, tes statistiques, tes réglages et tes connexions. Tout effacer supprime ce que Sonara garde sur ce téléphone (réglages, statistiques d’écoute, téléchargements et connexions), puis l’ouvre à neuf.</string>
     <string name="reset_app_welcome">Revoir l’écran d’accueil</string>
     <string name="reset_app_erase">Tout effacer et repartir de zéro</string>
+    <string name="native_sign_in">Se connecter avec le compte Google du téléphone</string>
+    <string name="native_sign_in_subtitle">La fenêtre de Google, un geste, sans mot de passe. Nécessite que la connexion Google de Sonara soit configurée ; d’ici là, Sonara utilise la connexion web</string>
+    <string name="native_sign_in_working">Connexion avec Google…</string>
+    <string name="native_sign_in_fallback">La connexion Google n’est pas disponible : la connexion web s’est ouverte à la place</string>
 </resources>

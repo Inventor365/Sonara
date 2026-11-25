@@ -12,6 +12,11 @@ data class GoogleAccountSession(
     val email: String = "",
     val profiles: List<YouTubeProfile> = emptyList(),
     val activeProfileId: String? = null,
+    /**
+     * Signed in with the phone's own Google sign-in (see NativeGoogleSignIn) rather than the web:
+     * [cookie] is empty, and requests carry an OAuth token fetched from Play services instead.
+     */
+    val native: Boolean = false,
 )
 
 /** One Personal or Brand identity available under a Google login. */
@@ -54,6 +59,7 @@ internal fun List<GoogleAccountSession>.toJson(): String = JSONArray().apply {
             put("id", session.accountId); put("cookie", session.cookie)
             put("name", session.name); put("email", session.email)
             put("activeProfileId", session.activeProfileId)
+            put("native", session.native)
             put("profiles", JSONArray().apply {
                 session.profiles.forEach { profile -> put(JSONObject().apply {
                     put("id", profile.profileId); put("name", profile.name)
@@ -72,12 +78,14 @@ internal fun sessionsFromJson(raw: String?): List<GoogleAccountSession> = runCat
         for (index in 0 until root.length()) {
             val item = root.getJSONObject(index)
             val cookie = item.optString("cookie")
-            if (cookie.isNotBlank()) {
+            val native = item.optBoolean("native")
+            if (cookie.isNotBlank() || native) {
             val profiles = item.optJSONArray("profiles") ?: JSONArray()
             add(GoogleAccountSession(
                 accountId = item.optString("id", sessionId(cookie, null)), cookie = cookie,
                 name = item.optString("name"), email = item.optString("email"),
                 activeProfileId = item.optString("activeProfileId").ifBlank { null },
+                native = native,
                 profiles = buildList {
                     for (p in 0 until profiles.length()) {
                         val value = profiles.getJSONObject(p)

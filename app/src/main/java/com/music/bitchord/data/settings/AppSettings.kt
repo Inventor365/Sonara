@@ -542,6 +542,12 @@ object AppSettings {
     /** Keep the screen awake while the Now Playing sheet is open. */
     val keepScreenOn = MutableStateFlow(false)
 
+    /**
+     * Sign in with the phone's own Google sign-in (Google Play services) before the web sign-in.
+     * Off until Sonara's OAuth client exists — see com.music.bitchord.auth.NativeGoogleSignIn.
+     */
+    val nativeGoogleSignIn = MutableStateFlow(false)
+
     /** Freezes the main player's mesh gradient instead of letting it drift/crossfade. */
     val reduceAnimation = MutableStateFlow(false)
 
@@ -1283,6 +1289,7 @@ object AppSettings {
         showListenTogetherButton.value = prefs.getBoolean(KEY_LISTEN_TOGETHER_BUTTON, false)
         externalLinks.value = prefs.getBoolean(KEY_EXTERNAL_LINKS, true)
         keepScreenOn.value = prefs.getBoolean(KEY_KEEP_SCREEN_ON, false)
+        nativeGoogleSignIn.value = prefs.getBoolean(KEY_NATIVE_GOOGLE_SIGN_IN, false)
         reduceAnimationPref.value = prefs.getBoolean(KEY_REDUCE_ANIMATION, false)
         showNavLabels.value = prefs.getBoolean(KEY_NAV_LABELS, true)
         onboardingComplete.value = prefs.getBoolean(KEY_ONBOARDING_COMPLETE, false)
@@ -1793,6 +1800,11 @@ object AppSettings {
     fun setKeepScreenOn(value: Boolean) {
         keepScreenOn.value = value
         prefs.edit().putBoolean(KEY_KEEP_SCREEN_ON, value).apply()
+    }
+
+    fun setNativeGoogleSignIn(value: Boolean) {
+        nativeGoogleSignIn.value = value
+        prefs.edit().putBoolean(KEY_NATIVE_GOOGLE_SIGN_IN, value).apply()
     }
 
     fun setThemeMode(value: ThemeMode) {
@@ -2860,6 +2872,7 @@ object AppSettings {
     private const val KEY_LISTEN_TOGETHER_BUTTON = "show_listen_together_button"
     private const val KEY_EXTERNAL_LINKS = "external_links"
     private const val KEY_KEEP_SCREEN_ON = "keep_screen_on"
+    private const val KEY_NATIVE_GOOGLE_SIGN_IN = "native_google_sign_in"
     private const val KEY_CACHE_LIMIT = "audio_cache_limit_bytes"
     private const val KEY_REDUCE_ANIMATION = "reduce_animation"
     private const val KEY_NAV_LABELS = "show_nav_labels"

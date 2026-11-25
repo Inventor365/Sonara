@@ -603,6 +603,16 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      * them — it is one more request per sign-in and nothing else on the
      * settings page needs the answer.
      */
+    /**
+     * An account just signed in that has more than one channel (its own and brand channels):
+     * the app's profile sheet opens on it so the listener picks one, in one tap, instead of on
+     * YouTube's page. Carries the account id.
+     */
+    private val _profileChoice = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val profileChoice: kotlinx.coroutines.flow.SharedFlow<String> = _profileChoice
+    /** Set by a fresh sign-in, consumed by the channel list it triggers. */
+    private var offerProfileChoiceFor: String? = null
+
     private val _channels = MutableStateFlow<List<AccountChannel>>(emptyList())
     val channels: StateFlow<List<AccountChannel>> = _channels.asStateFlow()
 
@@ -3822,6 +3832,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun loadChannels(force: Boolean = false) {
         if (!_signedIn.value) return
+        // A native sign-in's token is bound to the channel picked on Google's screen; there is
+        // nothing to switch to under it from here.
+        if (authStore.activeSession?.native == true) return
         if (_channelsLoading.value) return
         if (!force && _channels.value.isNotEmpty()) return
         viewModelScope.launch {
@@ -3849,6 +3862,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             profileId = profileId(channel.pageId, channel.dataSyncId, channel.name),
             name = channel.name, handle = channel.subtitle, avatar = channel.thumbnailUrl,
             pageId = channel.pageId, dataSyncId = channel.dataSyncId,
+            authUser = loginAuthUser(accountId),
             isBrandAccount = channel.pageId != null,
         )
         selectProfile(accountId, profile.profileId, profile)
@@ -3879,6 +3893,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             // The old implementation persisted first and unconditionally set
             // signedIn=true; a half-finished channel chooser therefore became
             // a durable broken "Personal" account.
+            com.music.bitchord.auth.NativeGoogleSignIn.uninstall()
             Innertube.cookie = session.cookie
             Innertube.adoptSessionScope(
                 pageId = session.pageId,
@@ -3899,6 +3914,17 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 result.getOrNull()
             }
             if (account == null) {
+                restoreActiveSession(oldAccountId, oldProfileId)
+                onComplete(false)
+                return@launch
+            }
+            // The listener picked an account on the phone; a session for any other one (a login
+            // the browser was already holding) is not saved in its place.
+            val expected = session.expectedEmail
+            if (mode == WebSessionMode.SIGN_IN && !expected.isNullOrBlank() && account.email.isNotBlank() &&
+                !account.email.equals(expected, ignoreCase = true)
+            ) {
+                Log.w("BitChord", "sign-in landed on another account than the one chosen; not saved")
                 restoreActiveSession(oldAccountId, oldProfileId)
                 onComplete(false)
                 return@launch
@@ -3963,6 +3989,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             StreamResolver.onSessionChanged()
             if (wasSignedIn) clearListenerState()
             reloadForAccount()
+            if (mode == WebSessionMode.SIGN_IN) offerProfileChoiceFor = accountId
             loadChannels(force = true)
             onComplete(true)
         }
@@ -3972,8 +3999,79 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private fun restoreActiveSession(accountId: String?, selectedProfileId: String?) {
         val account = authStore.sessions.firstOrNull { it.accountId == accountId }
         val profile = account?.profiles?.firstOrNull { it.profileId == selectedProfileId }
-        Innertube.cookie = account?.cookie
+        applyAccount(account)
         Innertube.selectChannel(profile?.pageId, profile?.dataSyncId, profile?.authUser)
+    }
+
+    /** Points requests at [account]: its web cookie, or a native sign-in's token from Play services. */
+    private fun applyAccount(account: com.music.bitchord.auth.GoogleAccountSession?) {
+        if (account?.native == true) {
+            com.music.bitchord.auth.NativeGoogleSignIn.install(getApplication(), account.email)
+        } else {
+            com.music.bitchord.auth.NativeGoogleSignIn.uninstall()
+            Innertube.cookie = account?.cookie?.takeIf { it.isNotBlank() }
+        }
+    }
+
+    /**
+     * An account signed in with the phone's own Google sign-in: [token] is an OAuth token for
+     * YouTube from Play services. Saved only once YouTube Music has answered to it as that account
+     * — a refused token puts everything back as it was, and [onComplete] says false so the web
+     * sign-in can take over. The channel was picked on Google's own screen, so there is no
+     * profile to choose afterwards.
+     */
+    fun onNativeSignIn(token: String, chosenEmail: String?, onComplete: (Boolean) -> Unit = {}) {
+        val oldAccountId = _activeAccountId.value
+        val oldProfileId = _activeProfileId.value
+        viewModelScope.launch {
+            com.music.bitchord.auth.NativeGoogleSignIn.uninstall()
+            Innertube.cookie = null
+            Innertube.selectChannel(null, null, null)
+            Innertube.bearer = token
+            val account = withTimeoutOrNull(20_000L) { YtMusicRepository.account().getOrNull() }
+            val email = account?.email?.takeIf { it.isNotBlank() } ?: chosenEmail?.takeIf { it.isNotBlank() }
+            if (account == null || email == null) {
+                Log.w("BitChord", "YouTube Music did not accept the native Google sign-in")
+                restoreActiveSession(oldAccountId, oldProfileId)
+                onComplete(false)
+                return@launch
+            }
+            com.music.bitchord.auth.NativeGoogleSignIn.install(getApplication(), email)
+            Innertube.bearer = token
+            val accountId = authStore.sessions.firstOrNull { it.email.equals(email, ignoreCase = true) }?.accountId
+                ?: "google:${email.lowercase()}"
+            val profile = YouTubeProfile(
+                profileId = profileId(null, null, account.name),
+                name = account.name,
+                handle = account.email,
+                avatar = account.thumbnailUrl,
+            )
+            val stored = com.music.bitchord.auth.GoogleAccountSession(
+                accountId = accountId,
+                cookie = "",
+                name = account.name,
+                email = email,
+                profiles = listOf(profile),
+                activeProfileId = profile.profileId,
+                native = true,
+            )
+            val wasSignedIn = _signedIn.value
+            if (wasSignedIn) cacheCurrentListener()
+            authStore.upsertSession(stored)
+            authStore.cookie = null
+            _googleAccounts.value = authStore.sessions
+            _activeAccountId.value = accountId
+            _activeProfileId.value = profile.profileId
+            _selectedChannelKey.value = profile.profileId
+            _selectedChannelName.value = account.name
+            _account.value = account
+            _channels.value = emptyList()
+            _signedIn.value = true
+            StreamResolver.onSessionChanged()
+            if (wasSignedIn) clearListenerState()
+            reloadForAccount()
+            onComplete(true)
+        }
     }
 
     /** Selects an identity without ever allowing a response to replace it. */
@@ -3997,8 +4095,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         _googleAccounts.value = authStore.sessions
         _activeAccountId.value = accountId
         _activeProfileId.value = profile.profileId
-        authStore.cookie = updated.cookie
-        Innertube.cookie = updated.cookie
+        authStore.cookie = updated.cookie.takeIf { it.isNotBlank() }
+        applyAccount(updated)
         Innertube.selectChannel(profile.pageId, profile.dataSyncId, profile.authUser)
         _selectedChannelKey.value = profile.profileId
         _selectedChannelName.value = profile.name
@@ -4025,9 +4123,14 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private fun persistDetectedProfiles(channels: List<AccountChannel>) {
         val accountId = _activeAccountId.value ?: return
         val current = authStore.sessions.firstOrNull { it.accountId == accountId } ?: return
+        // Every channel of this login lives behind the same entry of the browser's cookie jar,
+        // which matters once that jar holds more than one Google account: without it a switch
+        // to a brand channel would be asked of the jar's first account.
+        val authUser = loginAuthUser(accountId)
         val detected = channels.map { channel -> YouTubeProfile(
             profileId(channel.pageId, channel.dataSyncId, channel.name), channel.name, channel.subtitle,
             channel.thumbnailUrl, channel.pageId, channel.dataSyncId,
+            authUser = authUser,
             isBrandAccount = channel.pageId != null,
         ) }
         // A profile captured before its channel existed carries a provisional,
@@ -4053,7 +4156,16 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         } ?: profiles.firstOrNull()?.profileId
         authStore.upsertSession(current.copy(profiles = profiles, activeProfileId = selected), activate = false)
         _googleAccounts.value = authStore.sessions
+        if (offerProfileChoiceFor == accountId) {
+            offerProfileChoiceFor = null
+            if (profiles.size > 1) _profileChoice.tryEmit(accountId)
+        }
     }
+
+    /** Which signed-in account in the browser's cookie jar this login is (`X-Goog-AuthUser`). */
+    private fun loginAuthUser(accountId: String): String? =
+        authStore.sessions.firstOrNull { it.accountId == accountId }
+            ?.profiles?.firstNotNullOfOrNull { it.authUser?.takeIf(String::isNotBlank) }
 
     /**
      * Drops everything on screen that belongs to the identity being left.
@@ -4129,6 +4241,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         _coverArtUploading.value = false
         _coverArtOutcome.value = null
         authStore.signOut()
+        com.music.bitchord.auth.NativeGoogleSignIn.uninstall()
         Innertube.cookie = null
         // The mirror image: verdicts reached with a session in hand say nothing
         // about what an anonymous walk will be told, and the clients stood down

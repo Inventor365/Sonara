@@ -1839,4 +1839,8 @@
     <string name="reset_app_message">ようこそ画面を再表示しても、ライブラリ、統計、設定、ログインはそのままです。消去すると、Sonara がこのスマートフォンに保存しているもの（設定、再生統計、ダウンロード、ログイン）をすべて削除して、最初から開きます。</string>
     <string name="reset_app_welcome">ようこそ画面をもう一度表示</string>
     <string name="reset_app_erase">すべて消去して最初から</string>
+    <string name="native_sign_in">スマートフォンの Google アカウントでログイン</string>
+    <string name="native_sign_in_subtitle">Google のシートでワンタップ、パスワード不要。Sonara の Google ログイン設定が必要です。それまではウェブでログインします</string>
+    <string name="native_sign_in_working">Google でログインしています…</string>
+    <string name="native_sign_in_fallback">Google ログインを使えないため、ウェブのログインを開きました</string>
 </resources>

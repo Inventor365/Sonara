@@ -1911,4 +1911,8 @@
     <string name="reset_app_message">Приветствие сохранит библиотеку, статистику, настройки и входы. Стирание удалит всё, что Sonara хранит на этом телефоне (настройки, статистику прослушивания, загрузки и входы), и откроет приложение заново.</string>
     <string name="reset_app_welcome">Показать приветствие снова</string>
     <string name="reset_app_erase">Стереть всё и начать заново</string>
+    <string name="native_sign_in">Войти с аккаунтом Google телефона</string>
+    <string name="native_sign_in_subtitle">Окно самого Google, одно касание, без пароля. Нужна настроенная авторизация Google для Sonara; до тех пор Sonara входит через веб</string>
+    <string name="native_sign_in_working">Вход через Google…</string>
+    <string name="native_sign_in_fallback">Вход через Google недоступен, поэтому открыт вход через веб</string>
 </resources>

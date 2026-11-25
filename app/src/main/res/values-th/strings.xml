@@ -1845,4 +1845,8 @@
     <string name="reset_app_message">การแสดงหน้าต้อนรับอีกครั้งจะเก็บคลังเพลง สถิติ การตั้งค่า และการลงชื่อเข้าใช้ไว้ การลบจะล้างทุกอย่างที่ Sonara เก็บไว้ในโทรศัพท์นี้ (การตั้งค่า สถิติการฟัง ดาวน์โหลด และการลงชื่อเข้าใช้) แล้วเปิดใหม่</string>
     <string name="reset_app_welcome">แสดงหน้าต้อนรับอีกครั้ง</string>
     <string name="reset_app_erase">ลบทุกอย่างแล้วเริ่มใหม่</string>
+    <string name="native_sign_in">ลงชื่อเข้าใช้ด้วยบัญชี Google ในโทรศัพท์</string>
+    <string name="native_sign_in_subtitle">หน้าต่างของ Google เอง แตะครั้งเดียว ไม่ต้องใช้รหัสผ่าน ต้องตั้งค่าการลงชื่อเข้าใช้ Google ของ Sonara ก่อน ระหว่างนี้ Sonara ใช้การลงชื่อเข้าใช้ทางเว็บ</string>
+    <string name="native_sign_in_working">กำลังลงชื่อเข้าใช้ด้วย Google…</string>
+    <string name="native_sign_in_fallback">ใช้การลงชื่อเข้าใช้ Google ไม่ได้ จึงเปิดการลงชื่อเข้าใช้ทางเว็บแทน</string>
 </resources>

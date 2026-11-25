@@ -90,13 +90,13 @@ class AuthStore(context: Context) {
         replaceSessions(remaining)
         val fallback = remaining.firstOrNull()
         select(fallback?.accountId.orEmpty(), fallback?.activeProfileId)
-        prefs.edit().putString(KEY_COOKIE, fallback?.cookie).apply()
+        prefs.edit().putString(KEY_COOKIE, fallback?.cookie?.takeIf { it.isNotBlank() }).apply()
         BrowserSession.clearGoogleCookies()
         return fallback
     }
 
     val isSignedIn: Boolean
-        get() = activeSession?.cookie?.let { hasApiSid(it) } == true
+        get() = activeSession?.let { it.native || hasApiSid(it.cookie) } == true
 
     /** The Discord account's bearer token. See DiscordRPC for why a user token. */
     var discordToken: String?

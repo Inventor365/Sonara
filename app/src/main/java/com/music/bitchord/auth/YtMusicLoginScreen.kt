@@ -34,15 +34,15 @@ private const val TAG = "BitChord"
  * In-app Google sign-in for YouTube Music, and the way to change which channel
  * it listens as.
  *
- * [WebSessionMode.SIGN_IN] loads the standard Google web login with
- * `continue=music.youtube.com`. The user authenticates directly against
- * accounts.google.com (2FA, passkeys etc. all work — it's the real page). When
- * Google redirects back to music.youtube.com the listener confirms the profile
- * shown by the live page. This deliberately leaves a multiple-channel account
- * enough time to choose its Personal or Brand identity before anything is
- * saved. The browser's local Google cookies are cleared on the way in without
- * visiting Google's logout endpoint, so adding an account cannot invalidate a
- * previously saved session.
+ * [WebSessionMode.SIGN_IN] starts with Android's own account chooser, then loads
+ * Google's web login for the chosen account (see [DeviceGoogleAccounts]). The
+ * user authenticates directly against accounts.google.com (2FA, passkeys etc.
+ * all work — it's the real page); an account the in-app browser is still
+ * signed in to goes straight through. When Google lands on music.youtube.com as
+ * that account, the session is taken there and then, and which of the
+ * account's channels to act as is chosen afterwards in the app's profile
+ * sheet. The browser's Google logins are kept between sign-ins, as in any
+ * browser; signing out clears them.
  *
  * [WebSessionMode.SWITCH_CHANNEL] keeps those cookies and opens YouTube Music
  * itself, so the listener can use the avatar menu's own Accounts list — the one
@@ -78,10 +78,9 @@ fun YtMusicLoginScreen(
      */
     useDeviceAccounts: Boolean = true,
     /**
-     * Told when a sign-in is being taken without "Use this profile": in [WebSessionMode.SIGN_IN],
-     * an account that turns out to have a single channel has nothing to choose, so its session is
-     * taken as soon as it lands. An account with brand channels still waits for the listener; see
-     * [channelCount].
+     * Told when a sign-in is being taken without "Use this profile": in [WebSessionMode.SIGN_IN]
+     * the session is taken as soon as YouTube Music lands signed in, and the channel is chosen
+     * afterwards in the app (see MainViewModel.profileChoice).
      */
     onAutoConfirming: () -> Unit = {},
 ) {
@@ -131,15 +130,18 @@ fun YtMusicLoginScreen(
         if (captureRequest == 0) return@LaunchedEffect
         val view = webView
         if (view == null) currentOnUnavailable()
-        else captureFrom(view, currentOnCaptured, currentOnUnavailable)
+        else captureFrom(view, DeviceGoogleAccounts.hintedEmail(startUrl), currentOnCaptured, currentOnUnavailable)
     }
 
     AndroidView(
         modifier = modifier.fillMaxSize(),
         factory = { context ->
-            if (mode == WebSessionMode.SIGN_IN) {
-                BrowserSession.clearGoogleCookies()
-            } else initialCookie?.let(BrowserSession::installGoogleCookies)
+            // A sign-in keeps the Google logins the in-app browser already has, as any browser
+            // does: an account added before goes straight through with no password, and adding
+            // another one doesn't start from scratch. The chosen account is named in the login
+            // (login_hint) and in where it lands (authuser), so a login the browser holds for
+            // someone else is never what gets taken. Signing out clears them (AuthStore).
+            if (mode != WebSessionMode.SIGN_IN) initialCookie?.let(BrowserSession::installGoogleCookies)
             WebView(context).apply {
                 if (mode == WebSessionMode.SIGN_IN) {
                     clearCache(true)
@@ -162,16 +164,14 @@ fun YtMusicLoginScreen(
                         ) {
                             view.evaluateJavascript(AUTO_CONTINUE, null)
                         }
-                        // Reaching the Music origin only enables confirmation.
-                        // A multi-channel login can still be waiting for the
-                        // listener to choose an identity on this very page.
-                        // Capturing automatically here is the race that used to
-                        // create a fake "Personal" profile and close too soon.
                         val ready = url?.startsWith(MUSIC_ORIGIN) == true
                         currentOnPageReady(ready)
-                        // One account, one channel: nothing to choose, so no "Use this profile".
-                        // Asked of YouTube itself (accounts_list) from the signed-in page, never
-                        // guessed; any doubt leaves the button for the listener.
+                        // Signed in: take the session without "Use this profile". Which channel to
+                        // act as is chosen afterwards in the app's own profile sheet, which lists
+                        // every channel the account has (see MainViewModel.profileChoice) — never
+                        // on this page, where a capture racing the choice used to take the wrong
+                        // one. The page's own readiness is asked of YouTube (accounts_list), not
+                        // guessed from the address: a redirect that hasn't signed in yet waits.
                         if (ready && autoConfirm && !autoAnswered && !probing && view != null) {
                             probing = true
                             scope.launch {
@@ -179,10 +179,8 @@ fun YtMusicLoginScreen(
                                 probing = false
                                 if (count == null) return@launch // not signed in yet: try on the next page
                                 autoAnswered = true
-                                if (count == 1) {
-                                    currentOnAutoConfirming()
-                                    captureFrom(view, currentOnCaptured, currentOnUnavailable)
-                                }
+                                currentOnAutoConfirming()
+                                captureFrom(view, DeviceGoogleAccounts.hintedEmail(startUrl), currentOnCaptured, currentOnUnavailable)
                             }
                         }
                     }
@@ -210,6 +208,8 @@ fun YtMusicLoginScreen(
  */
 private fun captureFrom(
     view: WebView,
+    /** The account the listener chose on the phone, which the session has to be. */
+    expectedEmail: String?,
     onCaptured: (CapturedSession) -> Unit,
     onUnavailable: () -> Unit,
 ) {
@@ -245,6 +245,7 @@ private fun captureFrom(
                 visitorData = config.string("visitorData"),
                 clientVersion = config.string("clientVersion"),
                 loggedIn = true,
+                expectedEmail = expectedEmail,
             ),
         )
     }

@@ -147,6 +147,75 @@ object Innertube {
         }
 
     /**
+     * An OAuth access token, for an account signed in with the phone's own Google sign-in (Google
+     * Play services) rather than through the web: requests then carry `Authorization: Bearer`
+     * instead of [cookie], as ytmusicapi's OAuth does. Only read while [cookie] is null — a web
+     * session always wins. The channel is the one picked on Google's consent screen, which the
+     * token is bound to, so there is no `X-Goog-PageId` or `onBehalfOfUser` to send with it.
+     */
+    @Volatile
+    var bearer: String? = null
+        set(value) {
+            if (field != value && cookie == null) {
+                scope = null
+                visitorData = null
+                visitorDataIsSessionBound = false
+                channelOverride = null
+            }
+            field = value
+        }
+
+    /** Mints a fresh [bearer] once Google answers 401 to an expired one; null when it can't. */
+    @Volatile
+    var refreshBearer: (suspend () -> String?)? = null
+
+    private val bearerLock = Mutex()
+
+    /**
+     * Fetches the first token of a native sign-in, if there is one and it hasn't been fetched:
+     * after a restart the account is known but its token isn't, and the first request would
+     * otherwise go out as nobody.
+     */
+    private suspend fun ensureBearer() {
+        if (cookie != null || bearer != null) return
+        val refresh = refreshBearer ?: return
+        bearerLock.withLock {
+            if (cookie != null || bearer != null) return
+            runCatching { refresh() }
+                .onFailure { Log.w(TAG, "could not fetch a token for the native sign-in: ${it.message}") }
+                .getOrNull()?.let { bearer = it }
+        }
+    }
+
+    /** Whether a native sign-in is in place, whether or not its token is in hand yet. */
+    private val hasNativeSession: Boolean get() = cookie == null && (bearer != null || refreshBearer != null)
+
+    /** The bearer to sign with: only for a native sign-in, never alongside a web session. */
+    private val activeBearer: String? get() = if (cookie == null) bearer else null
+
+    /** `Authorization: Bearer` for a native sign-in; false when there is none to send. */
+    private fun HttpRequestBuilder.bearerHeaders(): Boolean {
+        val token = activeBearer ?: return false
+        header("Authorization", "Bearer $token")
+        header("X-Goog-Request-Time", (System.currentTimeMillis() / 1000).toString())
+        return true
+    }
+
+    /**
+     * Runs [request] once more with a fresh token when a native sign-in's token was refused as
+     * expired (401). Anything else, and any web session, is the caller's to handle as before.
+     */
+    private suspend fun <T> withFreshBearer(request: suspend () -> T): T = try {
+        request()
+    } catch (e: ResponseException) {
+        val expired = e.response.status.value == 401 && activeBearer != null
+        val fresh = if (expired) runCatching { refreshBearer?.invoke() }.getOrNull() else null
+        if (fresh == null || fresh == bearer) throw e
+        bearer = fresh
+        request()
+    }
+
+    /**
      * Google's per-session visitor id.
      *
      * Far more load-bearing than "an id for stats". A `player` request that
@@ -861,7 +930,7 @@ object Innertube {
      * timestamp one revision old, it does not.
      */
     suspend fun playbackTracking(videoId: String, signatureTimestamp: Int?): PlaybackTracking? {
-        if (cookie == null) return null
+        if (cookie == null && !hasNativeSession) return null
         ensureSessionScope()
         val response = postMusic("player") {
             put("videoId", videoId)
@@ -1003,7 +1072,7 @@ object Innertube {
             header("X-Goog-AuthUser", authUserFor(session))
             pageIdFor(session)?.let { header("X-Goog-PageId", it) }
             sapisidFrom(c)?.let { header("Authorization", sapisidHash(it)) }
-        }
+        } ?: bearerHeaders()
     }
 
     // ---- Writes -------------------------------------------------------------
@@ -1017,7 +1086,7 @@ object Innertube {
     class NotSignedInException : IllegalStateException("Sign in to YouTube Music to do that")
 
     private fun requireSession() {
-        if (cookie == null) throw NotSignedInException()
+        if (cookie == null && !hasNativeSession) throw NotSignedInException()
     }
 
     /**
@@ -1882,7 +1951,7 @@ object Innertube {
                     header("X-Goog-AuthUser", authUserFor(session))
                     pageIdFor(session)?.let { header("X-Goog-PageId", it) }
                     sapisidFrom(c)?.let { header("Authorization", sapisidHash(it, origin = origin)) }
-                }
+                } ?: bearerHeaders()
                 setBody(
                     buildJsonObject {
                         putJsonObject("context") {
@@ -2014,6 +2083,7 @@ object Innertube {
         bodyExtras: JsonObjectBuilder.() -> Unit,
     ): JsonObject {
         val hl = language ?: currentLanguage
+        ensureBearer()
         // This is the common authenticated request path: Home, Library,
         // likes, playlists, account menus and all their continuations pass
         // through it. Waiting here makes restoration process-wide rather than
@@ -2048,7 +2118,7 @@ object Innertube {
                     header("X-Goog-AuthUser", authUserFor(session))
                     pageIdFor(session)?.let { header("X-Goog-PageId", it) }
                     sapisidFrom(c)?.let { header("Authorization", sapisidHash(it)) }
-                }
+                } ?: bearerHeaders()
                 setBody(
                     buildJsonObject {
                         putJsonObject("context") {
@@ -2066,7 +2136,9 @@ object Innertube {
                                 // `onBehalfOfUser` it cannot tie to the cookie
                                 // with 401, so a guess here would take the
                                 // whole app down rather than just history.
-                                if (includeOnBehalfOfUser) {
+                                // Never for a native sign-in: its token is already bound
+                                // to the channel picked on Google's consent screen.
+                                if (includeOnBehalfOfUser && activeBearer == null) {
                                     dataSyncIdFor(session)?.let { put("onBehalfOfUser", it) }
                                 }
                             }
@@ -2078,7 +2150,7 @@ object Innertube {
             }.body<JsonObject>()
         }
 
-        val response = if (retry) withRetry(block = request) else request()
+        val response = withFreshBearer { if (retry) withRetry(block = request) else request() }
         if (visitorData == null) {
             visitorData = response["responseContext"]?.jsonObject
                 ?.get("visitorData")?.jsonPrimitive?.content

@@ -1806,4 +1806,8 @@
     <string name="reset_app_message">Rivedere il benvenuto mantiene libreria, statistiche, impostazioni e accessi. Cancellare rimuove tutto ciò che Sonara conserva su questo telefono (impostazioni, statistiche di ascolto, download e accessi), poi lo riapre da zero.</string>
     <string name="reset_app_welcome">Mostra di nuovo il benvenuto</string>
     <string name="reset_app_erase">Cancella tutto e ricomincia</string>
+    <string name="native_sign_in">Accedi con l’account Google del telefono</string>
+    <string name="native_sign_in_subtitle">Il pannello di Google, un tocco, senza password. Serve che l’accesso Google di Sonara sia configurato; fino ad allora Sonara usa l’accesso web</string>
+    <string name="native_sign_in_working">Accesso con Google…</string>
+    <string name="native_sign_in_fallback">L’accesso Google non è disponibile, quindi si è aperto l’accesso web</string>
 </resources>

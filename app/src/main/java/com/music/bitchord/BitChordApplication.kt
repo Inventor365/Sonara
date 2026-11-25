@@ -137,8 +137,14 @@ class BitChordApplication : Application(), SingletonImageLoader.Factory, Configu
         if (restoredSession != null && authStore.activeAccountId == null) {
             authStore.select(restoredSession.accountId, restoredSession.activeProfileId)
         }
-        authStore.cookie = restoredSession?.cookie
-        Innertube.cookie = restoredSession?.cookie
+        // A native Google sign-in has no cookie: its requests carry a token from Play services,
+        // fetched when the first request needs it (Innertube.refreshBearer).
+        val restoredCookie = restoredSession?.cookie?.takeIf { it.isNotBlank() }
+        authStore.cookie = restoredCookie
+        Innertube.cookie = restoredCookie
+        if (restoredSession?.native == true && restoredSession.email.isNotBlank()) {
+            com.music.bitchord.auth.NativeGoogleSignIn.install(this, restoredSession.email)
+        }
         // Which account that cookie actually acts as. Read here rather than on
         // demand so the answer is usually in hand before the first request needs
         // it: a play registered under the wrong account is indistinguishable, to

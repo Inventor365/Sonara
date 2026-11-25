@@ -58,6 +58,18 @@ object DeviceGoogleAccounts {
      */
     fun prefilledLoginUrl(email: String): String {
         val e = java.net.URLEncoder.encode(email, Charsets.UTF_8.name())
-        return "$LOGIN_URL&login_hint=$e&Email=$e"
+        // No `prompt=select_account` here: the account is already chosen. If the in-app browser is
+        // still signed in to it (it was added before), Google goes straight through with no
+        // password. And YouTube Music opens as that account (`authuser=<email>`), not as
+        // whichever account the browser holds first: with several signed in, the first is
+        // what a plain music.youtube.com would show.
+        val home = java.net.URLEncoder.encode("https://music.youtube.com/?authuser=$email", Charsets.UTF_8.name())
+        return "https://accounts.google.com/ServiceLogin?ltmpl=music&service=youtube" +
+            "&continue=$home&login_hint=$e&Email=$e"
     }
+
+    /** The address a captured session must belong to, from a login URL built here; null for the plain login. */
+    fun hintedEmail(url: String?): String? =
+        url?.let { Regex("[?&]login_hint=([^&]+)").find(it)?.groupValues?.get(1) }
+            ?.let { java.net.URLDecoder.decode(it, Charsets.UTF_8.name()) }
 }

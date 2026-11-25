@@ -43,6 +43,11 @@ data class CapturedSession(
     val clientVersion: String?,
     /** Whether the page reported itself signed in at all. */
     val loggedIn: Boolean,
+    /**
+     * The Google account the listener picked on the phone, when they did. A session that turns
+     * out to belong to another account is refused rather than saved as the wrong one.
+     */
+    val expectedEmail: String? = null,
 )
 
 /**
@@ -115,11 +120,16 @@ object BrowserSession {
                 // `.google.com` is not removed by expiring it on the host, and
                 // which of the two a given cookie used is not recorded here.
                 val expired = "$name=; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0"
-                manager.setCookie(origin, "$expired; Path=/")
-                manager.setCookie(origin, "$expired; Path=/; Domain=$host")
-                manager.setCookie(origin, "$expired; Path=/; Domain=.$host")
-                manager.setCookie(origin, "$expired; Path=/accounts")
-                manager.setCookie(origin, "$expired; Path=/ServiceLogin")
+                // Each form twice, with and without Secure. A `__Secure-` or `__Host-`
+                // cookie can only be set — and so only expired — with Secure, and
+                // those are the ones that carry Google's login (`__Secure-1PSID`,
+                // `__Secure-3PSID`, `__Host-GAPS`). Without it the browser rejects the
+                // expiry and the old login survives the "clear": the next sign-in
+                // then lands as the account just left instead of the one chosen.
+                for (scope in listOf("Path=/", "Path=/; Domain=$host", "Path=/; Domain=.$host", "Path=/accounts", "Path=/ServiceLogin")) {
+                    manager.setCookie(origin, "$expired; $scope")
+                    manager.setCookie(origin, "$expired; $scope; Secure")
+                }
                 cleared++
             }
         }

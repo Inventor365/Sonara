@@ -1780,4 +1780,8 @@
     <string name="reset_app_message">Xem lại màn hình chào mừng vẫn giữ thư viện, thống kê, cài đặt và đăng nhập. Xóa sẽ gỡ mọi thứ Sonara lưu trên điện thoại này (cài đặt, thống kê nghe, bản tải xuống và đăng nhập), rồi mở lại từ đầu.</string>
     <string name="reset_app_welcome">Hiện lại màn hình chào mừng</string>
     <string name="reset_app_erase">Xóa hết và bắt đầu lại</string>
+    <string name="native_sign_in">Đăng nhập bằng tài khoản Google trên điện thoại</string>
+    <string name="native_sign_in_subtitle">Bảng của chính Google, một chạm, không cần mật khẩu. Cần thiết lập đăng nhập Google cho Sonara; trước đó Sonara dùng đăng nhập trên web</string>
+    <string name="native_sign_in_working">Đang đăng nhập bằng Google…</string>
+    <string name="native_sign_in_fallback">Không dùng được đăng nhập Google nên đã mở đăng nhập trên web</string>
 </resources>

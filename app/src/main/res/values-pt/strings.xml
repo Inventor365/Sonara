@@ -1872,4 +1872,8 @@
     <string name="reset_app_message">Ver as boas-vindas mantém sua biblioteca, estatísticas, configurações e logins. Apagar remove tudo o que o Sonara guarda neste celular (configurações, estatísticas de audição, downloads e logins) e o abre do zero.</string>
     <string name="reset_app_welcome">Mostrar as boas-vindas de novo</string>
     <string name="reset_app_erase">Apagar tudo e começar do zero</string>
+    <string name="native_sign_in">Entrar com a conta Google do celular</string>
+    <string name="native_sign_in_subtitle">A janela do próprio Google, um toque, sem senha. Requer o login do Google do Sonara configurado; até lá, o Sonara usa o login pela web</string>
+    <string name="native_sign_in_working">Entrando com o Google…</string>
+    <string name="native_sign_in_fallback">O login do Google não está disponível, então o login pela web foi aberto</string>
 </resources>

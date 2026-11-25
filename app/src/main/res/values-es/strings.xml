@@ -1839,4 +1839,8 @@
     <string name="reset_app_message">Ver la bienvenida conserva tu biblioteca, estadísticas, ajustes e inicios de sesión. Borrar elimina todo lo que Sonara guarda en este teléfono (ajustes, estadísticas de escucha, descargas e inicios de sesión) y lo abre desde cero.</string>
     <string name="reset_app_welcome">Mostrar otra vez la bienvenida</string>
     <string name="reset_app_erase">Borrarlo todo y empezar de cero</string>
+    <string name="native_sign_in">Iniciar sesión con la cuenta de Google del teléfono</string>
+    <string name="native_sign_in_subtitle">La hoja propia de Google, un toque, sin contraseña. Requiere configurar el inicio de sesión de Google de Sonara; hasta entonces Sonara usa el inicio de sesión web</string>
+    <string name="native_sign_in_working">Iniciando sesión con Google…</string>
+    <string name="native_sign_in_fallback">El inicio de sesión de Google no está disponible, así que se abrió el inicio de sesión web</string>
 </resources>

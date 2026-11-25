@@ -85,6 +85,7 @@ import androidx.compose.material.icons.rounded.Upgrade
 import com.music.bitchord.data.listentogether.ServerConnectionState
 import com.music.bitchord.ui.haptics.Haptic
 import com.music.bitchord.ui.haptics.rememberHaptics
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -102,6 +103,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.SideEffect
@@ -851,6 +853,8 @@ private fun BitChordApp(
     var showAppLanguage by remember { mutableStateOf(false) }
     var showTranslationLanguage by remember { mutableStateOf(false) }
     var showAccountSelector by remember { mutableStateOf(false) }
+    // A sign-in to an account with several channels: its profiles, in the app's own sheet.
+    ProfileChoiceOpener(viewModel) { showAccountSelector = true }
     var showListenBrainzLogin by remember { mutableStateOf(false) }
     var showLastfmLogin by remember { mutableStateOf(false) }
     var showWebDavEditor by remember { mutableStateOf(false) }
@@ -7850,6 +7854,25 @@ private fun YtMusicSignInOverlay(
     onSignedIn: () -> Unit,
 ) {
     BackHandler { onClose() }
+    val context = LocalContext.current
+    // The phone's own Google sign-in first, when switched on: Google's sheet of the accounts on
+    // this phone, one tap, no web page. Anything it can't do falls back to the web sign-in below.
+    val nativeEnabled = remember { AppSettings.nativeGoogleSignIn.value }
+    var tryNative by remember(mode) {
+        mutableStateOf(mode == WebSessionMode.SIGN_IN && nativeEnabled && com.music.bitchord.auth.NativeGoogleSignIn.available(context))
+    }
+    if (tryNative) {
+        NativeSignInStep(
+            viewModel = viewModel,
+            onDone = {
+                onClose()
+                onSignedIn()
+            },
+            onFallback = { tryNative = false },
+            onClose = onClose,
+        )
+        return
+    }
     // Raised by "Use this channel", read by the browser as "take the
     // session from the page as it now stands". A counter rather than a
     // flag so a second tap, after a failed first one, is still a new
@@ -7975,4 +7998,78 @@ private fun UpdateNoticeHost(update: AppUpdateChecker.UpdateInfo, hazeState: Haz
             onClose()
         },
     )
+}
+
+/**
+ * Opens the account sheet when a fresh sign-in turns out to have more than one channel, so the
+ * listener picks the profile there, in one tap, rather than on YouTube's page. Its own function to
+ * keep the app's main composable under the JVM's method size limit.
+ */
+@Composable
+private fun ProfileChoiceOpener(viewModel: MainViewModel, open: () -> Unit) {
+    val currentOpen by rememberUpdatedState(open)
+    LaunchedEffect(viewModel) {
+        viewModel.profileChoice.collect { currentOpen() }
+    }
+}
+
+/**
+ * The phone's own Google sign-in: Google Play services' sheet lists the accounts on this phone and
+ * one tap signs in (see NativeGoogleSignIn). A token YouTube Music refuses, or a build Google
+ * hasn't been told about, hands over to the web sign-in with a word about why.
+ */
+@Composable
+private fun NativeSignInStep(
+    viewModel: MainViewModel,
+    onDone: () -> Unit,
+    onFallback: () -> Unit,
+    onClose: () -> Unit,
+) {
+    val context = LocalContext.current
+    val fallbackMessage = stringResource(R.string.native_sign_in_fallback)
+    var outcome by remember { mutableStateOf<com.music.bitchord.auth.NativeGoogleSignIn.Outcome?>(null) }
+    val consent = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult(),
+    ) { result ->
+        outcome = if (result.resultCode == android.app.Activity.RESULT_OK) {
+            com.music.bitchord.auth.NativeGoogleSignIn.fromIntent(context, result.data)
+        } else {
+            com.music.bitchord.auth.NativeGoogleSignIn.Outcome.Cancelled
+        }
+    }
+    LaunchedEffect(Unit) { outcome = com.music.bitchord.auth.NativeGoogleSignIn.authorize(context, null) }
+    LaunchedEffect(outcome) {
+        val fallBack = {
+            Toast.makeText(context, fallbackMessage, Toast.LENGTH_LONG).show()
+            onFallback()
+        }
+        when (val result = outcome) {
+            null -> Unit
+            is com.music.bitchord.auth.NativeGoogleSignIn.Outcome.NeedsConsent -> runCatching {
+                consent.launch(androidx.activity.result.IntentSenderRequest.Builder(result.intent).build())
+            }.onFailure { fallBack() }
+            is com.music.bitchord.auth.NativeGoogleSignIn.Outcome.Granted ->
+                viewModel.onNativeSignIn(result.accessToken, result.email) { accepted ->
+                    if (accepted) onDone() else fallBack()
+                }
+            com.music.bitchord.auth.NativeGoogleSignIn.Outcome.Cancelled -> onClose()
+            com.music.bitchord.auth.NativeGoogleSignIn.Outcome.NotConfigured,
+            is com.music.bitchord.auth.NativeGoogleSignIn.Outcome.Failed -> fallBack()
+        }
+    }
+    Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            Spacer(Modifier.height(16.dp))
+            Text(
+                stringResource(R.string.native_sign_in_working),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
 }

@@ -1712,4 +1712,8 @@
     <string name="reset_app_message">시작 화면만 다시 보면 보관함, 통계, 설정, 로그인은 그대로예요. 지우면 Sonara가 이 휴대폰에 저장한 모든 것(설정, 감상 통계, 다운로드, 로그인)을 삭제하고 새로 열어요.</string>
     <string name="reset_app_welcome">시작 화면 다시 보기</string>
     <string name="reset_app_erase">모두 지우고 새로 시작</string>
+    <string name="native_sign_in">휴대폰의 Google 계정으로 로그인</string>
+    <string name="native_sign_in_subtitle">Google 자체 시트, 한 번 탭, 비밀번호 없음. Sonara의 Google 로그인 설정이 필요하며, 그 전까지는 웹 로그인을 사용해요</string>
+    <string name="native_sign_in_working">Google로 로그인하는 중…</string>
+    <string name="native_sign_in_fallback">Google 로그인을 쓸 수 없어 웹 로그인을 열었어요</string>
 </resources>

@@ -1752,4 +1752,8 @@
     <string name="reset_app_message">Showing the welcome again keeps your library, stats, settings and sign-ins. Erasing removes everything Sonara keeps on this phone (settings, listening stats, downloads and sign-ins), then opens it fresh.</string>
     <string name="reset_app_welcome">Show the welcome screen again</string>
     <string name="reset_app_erase">Erase everything and start fresh</string>
+    <string name="native_sign_in">Sign in with the phone\'s Google account</string>
+    <string name="native_sign_in_subtitle">Google\'s own sheet, one tap, no password. Needs Sonara\'s Google sign-in to be set up; until then Sonara uses the web sign-in</string>
+    <string name="native_sign_in_working">Signing in with Google…</string>
+    <string name="native_sign_in_fallback">Google sign-in isn\'t available, so the web sign-in opened instead</string>
 </resources>

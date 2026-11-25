@@ -2563,6 +2563,20 @@ fun SettingsScreen(
                     }
                 }
             }
+            // The phone's own Google sign-in, ahead of the web one, once Sonara's OAuth client exists.
+            val nativeSignInTitle = stringResource(R.string.native_sign_in)
+            row(nativeSignInTitle, "google", "sign in", "account", "play services", "one tap") {
+                val nativeSignIn by AppSettings.nativeGoogleSignIn.collectAsStateWithLifecycle()
+                SettingsRow(
+                    icon = SfIcons.AccountPlaceholder,
+                    title = nativeSignInTitle,
+                    subtitle = stringResource(R.string.native_sign_in_subtitle),
+                    trailing = {
+                        IosSwitch(checked = nativeSignIn, onCheckedChange = AppSettings::setNativeGoogleSignIn)
+                    },
+                    onClick = { AppSettings.setNativeGoogleSignIn(!nativeSignIn) },
+                )
+            }
             // A way back to a fresh start: the welcome screen alone, or everything on this phone.
             val resetTitle = stringResource(R.string.reset_app)
             row(resetTitle, "reset", "welcome", "onboarding", "start over", "erase", "clear data") {

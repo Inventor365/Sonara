@@ -1856,4 +1856,8 @@
     <string name="reset_app_message">僅重新顯示歡迎頁面會保留你的資料庫、統計、設定和登入。清除會刪除 Sonara 在這支手機上儲存的所有內容（設定、收聽統計、下載和登入），然後重新開啟。</string>
     <string name="reset_app_welcome">重新顯示歡迎頁面</string>
     <string name="reset_app_erase">清除全部並重新開始</string>
+    <string name="native_sign_in">使用手機上的 Google 帳戶登入</string>
+    <string name="native_sign_in_subtitle">Google 自己的面板，一次輕觸，無需密碼。需要先為 Sonara 設定 Google 登入；在此之前 Sonara 使用網頁登入</string>
+    <string name="native_sign_in_working">正在使用 Google 登入…</string>
+    <string name="native_sign_in_fallback">Google 登入無法使用，已改為開啟網頁登入</string>
 </resources>

@@ -1919,4 +1919,8 @@
     <string name="reset_app_message">Ekran powitalny zachowuje bibliotekę, statystyki, ustawienia i logowania. Wyczyszczenie usuwa wszystko, co Sonara przechowuje na tym telefonie (ustawienia, statystyki słuchania, pobrane pliki i logowania), a potem otwiera ją od nowa.</string>
     <string name="reset_app_welcome">Pokaż ekran powitalny ponownie</string>
     <string name="reset_app_erase">Wyczyść wszystko i zacznij od nowa</string>
+    <string name="native_sign_in">Zaloguj się kontem Google z telefonu</string>
+    <string name="native_sign_in_subtitle">Okno Google, jedno dotknięcie, bez hasła. Wymaga skonfigurowanego logowania Google dla Sonary; do tego czasu Sonara używa logowania w przeglądarce</string>
+    <string name="native_sign_in_working">Logowanie przez Google…</string>
+    <string name="native_sign_in_fallback">Logowanie Google jest niedostępne, więc otwarto logowanie w przeglądarce</string>
 </resources>

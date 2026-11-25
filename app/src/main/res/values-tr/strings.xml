@@ -1850,4 +1850,8 @@
     <string name="reset_app_message">Karşılamayı yeniden göstermek kitaplığını, istatistiklerini, ayarlarını ve oturumlarını korur. Silmek, Sonara’nın bu telefonda tuttuğu her şeyi (ayarlar, dinleme istatistikleri, indirmeler ve oturumlar) kaldırır ve uygulamayı sıfırdan açar.</string>
     <string name="reset_app_welcome">Karşılama ekranını yeniden göster</string>
     <string name="reset_app_erase">Her şeyi sil ve baştan başla</string>
+    <string name="native_sign_in">Telefondaki Google hesabıyla oturum aç</string>
+    <string name="native_sign_in_subtitle">Google’ın kendi penceresi, tek dokunuş, şifre yok. Sonara’nın Google girişinin ayarlanması gerekir; o zamana dek Sonara web girişini kullanır</string>
+    <string name="native_sign_in_working">Google ile oturum açılıyor…</string>
+    <string name="native_sign_in_fallback">Google girişi kullanılamıyor, bu yüzden web girişi açıldı</string>
 </resources>
