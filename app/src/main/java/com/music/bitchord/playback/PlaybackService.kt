@@ -770,6 +770,15 @@ class PlaybackService : MediaLibraryService() {
     private val transitionFilterB = TransitionFilterProcessor()
 
     /**
+     * Karaoke vocal reduction, one per player like the other stages — the
+     * filter history is per sink. Both always receive the same tuning from
+     * [applyKaraoke], so a crossfade can never change the vocal level
+     * mid-handoff.
+     */
+    private val vocalProcessorA = StereoVocalReductionProcessor()
+    private val vocalProcessorB = StereoVocalReductionProcessor()
+
+    /**
      * Loudness normalization, one per player like the other stages — see
      * [LoudnessProcessor] for why it stopped being a single session effect.
      * Paired to the players through [activeFilter]'s role rather than tracked
@@ -1447,6 +1456,10 @@ class PlaybackService : MediaLibraryService() {
             publishNerdStats()
             currentAudioInputFormat = format
             applyOutputRoute()
+            // The new track's channels decide whether the vocal stage can
+            // run at all; the route recompute above does not guarantee a
+            // distinct AudioOutputStatus emission to hang that on.
+            publishKaraokeAvailability()
         }
 
         /**
@@ -2069,6 +2082,7 @@ class PlaybackService : MediaLibraryService() {
             equalizerProcessorA,
             transitionFilterA,
             loudnessA,
+            vocalProcessorA,
             ownsSession = true,
         )
         val sparePlayer = buildPlayer(
@@ -2076,6 +2090,7 @@ class PlaybackService : MediaLibraryService() {
             equalizerProcessorB,
             transitionFilterB,
             loudnessB,
+            vocalProcessorB,
             ownsSession = false,
         )
         player = exoPlayer
@@ -2087,6 +2102,8 @@ class PlaybackService : MediaLibraryService() {
         sparePlayer.audioSessionId = exoPlayer.audioSessionId
         audioManager?.registerAudioDeviceCallback(outputDeviceCallback, null)
         applyOutputRoute()
+        applyKaraoke()
+        publishKaraokeAvailability()
 
         AppSettings.audioSessionId.value = exoPlayer.audioSessionId
         applySettings(exoPlayer)
@@ -4471,9 +4488,10 @@ class PlaybackService : MediaLibraryService() {
         equalizer: EqualizerProcessor,
         filter: TransitionFilterProcessor,
         loudness: LoudnessProcessor,
+        vocal: VocalProcessor,
         ownsSession: Boolean,
     ): ExoPlayer = ExoPlayer.Builder(this)
-        .setRenderersFactory(silenceSkippingRenderers(spatial, equalizer, filter, loudness))
+        .setRenderersFactory(silenceSkippingRenderers(spatial, equalizer, filter, loudness, vocal))
         .setMediaSourceFactory(requireNotNull(mediaSourceFactory))
         .setLoadControl(farBufferingLoadControl())
         .setAudioAttributes(
@@ -4669,6 +4687,9 @@ class PlaybackService : MediaLibraryService() {
         // URI, so a size measured for the last track isn't kept past it.
         measuredBitrateCache.clear()
         AudioOutputStatus.onTrackTransition()
+        // The outgoing track's channel count no longer describes anything
+        // that is playing; the next format callback re-resolves this.
+        publishKaraokeAvailability()
         // The entry this track is read from now counts as played — the only
         // kind the Cached songs folder lists. See [AudioCache.Origin].
         mediaItem?.let { AudioCache.notePlayed(it.toSong(), it.localConfiguration?.uri) }
@@ -7911,6 +7932,7 @@ class PlaybackService : MediaLibraryService() {
         equalizer: EqualizerProcessor,
         transition: TransitionFilterProcessor,
         loudness: LoudnessProcessor,
+        vocal: VocalProcessor,
     ) = object : FfmpegFallbackRenderersFactory(this) {
         init {
             // Do not force PCM_FLOAT onto an OEM speaker mixer merely because
@@ -7983,6 +8005,12 @@ class PlaybackService : MediaLibraryService() {
                 )
                 .build()
 
+            // Vocal reduction in front of everything: it needs the decoder's
+            // original stereo relationship before widening or the listener's
+            // equaliser have changed it — and it must never be the EQ that
+            // gives, because the equaliser belongs to the user and the whole
+            // session, not to one feature.
+            //
             // Transition filtering last of the three: widening is a
             // property of the track, and a bass swap that ran before it
             // would have its own low end fed back in by the crossfeed —
@@ -7991,7 +8019,7 @@ class PlaybackService : MediaLibraryService() {
             // them for the same reason: it belongs to the listener and
             // the whole session, while the transition filter belongs to
             // one handoff and has to have the last word on it.
-            val dspChain = DspChain(spatial, equalizer, transition, loudness)
+            val dspChain = DspChain(spatial, equalizer, transition, loudness, vocal)
             val precision = PrecisionAudioSink(
                 delegate = defaultSink,
                 dspChain = dspChain,
@@ -8247,6 +8275,7 @@ class PlaybackService : MediaLibraryService() {
             equalizerProcessorA,
             transitionFilterA,
             loudnessA,
+            vocalProcessorA,
             ownsSession = true,
         )
         val newSpare = buildPlayer(
@@ -8254,6 +8283,7 @@ class PlaybackService : MediaLibraryService() {
             equalizerProcessorB,
             transitionFilterB,
             loudnessB,
+            vocalProcessorB,
             ownsSession = false,
         )
         player = newActive
@@ -8265,6 +8295,8 @@ class PlaybackService : MediaLibraryService() {
         newActive.repeatMode = repeatMode
         applyEqualizer()
         applySpatialAudioEnabled()
+        applyKaraoke()
+        publishKaraokeAvailability()
         if (items.isNotEmpty()) {
             newActive.setMediaItems(items, index.coerceIn(items.indices), position)
             // By hand, because the listener is attached below this: the
@@ -8506,6 +8538,30 @@ class PlaybackService : MediaLibraryService() {
                 AppSettings.equalizerBands,
             ) { }.collect { applyEqualizer() }
         }
+        scope.launch {
+            // One collector for both Karaoke settings, so an enable/level pair
+            // written together lands on both decks together.
+            combine(
+                AppSettings.karaokeEnabled,
+                AppSettings.karaokeVocalLevel,
+            ) { _, _ -> }.collect {
+                applyKaraoke()
+                publishKaraokeAvailability()
+            }
+        }
+        scope.launch {
+            // What the vocal stage cannot run on, as the routes and formats
+            // move: the output status on track and route changes (including
+            // the sink's own "no decoded PCM to filter"), the bit-perfect
+            // bypass, and the two speakers that play the original stream
+            // rather than this phone's PCM.
+            combine(
+                AudioOutputStatus.current,
+                BitPerfectOutput.status,
+                CastController.state,
+                WearBridge.watchOutput,
+            ) { _, _, _, _ -> }.collect { publishKaraokeAvailability() }
+        }
     }
 
     /**
@@ -8547,6 +8603,46 @@ class PlaybackService : MediaLibraryService() {
         val enabled = AppSettings.spatialAudio.value && !activeTrackIsDolbyAtmos
         spatialAudioProcessorA.enabled = enabled
         spatialAudioProcessorB.enabled = enabled
+    }
+
+    /**
+     * Hands the Karaoke settings to both decks, atomically and identically.
+     *
+     * Both, for the same reason as [applyEqualizer]: the idle player is the
+     * one the next transition starts a song on, and a blend whose two halves
+     * had different vocal levels would change the vocal reduction halfway
+     * through the handoff.
+     *
+     * The level is the user's slider and nothing is derived here — 0 means
+     * maximum reduction and 1 the original mix, and the processor glides
+     * between them so neither the switch nor a drag can click.
+     */
+    private fun applyKaraoke() {
+        val enabled = AppSettings.karaokeEnabled.value
+        val level = AppSettings.karaokeVocalLevel.value
+        vocalProcessorA.setTuning(enabled, level)
+        vocalProcessorB.setTuning(enabled, level)
+    }
+
+    /**
+     * Whether the vocal stage can run on what is actually playing, published
+     * for the player UI. Runtime fact, not preference: Karaoke left enabled
+     * on an incompatible route reads as paused rather than active, and comes
+     * back on its own when a compatible local route returns.
+     *
+     * Recomputed here and from the observers in [observeSettings] on every
+     * track, route, Cast, watch and bit-perfect change — see
+     * [KaraokeProcessingAvailability.resolve] for the ordering of the reasons.
+     */
+    private fun publishKaraokeAvailability() {
+        val channels = currentAudioInputFormat?.channelCount?.takeIf { it > 0 }
+            ?: NerdStats.current.value?.channels?.takeIf { it > 0 }
+        AppSettings.karaokeProcessingAvailability.value = KaraokeProcessingAvailability.resolve(
+            channels = channels,
+            dspAvailable = AudioOutputStatus.current.value.dspAvailable,
+            bitPerfectActive = BitPerfectOutput.status.value.active,
+            remoteOutputActive = CastController.state.value.casting || WearBridge.watchOutput.value.active,
+        )
     }
 
     /**

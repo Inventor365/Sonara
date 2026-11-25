@@ -1775,4 +1775,5 @@
     <string name="widget_no_lyrics" translatable="false">♪ BitChord</string>
     <string name="extend_animated_artwork">Extend animated artwork only</string>
     <string name="extend_animated_artwork_subtitle">Extends animated canvas artwork to the player edges while keeping still covers square</string>
+    <string name="pipeline_karaoke" translatable="false">Karaoke</string>
 </resources>
