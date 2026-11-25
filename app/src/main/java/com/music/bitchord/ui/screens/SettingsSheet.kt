@@ -187,6 +187,7 @@ import com.music.bitchord.data.settings.AudioQuality
 import com.music.bitchord.data.settings.DownloadQuality
 import com.music.bitchord.data.settings.ThemeMode
 import com.music.bitchord.data.settings.AppFont
+import com.music.bitchord.data.settings.AudioFocusOption
 import com.music.bitchord.data.settings.PlayerTheme
 import com.music.bitchord.data.stats.Backup
 import com.music.bitchord.playback.AudioCache
@@ -271,6 +272,7 @@ fun SettingsScreen(
     val skipSilence by AppSettings.skipSilence.collectAsStateWithLifecycle()
     val playbackSpeed by AppSettings.playbackSpeed.collectAsStateWithLifecycle()
     val sleepTimerFadeOut by AppSettings.sleepTimerFadeOut.collectAsStateWithLifecycle()
+    val audioFocusOption by AppSettings.audioFocusOption.collectAsStateWithLifecycle()
     val dolbyAtmos by AppSettings.dolbyAtmos.collectAsStateWithLifecycle()
     val directSourceStream by AppSettings.directSourceStream.collectAsStateWithLifecycle()
     // A property of the hardware, so it is read once rather than remembered
@@ -1139,6 +1141,22 @@ fun SettingsScreen(
                         )
                     },
                     onClick = { AppSettings.setAutoPlayOnBluetoothConnection(!autoPlayOnBluetoothConnection) },
+                )
+            }
+            val audioFocusTitle = stringResource(R.string.audio_focus)
+            row(audioFocusTitle, "focus", "call", "pause", "background", "sound") {
+                SettingsRow(
+                    icon = SfIcons.VolumeUp,
+                    title = audioFocusTitle,
+                    subtitle = when (audioFocusOption) {
+                        AudioFocusOption.AUTO_PAUSE -> stringResource(R.string.audio_focus_auto_pause_subtitle)
+                        AudioFocusOption.KEEP_PLAYING -> stringResource(R.string.audio_focus_keep_playing_subtitle)
+                    },
+                    value = when (audioFocusOption) {
+                        AudioFocusOption.AUTO_PAUSE -> stringResource(R.string.audio_focus_auto_pause)
+                        AudioFocusOption.KEEP_PLAYING -> stringResource(R.string.audio_focus_keep_playing)
+                    },
+                    onClick = { onOpenChoice(SettingsChoiceKind.AUDIO_FOCUS) },
                 )
             }
             val spatialAudioTitle = stringResource(R.string.spatial_audio)
@@ -3995,6 +4013,7 @@ enum class SettingsChoiceKind(@param:StringRes val title: Int) {
     AUTOMIX_PERFORMANCE(R.string.automix_performance),
     BIT_PERFECT(R.string.bit_perfect_output),
     FONT(R.string.font),
+    AUDIO_FOCUS(R.string.audio_focus),
 }
 
 /**
@@ -4244,6 +4263,30 @@ fun SettingsChoicePage(
                     footer = stringResource(R.string.font_footer),
                 ) { font ->
                     AppSettings.setAppFont(font)
+                    onChosen()
+                }
+            }
+
+            SettingsChoiceKind.AUDIO_FOCUS -> {
+                val selected by AppSettings.audioFocusOption.collectAsStateWithLifecycle()
+                ChoiceGroup(
+                    options = AudioFocusOption.entries,
+                    selected = selected,
+                    label = {
+                        when (it) {
+                            AudioFocusOption.AUTO_PAUSE -> stringResource(R.string.audio_focus_auto_pause)
+                            AudioFocusOption.KEEP_PLAYING -> stringResource(R.string.audio_focus_keep_playing)
+                        }
+                    },
+                    detail = {
+                        when (it) {
+                            AudioFocusOption.AUTO_PAUSE -> stringResource(R.string.audio_focus_auto_pause_subtitle)
+                            AudioFocusOption.KEEP_PLAYING -> stringResource(R.string.audio_focus_keep_playing_subtitle)
+                        }
+                    },
+                    footer = stringResource(R.string.audio_focus_footer),
+                ) { option ->
+                    AppSettings.setAudioFocusOption(option)
                     onChosen()
                 }
             }

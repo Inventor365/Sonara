@@ -1762,4 +1762,10 @@
     <string name="lastfm_oauth_description" translatable="false">Authorize BitChord in your web browser to securely connect your Last.fm account without entering your password.</string>
     <string name="lastfm_oauth_waiting" translatable="false">Approve access on Last.fm in your browser, then tap below to finish connecting.</string>
     <string name="lastfm_oauth_error_pending" translatable="false">Authorization not yet completed. Please approve access on Last.fm in your browser and try again.</string>
+    <string name="audio_focus" translatable="false">Audio focus</string>
+    <string name="audio_focus_auto_pause" translatable="false">Auto pause and resume</string>
+    <string name="audio_focus_auto_pause_subtitle" translatable="false">Pause playback whenever other apps start playing audio</string>
+    <string name="audio_focus_keep_playing" translatable="false">Always keep playing</string>
+    <string name="audio_focus_keep_playing_subtitle" translatable="false">Keep music playing in background, only pause for phone calls</string>
+    <string name="audio_focus_footer" translatable="false">Controls how BitChord responds when other applications or phone calls request audio focus.</string>
 </resources>
