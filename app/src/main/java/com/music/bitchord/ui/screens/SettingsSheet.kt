@@ -266,7 +266,6 @@ fun SettingsScreen(
     val networkTransport by AppSettings.networkTransport.collectAsStateWithLifecycle()
     val crossfade by AppSettings.crossfadeSeconds.collectAsStateWithLifecycle()
     val smartFade by AppSettings.smartFadeEnabled.collectAsStateWithLifecycle()
-    val automixPreserveAlbums by AppSettings.automixPreserveAlbums.collectAsStateWithLifecycle()
     val automixModels by AutomixModels.state.collectAsStateWithLifecycle()
     val automixPerformance by AppSettings.automixPerformanceMode.collectAsStateWithLifecycle()
     val skipSilence by AppSettings.skipSilence.collectAsStateWithLifecycle()
@@ -1053,25 +1052,6 @@ fun SettingsScreen(
                         value = automixPerformance.localizedLabel(),
                         onClick = { onOpenChoice(SettingsChoiceKind.AUTOMIX_PERFORMANCE) },
                     )
-                }
-            }
-            if (smartFade) {
-                val automixPreserveAlbumsTitle = stringResource(R.string.automix_preserve_albums)
-                row(automixPreserveAlbumsTitle, "album", "transition", "gapless") {
-                    BypassedByBitPerfect(bitPerfectReady) {
-                        SettingsRow(
-                            icon = SfIcons.Album,
-                            title = automixPreserveAlbumsTitle,
-                            subtitle = stringResource(R.string.automix_preserve_albums_subtitle),
-                            trailing = {
-                                IosSwitch(
-                                    checked = automixPreserveAlbums,
-                                    onCheckedChange = AppSettings::setAutomixPreserveAlbums,
-                                )
-                            },
-                            onClick = { AppSettings.setAutomixPreserveAlbums(!automixPreserveAlbums) },
-                        )
-                    }
                 }
             }
             val skipSilenceTitle = stringResource(R.string.skip_silence)
