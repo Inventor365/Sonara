@@ -160,6 +160,7 @@ suspend fun MediaController.playBoundedContext(
     source: QueueSource,
     continuationToken: String?,
     shuffle: Boolean = QueueShuffle.enabled.value,
+    replaceUpcomingQueue: Boolean = false,
 ) {
     val token = BoundedContextRequests.put(
         BoundedContextRequests.Request(
@@ -168,6 +169,7 @@ suspend fun MediaController.playBoundedContext(
             source = source,
             continuationToken = continuationToken,
             shuffle = shuffle,
+            replaceUpcomingQueue = replaceUpcomingQueue,
         ),
     )
     try {

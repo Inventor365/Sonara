@@ -3631,6 +3631,7 @@ class PlaybackService : MediaLibraryService() {
             queueWindow = window,
             preservedUserQueue = userQueue,
             repeatAll = repeatAll,
+            replaceUpcomingQueue = request.replaceUpcomingQueue,
         )
 
         // Off the main thread: this is the one step here that scales with the
