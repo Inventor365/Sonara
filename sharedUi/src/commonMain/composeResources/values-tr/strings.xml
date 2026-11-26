@@ -390,7 +390,7 @@
     <string name="karaoke_use_normal_output">Normal çıkışı kullan</string>
     <string name="karaoke_vocals">Vokal</string>
     <string name="karaoke_vocals_original">Orijinal</string>
-    <string name="karaoke_vocals_percent">%%%1$d</string>
+    <string name="karaoke_vocals_percent">%%1$d</string>
     <string name="karaoke_vocals_reduced">Azaltılmış</string>
     <string name="karaoke_vocals_slider">Vokal: yüzde %1$d</string>
 </resources>

@@ -388,7 +388,7 @@
     <string name="karaoke_use_normal_output">Usa l’uscita normale</string>
     <string name="karaoke_vocals">Voce</string>
     <string name="karaoke_vocals_original">Originale</string>
-    <string name="karaoke_vocals_percent">%1$d%%</string>
+    <string name="karaoke_vocals_percent">%1$d%</string>
     <string name="karaoke_vocals_reduced">Ridotta</string>
     <string name="karaoke_vocals_slider">Voce: %1$d per cento</string>
 </resources>

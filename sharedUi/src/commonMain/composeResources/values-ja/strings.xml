@@ -388,7 +388,7 @@
     <string name="karaoke_use_normal_output">通常の出力を使う</string>
     <string name="karaoke_vocals">ボーカル</string>
     <string name="karaoke_vocals_original">オリジナル</string>
-    <string name="karaoke_vocals_percent">%1$d%%</string>
+    <string name="karaoke_vocals_percent">%1$d%</string>
     <string name="karaoke_vocals_reduced">抑えめ</string>
     <string name="karaoke_vocals_slider">ボーカル: %1$d パーセント</string>
 </resources>

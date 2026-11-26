@@ -8121,11 +8121,10 @@ private fun NativeSignInStep(
     val consent = androidx.activity.compose.rememberLauncherForActivityResult(
         androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult(),
     ) { result ->
-        outcome = if (result.resultCode == android.app.Activity.RESULT_OK) {
-            com.music.bitchord.auth.NativeGoogleSignIn.fromIntent(context, result.data)
-        } else {
-            com.music.bitchord.auth.NativeGoogleSignIn.Outcome.Cancelled
-        }
+        // Read whatever Google sent back, not just an OK: a refusal (an app Google hasn't been
+        // told about) also comes back as "not OK", and has to fall back to the web sign-in
+        // rather than close as if the listener had backed out.
+        outcome = com.music.bitchord.auth.NativeGoogleSignIn.fromIntent(context, result.data, result.resultCode)
     }
     LaunchedEffect(Unit) { outcome = com.music.bitchord.auth.NativeGoogleSignIn.authorize(context, null) }
     LaunchedEffect(outcome) {

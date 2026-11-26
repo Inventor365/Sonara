@@ -67,9 +67,15 @@ object NativeGoogleSignIn {
         Identity.getAuthorizationClient(context).authorize(request).await().toOutcome()
     }
 
-    /** What Google's sheet returned, once the listener has been through it. */
-    fun fromIntent(context: Context, data: Intent?): Outcome = attemptNow {
-        if (data == null) return@attemptNow Outcome.Cancelled
+    /**
+     * What Google's sheet returned. Its status decides between a listener who backed out
+     * ([Outcome.Cancelled]) and a refusal ([Outcome.NotConfigured], [Outcome.Failed]); an
+     * activity closed with nothing to say counts as backed out only when it wasn't an OK.
+     */
+    fun fromIntent(context: Context, data: Intent?, resultCode: Int = android.app.Activity.RESULT_OK): Outcome = attemptNow {
+        if (data == null) {
+            return@attemptNow if (resultCode == android.app.Activity.RESULT_OK) Outcome.Failed("Google returned nothing") else Outcome.Cancelled
+        }
         Identity.getAuthorizationClient(context).getAuthorizationResultFromIntent(data).toOutcome()
     }
 
