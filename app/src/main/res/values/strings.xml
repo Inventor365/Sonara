@@ -1780,23 +1780,31 @@
     <string name="pipeline_karaoke">Karaoke</string>
     <string name="replay_summary_separator">\u0020</string>
     <string name="replay_summary_suffix">in music.</string>
-    <string name="hide_system_volume_panel" translatable="false">Hide system volume panel in player</string>
-    <string name="hide_system_volume_panel_subtitle" translatable="false">Capture volume keys while the player is open so its slider updates without the system popup</string>
-    <string name="data_usage" translatable="false">Data usage</string>
-    <string name="data_usage_subtitle" translatable="false">Streaming and download data consumed today, this week, and this month</string>
-    <string name="reset" translatable="false">Reset</string>
-    <string name="export_csv" translatable="false">Export as CSV</string>
-    <string name="export_csv_success" translatable="false">Exported %1$d tracks to CSV</string>
-    <string name="export_csv_failed" translatable="false">Failed to export CSV</string>
-    <string name="auto_clear_cache_schedule" translatable="false">Auto-clear cache schedule</string>
-    <string name="auto_clear_cache_schedule_subtitle" translatable="false">Automatically prune old temporary stream, artwork, and Canvas cache without touching offline downloads</string>
-    <string name="auto_clear_cache_size_limit" translatable="false">Auto-clear cache size limit</string>
-    <string name="auto_clear_cache_size_limit_subtitle" translatable="false">Prune oldest cached files once total temporary cache exceeds this limit</string>
-    <string name="hide_from_feed" translatable="false">Hide from feed</string>
-    <string name="hidden_from_feed_toast" translatable="false">Hidden from feed</string>
-    <string name="hidden_feed_items" translatable="false">Hidden feed items</string>
-    <string name="hidden_feed_items_subtitle" translatable="false">Manage artists, albums, playlists, and tracks hidden from your home feed</string>
-    <string name="hidden_feed_items_empty" translatable="false">No hidden items</string>
-    <string name="unhide" translatable="false">Restore</string>
-    <string name="clear_all" translatable="false">Clear all</string>
+    <string name="hide_system_volume_panel">Hide the system volume panel in the player</string>
+    <string name="hide_system_volume_panel_subtitle">The volume keys move the player\'s own slider, without Android\'s volume pop-up</string>
+    <string name="data_usage">Data usage</string>
+    <string name="data_usage_subtitle">What streaming and downloads used today, this week and this month</string>
+    <string name="reset">Reset</string>
+    <string name="export_csv">Export as CSV</string>
+    <string name="export_csv_success">Exported %1$d songs to CSV</string>
+    <string name="export_csv_failed">Couldn\'t export the CSV</string>
+    <string name="auto_clear_cache_schedule">Clear the cache automatically</string>
+    <string name="auto_clear_cache_schedule_subtitle">Clears old stream, artwork and Canvas cache; downloads are never touched</string>
+    <string name="auto_clear_cache_size_limit">Cache size limit</string>
+    <string name="auto_clear_cache_size_limit_subtitle">Clears the oldest cached files once the cache grows past this</string>
+    <string name="hide_from_feed">Hide from Home</string>
+    <string name="hidden_from_feed_toast">Hidden from Home</string>
+    <string name="hidden_feed_items">Hidden from Home</string>
+    <string name="hidden_feed_items_subtitle">Artists, albums, playlists and songs you\'ve hidden from Home</string>
+    <string name="hidden_feed_items_empty">Nothing hidden</string>
+    <string name="unhide">Show again</string>
+    <string name="clear_all">Clear all</string>
+    <string name="cache_clear_every_3_days">Every 3 days</string>
+    <string name="cache_clear_weekly">Weekly</string>
+    <string name="cache_clear_monthly">Monthly</string>
+    <string name="data_usage_today">Today</string>
+    <string name="data_usage_last_7_days">Last 7 days</string>
+    <string name="data_usage_last_30_days">Last 30 days</string>
+    <string name="data_usage_stream_download">Streaming %1$s · Downloads %2$s</string>
+    <string name="data_usage_wifi_mobile">Wi-Fi %1$s · Mobile data %2$s</string>
 </resources>

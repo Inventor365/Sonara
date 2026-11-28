@@ -7111,193 +7111,13 @@ private fun BitChordApp(
             )
         }
 
-        if (showLastfmLogin) {
-            var lastfmToken by remember { mutableStateOf<String?>(null) }
-            var lastfmError by remember { mutableStateOf<String?>(null) }
-            var lastfmLoading by remember { mutableStateOf(false) }
-            val context = LocalContext.current
-            LastfmLoginAlert(
-                hazeState = hazeState,
-                token = lastfmToken,
-                error = lastfmError,
-                loading = lastfmLoading,
-                onAuthorizeInBrowser = {
-                    lastfmLoading = true
-                    lastfmError = null
-                    scope.launch {
-                        try {
-                            LastFM.initialize(
-                                apiKey = AppSettings.lastfmApiKey.value,
-                                secret = AppSettings.lastfmSecret.value,
-                            )
-                            val token = lastfmToken ?: LastFM.getToken().getOrThrow().token
-                            lastfmToken = token
-                            val authUrl = LastFM.getAuthUrl(token)
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authUrl))
-                            context.startActivity(intent)
-                        } catch (e: Exception) {
-                            lastfmError = e.message ?: context.getString(R.string.login_failed)
-                        } finally {
-                            lastfmLoading = false
-                        }
-                    }
-                },
-                onCompleteLogin = {
-                    val token = lastfmToken ?: return@LastfmLoginAlert
-                    lastfmLoading = true
-                    lastfmError = null
-                    scope.launch {
-                        try {
-                            LastFM.initialize(
-                                apiKey = AppSettings.lastfmApiKey.value,
-                                secret = AppSettings.lastfmSecret.value,
-                            )
-                            LastFM.getSession(token)
-                                .onSuccess { auth ->
-                                    AppSettings.setLastfmSessionKey(auth.session.key)
-                                    AppSettings.setLastfmUsername(auth.session.name)
-                                    AppSettings.setLastfmEnabled(true)
-                                    showLastfmLogin = false
-                                }
-                                .onFailure { e ->
-                                    lastfmError = if (e is LastFM.LastFmException && (e.code == 14 || e.code == 4)) {
-                                        context.getString(R.string.lastfm_oauth_error_pending)
-                                    } else {
-                                        e.message ?: context.getString(R.string.login_failed)
-                                    }
-                                }
-                        } catch (e: Exception) {
-                            lastfmError = e.message ?: context.getString(R.string.login_failed)
-                        } finally {
-                            lastfmLoading = false
-                        }
-                    }
-                },
-                onDismiss = { if (!lastfmLoading) showLastfmLogin = false },
-            )
-        }
+        if (showLastfmLogin) LastfmLoginHost(hazeState) { showLastfmLogin = false }
 
-        if (showWebDavEditor) {
-            BackHandler { showWebDavEditor = false }
-            ServerEditorHost(
-                hazeState = hazeState,
-                title = stringResource(R.string.webdav),
-                description = stringResource(R.string.webdav_description),
-                fields = listOf(
-                    FieldConfig(
-                        initial = AppSettings.webdavUrl.value,
-                        placeholder = stringResource(R.string.webdav_server_url_hint),
-                        keyboardType = KeyboardType.Uri,
-                    ),
-                    FieldConfig(
-                        initial = AppSettings.webdavUsername.value,
-                        placeholder = stringResource(R.string.username),
-                    ),
-                    FieldConfig(
-                        initial = AppSettings.webdavPassword.value,
-                        placeholder = stringResource(R.string.password),
-                        keyboardType = KeyboardType.Password,
-                        isPassword = true,
-                    ),
-                ),
-                canSubmit = { it[0].isNotBlank() },
-                testFailedRes = R.string.webdav_test_failed,
-                onTest = { (url, username, password) ->
-                    com.music.bitchord.data.webdav.WebDavRepository.testConnection(
-                        url.trim(),
-                        username.trim(),
-                        password,
-                    )
-                },
-                onSave = { (url, username, password) ->
-                    AppSettings.setWebDavUrl(url.trim())
-                    AppSettings.setWebDavUsername(username.trim())
-                    AppSettings.setWebDavPassword(password)
-                    showWebDavEditor = false
-                },
-                onDismiss = { showWebDavEditor = false },
-            )
-        }
+        if (showWebDavEditor) WebDavEditorHost(hazeState) { showWebDavEditor = false }
 
-        if (showSmbEditor) {
-            BackHandler { showSmbEditor = false }
-            ServerEditorHost(
-                hazeState = hazeState,
-                title = stringResource(R.string.smb),
-                description = stringResource(R.string.smb_description),
-                fields = listOf(
-                    FieldConfig(
-                        initial = AppSettings.smbHost.value,
-                        placeholder = stringResource(R.string.smb_server_hint),
-                        keyboardType = KeyboardType.Uri,
-                    ),
-                    FieldConfig(
-                        initial = AppSettings.smbShare.value,
-                        placeholder = stringResource(R.string.smb_share_hint),
-                    ),
-                    FieldConfig(
-                        initial = AppSettings.smbBasePath.value,
-                        placeholder = stringResource(R.string.smb_folder_hint),
-                    ),
-                    FieldConfig(
-                        initial = AppSettings.smbUsername.value,
-                        placeholder = stringResource(R.string.username),
-                    ),
-                    FieldConfig(
-                        initial = AppSettings.smbPassword.value,
-                        placeholder = stringResource(R.string.password),
-                        keyboardType = KeyboardType.Password,
-                        isPassword = true,
-                    ),
-                ),
-                canSubmit = { it[0].isNotBlank() && it[1].isNotBlank() },
-                testFailedRes = R.string.smb_test_failed,
-                onTest = { (host, share, folder, username, password) ->
-                    com.music.bitchord.data.smb.SmbRepository.testConnection(
-                        host.trim(),
-                        share.trim(),
-                        folder.trim(),
-                        username.trim(),
-                        password,
-                    )
-                },
-                onSave = { (host, share, folder, username, password) ->
-                    AppSettings.setSmbHost(host.trim())
-                    AppSettings.setSmbShare(share.trim())
-                    AppSettings.setSmbBasePath(folder.trim())
-                    AppSettings.setSmbUsername(username.trim())
-                    AppSettings.setSmbPassword(password)
-                    showSmbEditor = false
-                },
-                onDismiss = { showSmbEditor = false },
-            )
-        }
+        if (showSmbEditor) SmbEditorHost(hazeState) { showSmbEditor = false }
 
-        // A clash mid-upload, answered here so the scrim covers the tab bar
-        // and mini player like every other alert. Backing out is a skip —
-        // leaving the batch suspended on a dismissed dialog would hang the
-        // upload with no way to reach the question again.
-        val uploadConflict by com.music.bitchord.data.webdav.WebDavUploads.conflict.collectAsStateWithLifecycle()
-        uploadConflict?.let { req ->
-            var applyToAll by remember(req) { mutableStateOf(false) }
-            val answer: (com.music.bitchord.data.webdav.WebDavUploads.Choice) -> Unit = { choice ->
-                req.answer.complete(
-                    com.music.bitchord.data.webdav.WebDavUploads.Resolution(choice, applyToAll),
-                )
-            }
-            BackHandler { answer(com.music.bitchord.data.webdav.WebDavUploads.Choice.SKIP) }
-            WebDavConflictAlert(
-                hazeState = hazeState,
-                fileName = req.fileName,
-                showApplyToAll = req.remaining > 0,
-                applyToAll = applyToAll,
-                onApplyToAllChange = { applyToAll = it },
-                onOverwrite = { answer(com.music.bitchord.data.webdav.WebDavUploads.Choice.OVERWRITE) },
-                onKeepBoth = { answer(com.music.bitchord.data.webdav.WebDavUploads.Choice.KEEP_BOTH) },
-                onSkip = { answer(com.music.bitchord.data.webdav.WebDavUploads.Choice.SKIP) },
-                onDismiss = { answer(com.music.bitchord.data.webdav.WebDavUploads.Choice.SKIP) },
-            )
-        }
+        UploadConflictHost(hazeState)
 
         // ---- Discord sign-in (full screen WebView) ----
         if (showDiscordLogin) {
@@ -8229,4 +8049,204 @@ private fun NativeSignInStep(
             )
         }
     }
+}
+
+/** Last.fm's sign-in: approve in the browser, then finish here. Its own function so the app's main composable stays under the JVM's method size limit. */
+@Composable
+private fun LastfmLoginHost(hazeState: HazeState, onClose: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    var lastfmToken by remember { mutableStateOf<String?>(null) }
+    var lastfmError by remember { mutableStateOf<String?>(null) }
+    var lastfmLoading by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    LastfmLoginAlert(
+        hazeState = hazeState,
+        token = lastfmToken,
+        error = lastfmError,
+        loading = lastfmLoading,
+        onAuthorizeInBrowser = {
+            lastfmLoading = true
+            lastfmError = null
+            scope.launch {
+                try {
+                    LastFM.initialize(
+                        apiKey = AppSettings.lastfmApiKey.value,
+                        secret = AppSettings.lastfmSecret.value,
+                    )
+                    val token = lastfmToken ?: LastFM.getToken().getOrThrow().token
+                    lastfmToken = token
+                    val authUrl = LastFM.getAuthUrl(token)
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(authUrl))
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    lastfmError = e.message ?: context.getString(R.string.login_failed)
+                } finally {
+                    lastfmLoading = false
+                }
+            }
+        },
+        onCompleteLogin = {
+            val token = lastfmToken ?: return@LastfmLoginAlert
+            lastfmLoading = true
+            lastfmError = null
+            scope.launch {
+                try {
+                    LastFM.initialize(
+                        apiKey = AppSettings.lastfmApiKey.value,
+                        secret = AppSettings.lastfmSecret.value,
+                    )
+                    LastFM.getSession(token)
+                        .onSuccess { auth ->
+                            AppSettings.setLastfmSessionKey(auth.session.key)
+                            AppSettings.setLastfmUsername(auth.session.name)
+                            AppSettings.setLastfmEnabled(true)
+                            onClose()
+                        }
+                        .onFailure { e ->
+                            lastfmError = if (e is LastFM.LastFmException && (e.code == 14 || e.code == 4)) {
+                                context.getString(R.string.lastfm_oauth_error_pending)
+                            } else {
+                                e.message ?: context.getString(R.string.login_failed)
+                            }
+                        }
+                } catch (e: Exception) {
+                    lastfmError = e.message ?: context.getString(R.string.login_failed)
+                } finally {
+                    lastfmLoading = false
+                }
+            }
+        },
+        onDismiss = { if (!lastfmLoading) onClose() },
+    )
+}
+
+/** The WebDAV server editor. Its own function so the app's main composable stays under the JVM's method size limit. */
+@Composable
+private fun WebDavEditorHost(hazeState: HazeState, onClose: () -> Unit) {
+    BackHandler { onClose() }
+    ServerEditorHost(
+        hazeState = hazeState,
+        title = stringResource(R.string.webdav),
+        description = stringResource(R.string.webdav_description),
+        fields = listOf(
+            FieldConfig(
+                initial = AppSettings.webdavUrl.value,
+                placeholder = stringResource(R.string.webdav_server_url_hint),
+                keyboardType = KeyboardType.Uri,
+            ),
+            FieldConfig(
+                initial = AppSettings.webdavUsername.value,
+                placeholder = stringResource(R.string.username),
+            ),
+            FieldConfig(
+                initial = AppSettings.webdavPassword.value,
+                placeholder = stringResource(R.string.password),
+                keyboardType = KeyboardType.Password,
+                isPassword = true,
+            ),
+        ),
+        canSubmit = { it[0].isNotBlank() },
+        testFailedRes = R.string.webdav_test_failed,
+        onTest = { (url, username, password) ->
+            com.music.bitchord.data.webdav.WebDavRepository.testConnection(
+                url.trim(),
+                username.trim(),
+                password,
+            )
+        },
+        onSave = { (url, username, password) ->
+            AppSettings.setWebDavUrl(url.trim())
+            AppSettings.setWebDavUsername(username.trim())
+            AppSettings.setWebDavPassword(password)
+            onClose()
+        },
+        onDismiss = { onClose() },
+    )
+}
+
+/** The SMB share editor. Its own function so the app's main composable stays under the JVM's method size limit. */
+@Composable
+private fun SmbEditorHost(hazeState: HazeState, onClose: () -> Unit) {
+    BackHandler { onClose() }
+    ServerEditorHost(
+        hazeState = hazeState,
+        title = stringResource(R.string.smb),
+        description = stringResource(R.string.smb_description),
+        fields = listOf(
+            FieldConfig(
+                initial = AppSettings.smbHost.value,
+                placeholder = stringResource(R.string.smb_server_hint),
+                keyboardType = KeyboardType.Uri,
+            ),
+            FieldConfig(
+                initial = AppSettings.smbShare.value,
+                placeholder = stringResource(R.string.smb_share_hint),
+            ),
+            FieldConfig(
+                initial = AppSettings.smbBasePath.value,
+                placeholder = stringResource(R.string.smb_folder_hint),
+            ),
+            FieldConfig(
+                initial = AppSettings.smbUsername.value,
+                placeholder = stringResource(R.string.username),
+            ),
+            FieldConfig(
+                initial = AppSettings.smbPassword.value,
+                placeholder = stringResource(R.string.password),
+                keyboardType = KeyboardType.Password,
+                isPassword = true,
+            ),
+        ),
+        canSubmit = { it[0].isNotBlank() && it[1].isNotBlank() },
+        testFailedRes = R.string.smb_test_failed,
+        onTest = { (host, share, folder, username, password) ->
+            com.music.bitchord.data.smb.SmbRepository.testConnection(
+                host.trim(),
+                share.trim(),
+                folder.trim(),
+                username.trim(),
+                password,
+            )
+        },
+        onSave = { (host, share, folder, username, password) ->
+            AppSettings.setSmbHost(host.trim())
+            AppSettings.setSmbShare(share.trim())
+            AppSettings.setSmbBasePath(folder.trim())
+            AppSettings.setSmbUsername(username.trim())
+            AppSettings.setSmbPassword(password)
+            onClose()
+        },
+        onDismiss = { onClose() },
+    )
+}
+
+/** A WebDAV upload clash, answered over the whole app; backing out is a skip. Its own function so the app's main composable stays under the JVM's method size limit. */
+@Composable
+private fun UploadConflictHost(hazeState: HazeState) {
+    // A clash mid-upload, answered here so the scrim covers the tab bar
+    // and mini player like every other alert. Backing out is a skip —
+    // leaving the batch suspended on a dismissed dialog would hang the
+    // upload with no way to reach the question again.
+    val uploadConflict by com.music.bitchord.data.webdav.WebDavUploads.conflict.collectAsStateWithLifecycle()
+    uploadConflict?.let { req ->
+        var applyToAll by remember(req) { mutableStateOf(false) }
+        val answer: (com.music.bitchord.data.webdav.WebDavUploads.Choice) -> Unit = { choice ->
+            req.answer.complete(
+                com.music.bitchord.data.webdav.WebDavUploads.Resolution(choice, applyToAll),
+            )
+        }
+        BackHandler { answer(com.music.bitchord.data.webdav.WebDavUploads.Choice.SKIP) }
+        WebDavConflictAlert(
+            hazeState = hazeState,
+            fileName = req.fileName,
+            showApplyToAll = req.remaining > 0,
+            applyToAll = applyToAll,
+            onApplyToAllChange = { applyToAll = it },
+            onOverwrite = { answer(com.music.bitchord.data.webdav.WebDavUploads.Choice.OVERWRITE) },
+            onKeepBoth = { answer(com.music.bitchord.data.webdav.WebDavUploads.Choice.KEEP_BOTH) },
+            onSkip = { answer(com.music.bitchord.data.webdav.WebDavUploads.Choice.SKIP) },
+            onDismiss = { answer(com.music.bitchord.data.webdav.WebDavUploads.Choice.SKIP) },
+        )
+    }
+
 }

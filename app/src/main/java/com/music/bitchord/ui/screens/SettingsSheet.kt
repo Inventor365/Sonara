@@ -2328,20 +2328,20 @@ fun SettingsScreen(
                     text = {
                         androidx.compose.foundation.layout.Column {
                             SettingsRow(
-                                title = "Today",
-                                subtitle = "Stream ${DataUsageTracker.formatBytes(dataUsageSummary.today.streamingBytes)} · Download ${DataUsageTracker.formatBytes(dataUsageSummary.today.downloadBytes)}",
+                                title = stringResource(R.string.data_usage_today),
+                                subtitle = stringResource(R.string.data_usage_stream_download, DataUsageTracker.formatBytes(dataUsageSummary.today.streamingBytes), DataUsageTracker.formatBytes(dataUsageSummary.today.downloadBytes)),
                                 value = DataUsageTracker.formatBytes(dataUsageSummary.today.totalBytes),
                                 onClick = {},
                             )
                             SettingsRow(
-                                title = "Last 7 days",
-                                subtitle = "Stream ${DataUsageTracker.formatBytes(dataUsageSummary.last7Days.streamingBytes)} · Download ${DataUsageTracker.formatBytes(dataUsageSummary.last7Days.downloadBytes)}",
+                                title = stringResource(R.string.data_usage_last_7_days),
+                                subtitle = stringResource(R.string.data_usage_stream_download, DataUsageTracker.formatBytes(dataUsageSummary.last7Days.streamingBytes), DataUsageTracker.formatBytes(dataUsageSummary.last7Days.downloadBytes)),
                                 value = DataUsageTracker.formatBytes(dataUsageSummary.last7Days.totalBytes),
                                 onClick = {},
                             )
                             SettingsRow(
-                                title = "Last 30 days",
-                                subtitle = "Wi-Fi ${DataUsageTracker.formatBytes(dataUsageSummary.last30Days.wifiBytes)} · Mobile ${DataUsageTracker.formatBytes(dataUsageSummary.last30Days.mobileBytes)}",
+                                title = stringResource(R.string.data_usage_last_30_days),
+                                subtitle = stringResource(R.string.data_usage_wifi_mobile, DataUsageTracker.formatBytes(dataUsageSummary.last30Days.wifiBytes), DataUsageTracker.formatBytes(dataUsageSummary.last30Days.mobileBytes)),
                                 value = DataUsageTracker.formatBytes(dataUsageSummary.last30Days.totalBytes),
                                 onClick = {},
                             )
@@ -2366,7 +2366,12 @@ fun SettingsScreen(
                     icon = SfIcons.Cached,
                     title = autoClearScheduleTitle,
                     subtitle = stringResource(R.string.auto_clear_cache_schedule_subtitle),
-                    value = currentInterval.label,
+                    value = when (currentInterval) {
+                        AutoClearCacheInterval.OFF -> stringResource(R.string.off)
+                        AutoClearCacheInterval.EVERY_3_DAYS -> stringResource(R.string.cache_clear_every_3_days)
+                        AutoClearCacheInterval.WEEKLY -> stringResource(R.string.cache_clear_weekly)
+                        AutoClearCacheInterval.MONTHLY -> stringResource(R.string.cache_clear_monthly)
+                    },
                     onClick = { AppSettings.setAutoClearCacheIntervalDays(currentInterval.next().days) },
                 )
             }
@@ -2377,7 +2382,7 @@ fun SettingsScreen(
                     icon = SfIcons.Storage,
                     title = autoClearSizeTitle,
                     subtitle = stringResource(R.string.auto_clear_cache_size_limit_subtitle),
-                    value = currentSizeLimit.label,
+                    value = if (currentSizeLimit == AutoClearCacheSizeLimit.UNLIMITED) unlimitedLabel else currentSizeLimit.label,
                     onClick = { AppSettings.setAutoClearCacheMaxMb(currentSizeLimit.next().maxMb) },
                 )
             }
