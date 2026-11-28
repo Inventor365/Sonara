@@ -796,7 +796,7 @@ object InnertubeParser {
             // Art is only the fallback for a row that says neither. Not an
             // episode, whose art is a widescreen still too: it is listened to,
             // and a "video" is dropped from the All tab's results.
-            isVideo = !episode && (rowType == "video" || thumbnails.isNotSquare()),
+            isVideo = !episode && (rowType == "video" || (videoType ?: thumbnails.isNotSquare())),
             plays = plays,
             isExplicit = renderer.hasExplicitBadge(),
             // Extract the "Remove from history" feedback token from the row's menu, if present.
