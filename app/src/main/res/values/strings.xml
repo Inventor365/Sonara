@@ -1788,4 +1788,8 @@
     <string name="export_csv" translatable="false">Export as CSV</string>
     <string name="export_csv_success" translatable="false">Exported %1$d tracks to CSV</string>
     <string name="export_csv_failed" translatable="false">Failed to export CSV</string>
+    <string name="auto_clear_cache_schedule" translatable="false">Auto-clear cache schedule</string>
+    <string name="auto_clear_cache_schedule_subtitle" translatable="false">Automatically prune old temporary stream, artwork, and Canvas cache without touching offline downloads</string>
+    <string name="auto_clear_cache_size_limit" translatable="false">Auto-clear cache size limit</string>
+    <string name="auto_clear_cache_size_limit_subtitle" translatable="false">Prune oldest cached files once total temporary cache exceeds this limit</string>
 </resources>

@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.music.bitchord.ui.player.AndroidPlayerHost
 import com.music.bitchord.ui.player.PlayerPlatform
 import com.music.bitchord.data.DataUsageTracker
+import com.music.bitchord.data.CacheCleanupManager
 import com.music.bitchord.data.canvas.CanvasCache
 import com.music.bitchord.data.smb.SmbCoverFetcher
 import com.music.bitchord.data.webdav.WebDavCoilAuth
@@ -133,6 +134,7 @@ class BitChordApplication : Application(), SingletonImageLoader.Factory, Configu
             // seconds of video from the network on every loop.
             CanvasCache.init(this)
             DataUsageTracker.init(this)
+            CacheCleanupManager.scheduleStartupCheck(cacheDir)
         }
         // Migration-safe: an old single cookie becomes the first encrypted
         // session, while newer installs restore the profile the listener chose.

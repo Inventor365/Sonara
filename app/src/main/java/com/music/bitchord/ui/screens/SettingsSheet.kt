@@ -91,6 +91,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
 import com.music.bitchord.data.DataUsageTracker
+import com.music.bitchord.data.AutoClearCacheInterval
+import com.music.bitchord.data.AutoClearCacheSizeLimit
 import com.music.bitchord.data.lyrics.translationLanguageName
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -2188,6 +2190,8 @@ fun SettingsScreen(
         // "Unlimited" — see [AppSettings.setAudioCacheLimitBytes].
         val cacheLimitMb = if (cacheDisabled) 0 else if (cacheUnlimited) CACHE_UNLIMITED_STOP_MB else (cacheLimitBytes / (1024 * 1024)).toInt()
         val unlimitedLabel = stringResource(R.string.song_cache_unlimited)
+        val autoClearIntervalDays by AppSettings.autoClearCacheIntervalDays.collectAsStateWithLifecycle()
+        val autoClearMaxMb by AppSettings.autoClearCacheMaxMb.collectAsStateWithLifecycle()
         val disabledLabel = stringResource(R.string.song_cache_disabled)
         val cacheLimitLabel = when {
             cacheDisabled -> disabledLabel
@@ -2305,6 +2309,28 @@ fun SettingsScreen(
                             Text(stringResource(R.string.reset))
                         }
                     },
+                )
+            }
+            val autoClearScheduleTitle = stringResource(R.string.auto_clear_cache_schedule)
+            val currentInterval = AutoClearCacheInterval.fromDays(autoClearIntervalDays)
+            row(autoClearScheduleTitle, "cache", "auto", "clear", "schedule", "cleanup", "storage") {
+                SettingsRow(
+                    icon = SfIcons.Cached,
+                    title = autoClearScheduleTitle,
+                    subtitle = stringResource(R.string.auto_clear_cache_schedule_subtitle),
+                    value = currentInterval.label,
+                    onClick = { AppSettings.setAutoClearCacheIntervalDays(currentInterval.next().days) },
+                )
+            }
+            val autoClearSizeTitle = stringResource(R.string.auto_clear_cache_size_limit)
+            val currentSizeLimit = AutoClearCacheSizeLimit.fromMb(autoClearMaxMb)
+            row(autoClearSizeTitle, "cache", "auto", "clear", "limit", "size", "storage") {
+                SettingsRow(
+                    icon = SfIcons.Storage,
+                    title = autoClearSizeTitle,
+                    subtitle = stringResource(R.string.auto_clear_cache_size_limit_subtitle),
+                    value = currentSizeLimit.label,
+                    onClick = { AppSettings.setAutoClearCacheMaxMb(currentSizeLimit.next().maxMb) },
                 )
             }
         }
