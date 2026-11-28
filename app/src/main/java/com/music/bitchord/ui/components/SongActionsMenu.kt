@@ -175,6 +175,7 @@ fun SongActionsMenu(
      */
     audioVersionMissing: Boolean = false,
     onShare: (() -> Unit)? = null,
+    onHideFromFeed: (() -> Unit)? = null,
     /**
      * Allows this explicit song past "Block explicit songs", or blocks it
      * again. Null hides the row: it is only offered while blocking is on.
@@ -500,6 +501,9 @@ fun SongActionsMenu(
             // Last: the one row here nobody reaches for by accident.
             onCopyLog?.let {
                 ActionRow(SfIcons.Bug, stringResource(R.string.copy_log), accent = palette.accent, onClick = it)
+            }
+            onHideFromFeed?.let {
+                ActionRow(SfIcons.VisibilityOff, stringResource(R.string.hide_from_feed), onClick = it)
             }
         }
     }

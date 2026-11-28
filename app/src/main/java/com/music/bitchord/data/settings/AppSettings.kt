@@ -345,7 +345,19 @@ object AppSettings {
     val smartFadeEnabled = MutableStateFlow(false)
     private val _autoMixArtwork = MutableStateFlow(AutoMixArtworkPreferences())
     val autoMixArtwork = _autoMixArtwork.asStateFlow()
+    data class BlockedFeedEntry(
+        val key: String,
+        val title: String,
+        val subtitle: String,
+        val kind: String,
+    )
+
     val sleepTimerFadeOut = MutableStateFlow(true)
+    val hideSystemVolumePanelInPlayer = MutableStateFlow(true)
+    val autoClearCacheIntervalDays = MutableStateFlow(0)
+    val autoClearCacheMaxMb = MutableStateFlow(0)
+    val lastAutoCacheCleanupMs = MutableStateFlow(0L)
+    val blockedFeedItems = MutableStateFlow<List<BlockedFeedEntry>>(emptyList())
 
     /** The CPU budget used by Beat This! and vocal analysis for Automix. */
     val automixPerformanceMode = MutableStateFlow(AutomixPerformanceMode.BALANCED)
@@ -1318,6 +1330,11 @@ object AppSettings {
             miniPlayerTransition = prefs.getBoolean(KEY_AUTOMIX_MINI_ART_TRANSITION, false),
         )
         sleepTimerFadeOut.value = prefs.getBoolean(KEY_SLEEP_TIMER_FADE_OUT, true)
+        hideSystemVolumePanelInPlayer.value = prefs.getBoolean(KEY_HIDE_SYSTEM_VOLUME_PANEL_IN_PLAYER, true)
+        autoClearCacheIntervalDays.value = prefs.getInt(KEY_AUTO_CLEAR_CACHE_INTERVAL_DAYS, 0)
+        autoClearCacheMaxMb.value = prefs.getInt(KEY_AUTO_CLEAR_CACHE_MAX_MB, 0)
+        lastAutoCacheCleanupMs.value = prefs.getLong(KEY_LAST_AUTO_CACHE_CLEANUP_MS, 0L)
+        blockedFeedItems.value = parseBlockedFeedItems(prefs.getString(KEY_BLOCKED_FEED_ITEMS, null))
         automixPerformanceMode.value = runCatching {
             AutomixPerformanceMode.valueOf(
                 prefs.getString(KEY_AUTOMIX_PERFORMANCE_MODE, null) ?: AutomixPerformanceMode.BALANCED.name,
@@ -1780,6 +1797,79 @@ object AppSettings {
     fun setSleepTimerFadeOut(value: Boolean) {
         sleepTimerFadeOut.value = value
         prefs.edit().putBoolean(KEY_SLEEP_TIMER_FADE_OUT, value).apply()
+    }
+
+    fun setHideSystemVolumePanelInPlayer(value: Boolean) {
+        hideSystemVolumePanelInPlayer.value = value
+        prefs.edit().putBoolean(KEY_HIDE_SYSTEM_VOLUME_PANEL_IN_PLAYER, value).apply()
+    }
+
+    fun setAutoClearCacheIntervalDays(days: Int) {
+        autoClearCacheIntervalDays.value = days
+        prefs.edit().putInt(KEY_AUTO_CLEAR_CACHE_INTERVAL_DAYS, days).apply()
+    }
+
+    fun setAutoClearCacheMaxMb(mb: Int) {
+        autoClearCacheMaxMb.value = mb
+        prefs.edit().putInt(KEY_AUTO_CLEAR_CACHE_MAX_MB, mb).apply()
+    }
+
+    fun setLastAutoCacheCleanupMs(timestampMs: Long) {
+        lastAutoCacheCleanupMs.value = timestampMs
+        prefs.edit().putLong(KEY_LAST_AUTO_CACHE_CLEANUP_MS, timestampMs).apply()
+    }
+
+    fun blockFeedItem(entry: BlockedFeedEntry) {
+        val current = blockedFeedItems.value
+        if (current.any { it.key == entry.key }) return
+        val updated = listOf(entry) + current
+        saveBlockedFeedItems(updated)
+    }
+
+    fun unblockFeedItem(key: String) {
+        val updated = blockedFeedItems.value.filterNot { it.key == key }
+        saveBlockedFeedItems(updated)
+    }
+
+    fun clearBlockedFeedItems() {
+        saveBlockedFeedItems(emptyList())
+    }
+
+    private fun saveBlockedFeedItems(items: List<BlockedFeedEntry>) {
+        blockedFeedItems.value = items
+        val array = org.json.JSONArray()
+        for (item in items) {
+            array.put(
+                org.json.JSONObject().apply {
+                    put("key", item.key)
+                    put("title", item.title)
+                    put("subtitle", item.subtitle)
+                    put("kind", item.kind)
+                },
+            )
+        }
+        prefs.edit().putString(KEY_BLOCKED_FEED_ITEMS, array.toString()).apply()
+    }
+
+    private fun parseBlockedFeedItems(raw: String?): List<BlockedFeedEntry> {
+        if (raw.isNullOrBlank()) return emptyList()
+        return runCatching {
+            val array = org.json.JSONArray(raw)
+            buildList(array.length()) {
+                for (i in 0 until array.length()) {
+                    val obj = array.optJSONObject(i) ?: continue
+                    val key = obj.optString("key").takeIf { it.isNotBlank() } ?: continue
+                    add(
+                        BlockedFeedEntry(
+                            key = key,
+                            title = obj.optString("title"),
+                            subtitle = obj.optString("subtitle"),
+                            kind = obj.optString("kind", "ITEM"),
+                        ),
+                    )
+                }
+            }
+        }.getOrDefault(emptyList())
     }
 
     fun setAutomixPerformanceMode(value: AutomixPerformanceMode) {
@@ -3000,6 +3090,11 @@ object AppSettings {
     private const val KEY_AUTOMIX_ART_TRANSITION = "automix_art_transition"
     private const val KEY_AUTOMIX_MINI_ART_TRANSITION = "automix_mini_art_transition"
     private const val KEY_SLEEP_TIMER_FADE_OUT = "sleep_timer_fade_out"
+    private const val KEY_HIDE_SYSTEM_VOLUME_PANEL_IN_PLAYER = "hide_system_volume_panel_in_player"
+    private const val KEY_AUTO_CLEAR_CACHE_INTERVAL_DAYS = "auto_clear_cache_interval_days"
+    private const val KEY_AUTO_CLEAR_CACHE_MAX_MB = "auto_clear_cache_max_mb"
+    private const val KEY_LAST_AUTO_CACHE_CLEANUP_MS = "last_auto_cache_cleanup_ms"
+    private const val KEY_BLOCKED_FEED_ITEMS = "blocked_feed_items"
     private const val KEY_AUTOMIX_PERFORMANCE_MODE = "automix_performance_mode"
     private const val KEY_SKIP_SILENCE = "skip_silence"
     private const val KEY_OUTPUT_PCM_MODE = "output_pcm_mode"

@@ -120,6 +120,8 @@ fun BrowseActionsMenu(
      * from something other than a real browse id (a Local Music grouping).
      */
     onShare: (() -> Unit)? = null,
+    onExportCsv: (() -> Unit)? = null,
+    onHideFromFeed: (() -> Unit)? = null,
     /**
      * Set whenever [target] is a playlist, regardless of who owns it — pinning
      * doesn't touch the account, only what sits at the top of this device's
@@ -262,6 +264,12 @@ fun BrowseActionsMenu(
                     "Make Collaborative",
                     onClick = it,
                 )
+            }
+            onExportCsv?.let {
+                ActionRow(SfIcons.Download, stringResource(R.string.export_csv), onClick = it)
+            }
+            onHideFromFeed?.let {
+                ActionRow(SfIcons.VisibilityOff, stringResource(R.string.hide_from_feed), onClick = it)
             }
             onTogglePin?.let {
                 ActionRow(

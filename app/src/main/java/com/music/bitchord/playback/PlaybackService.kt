@@ -57,6 +57,7 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DataSpec
 import androidx.media3.datasource.TransferListener
+import com.music.bitchord.data.DataUsageTracker
 import androidx.media3.exoplayer.upstream.BandwidthMeter
 import androidx.media3.exoplayer.upstream.DefaultBandwidthMeter
 import androidx.media3.exoplayer.upstream.DefaultLoadErrorHandlingPolicy
@@ -744,6 +745,9 @@ class PlaybackService : MediaLibraryService() {
     private var spare: ExoPlayer? = null
 
     private var crossfade: CrossfadeController? = null
+
+    // Owned by the main-thread crossfade controller, read by both playback threads.
+    @Volatile private var needsAutoMixAudioClock = false
 
     /**
      * What the players currently in hand were built for.
@@ -2533,6 +2537,7 @@ class PlaybackService : MediaLibraryService() {
             syncedLines = ::loopMixLyrics,
             loudnessGain = ::loudnessGainFor,
             onMixPositionJump = { wrapped -> (mediaSession?.player as? SessionPlayer)?.announceMixPosition(wrapped) },
+            onAutoMixAudioClockNeeded = { needsAutoMixAudioClock = it },
         )
 
     /**
@@ -4999,6 +5004,9 @@ class PlaybackService : MediaLibraryService() {
                 bytesTransferred: Int,
             ) {
                 bytes.addAndGet(bytesTransferred.toLong())
+                if (isNetwork && bytesTransferred > 0) {
+                    DataUsageTracker.recordStreamBytes(bytesTransferred.toLong())
+                }
                 delegate.transferListener?.onBytesTransferred(source, dataSpec, isNetwork, bytesTransferred)
             }
 
@@ -7948,7 +7956,7 @@ class PlaybackService : MediaLibraryService() {
         transition: TransitionFilterProcessor,
         loudness: LoudnessProcessor,
         vocal: VocalProcessor,
-    ) = object : FfmpegFallbackRenderersFactory(this) {
+    ) = object : FfmpegFallbackRenderersFactory(this, needsAutoMixClock = { needsAutoMixAudioClock }) {
         init {
             // Do not force PCM_FLOAT onto an OEM speaker mixer merely because
             // the preference asks for it. The selected route must advertise
@@ -11446,7 +11454,10 @@ class PlaybackService : MediaLibraryService() {
  * decode whatever it is auditioning or it can never prove it — and with the
  * same decoder, or the proof is of something else.
  */
-private open class FfmpegFallbackRenderersFactory(context: Context) : DefaultRenderersFactory(context) {
+private open class FfmpegFallbackRenderersFactory(
+    context: Context,
+    private val needsAutoMixClock: (() -> Boolean)? = null,
+) : DefaultRenderersFactory(context) {
     override fun buildAudioRenderers(
         context: Context,
         extensionRendererMode: Int,
@@ -11457,6 +11468,7 @@ private open class FfmpegFallbackRenderersFactory(context: Context) : DefaultRen
         eventListener: AudioRendererEventListener,
         out: ArrayList<Renderer>,
     ) {
+        val firstAudioRenderer = out.size
         super.buildAudioRenderers(
             context,
             extensionRendererMode,
@@ -11468,6 +11480,11 @@ private open class FfmpegFallbackRenderersFactory(context: Context) : DefaultRen
             out,
         )
         out.add(FfmpegAudioRenderer(eventHandler, eventListener, audioSink))
+        if (needsAutoMixClock != null) {
+            for (index in firstAudioRenderer until out.size) {
+                out[index] = AutoMixAudioClockRenderer(out[index], needsAutoMixClock)
+            }
+        }
     }
 }
 

@@ -90,6 +90,9 @@ import androidx.compose.material.icons.rounded.Wifi
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
+import com.music.bitchord.data.DataUsageTracker
+import com.music.bitchord.data.AutoClearCacheInterval
+import com.music.bitchord.data.AutoClearCacheSizeLimit
 import com.music.bitchord.data.lyrics.translationLanguageName
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -893,6 +896,22 @@ fun SettingsScreen(
                     )
                 }
             }
+            val hideSystemVolumePanel by AppSettings.hideSystemVolumePanelInPlayer.collectAsStateWithLifecycle()
+            val hideSystemVolumeTitle = stringResource(R.string.hide_system_volume_panel)
+            row(hideSystemVolumeTitle, "volume", "system", "panel", "hud", "slider", "player") {
+                SettingsRow(
+                    icon = SfIcons.VolumeUp,
+                    title = hideSystemVolumeTitle,
+                    subtitle = stringResource(R.string.hide_system_volume_panel_subtitle),
+                    trailing = {
+                        IosSwitch(
+                            checked = hideSystemVolumePanel,
+                            onCheckedChange = AppSettings::setHideSystemVolumePanelInPlayer,
+                        )
+                    },
+                    onClick = { AppSettings.setHideSystemVolumePanelInPlayer(!hideSystemVolumePanel) },
+                )
+            }
             val loudnessTitle = stringResource(R.string.loudness_normalization)
             row(loudnessTitle, "loudness", "volume", "normalize", "replaygain", "lufs") {
                 BypassedByBitPerfect(bitPerfectReady) {
@@ -1262,6 +1281,54 @@ fun SettingsScreen(
                         )
                     },
                     onClick = { AppSettings.setHideHomeVideos(!hideHomeVideos) },
+                )
+            }
+            val blockedFeedItems by AppSettings.blockedFeedItems.collectAsStateWithLifecycle()
+            var showBlockedFeedDialog by remember { mutableStateOf(false) }
+            val hiddenFeedItemsTitle = stringResource(R.string.hidden_feed_items)
+            row(hiddenFeedItemsTitle, "hide", "block", "filter", "artist", "album", "track", "feed", "home") {
+                SettingsRow(
+                    icon = SfIcons.VisibilityOff,
+                    title = hiddenFeedItemsTitle,
+                    subtitle = stringResource(R.string.hidden_feed_items_subtitle),
+                    value = if (blockedFeedItems.isEmpty()) stringResource(R.string.hidden_feed_items_empty) else "${blockedFeedItems.size}",
+                    onClick = { showBlockedFeedDialog = true },
+                )
+            }
+            if (showBlockedFeedDialog) {
+                AlertDialog(
+                    onDismissRequest = { showBlockedFeedDialog = false },
+                    title = { Text(hiddenFeedItemsTitle) },
+                    text = {
+                        if (blockedFeedItems.isEmpty()) {
+                            Text(stringResource(R.string.hidden_feed_items_empty))
+                        } else {
+                            androidx.compose.foundation.layout.Column(
+                                modifier = Modifier.verticalScroll(rememberScrollState()),
+                            ) {
+                                blockedFeedItems.forEach { entry ->
+                                    SettingsRow(
+                                        title = entry.title,
+                                        subtitle = entry.subtitle.takeIf { it.isNotBlank() },
+                                        value = stringResource(R.string.unhide),
+                                        onClick = { AppSettings.unblockFeedItem(entry.key) },
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showBlockedFeedDialog = false }) {
+                            Text(stringResource(R.string.close))
+                        }
+                    },
+                    dismissButton = if (blockedFeedItems.isNotEmpty()) {
+                        {
+                            TextButton(onClick = { AppSettings.clearBlockedFeedItems() }) {
+                                Text(stringResource(R.string.clear_all))
+                            }
+                        }
+                    } else null,
                 )
             }
             val hideTopPicksTitle = stringResource(R.string.hide_top_picks)
@@ -2171,6 +2238,8 @@ fun SettingsScreen(
         // "Unlimited" — see [AppSettings.setAudioCacheLimitBytes].
         val cacheLimitMb = if (cacheDisabled) 0 else if (cacheUnlimited) CACHE_UNLIMITED_STOP_MB else (cacheLimitBytes / (1024 * 1024)).toInt()
         val unlimitedLabel = stringResource(R.string.song_cache_unlimited)
+        val autoClearIntervalDays by AppSettings.autoClearCacheIntervalDays.collectAsStateWithLifecycle()
+        val autoClearMaxMb by AppSettings.autoClearCacheMaxMb.collectAsStateWithLifecycle()
         val disabledLabel = stringResource(R.string.song_cache_disabled)
         val cacheLimitLabel = when {
             cacheDisabled -> disabledLabel
@@ -2238,6 +2307,83 @@ fun SettingsScreen(
                         loader.diskCache?.clear()
                         Toast.makeText(context, context.getString(R.string.image_cache_cleared), Toast.LENGTH_SHORT).show()
                     },
+                )
+            }
+            val dataUsageSummary by DataUsageTracker.summary.collectAsStateWithLifecycle()
+            var showDataUsageDialog by remember { mutableStateOf(false) }
+            val dataUsageTitle = stringResource(R.string.data_usage)
+            row(dataUsageTitle, "data", "usage", "bandwidth", "wifi", "mobile", "cellular", "network") {
+                SettingsRow(
+                    icon = SfIcons.SignalCellularAlt,
+                    title = dataUsageTitle,
+                    subtitle = stringResource(R.string.data_usage_subtitle),
+                    value = DataUsageTracker.formatBytes(dataUsageSummary.last30Days.totalBytes),
+                    onClick = { showDataUsageDialog = true },
+                )
+            }
+            if (showDataUsageDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDataUsageDialog = false },
+                    title = { Text(dataUsageTitle) },
+                    text = {
+                        androidx.compose.foundation.layout.Column {
+                            SettingsRow(
+                                title = stringResource(R.string.data_usage_today),
+                                subtitle = stringResource(R.string.data_usage_stream_download, DataUsageTracker.formatBytes(dataUsageSummary.today.streamingBytes), DataUsageTracker.formatBytes(dataUsageSummary.today.downloadBytes)),
+                                value = DataUsageTracker.formatBytes(dataUsageSummary.today.totalBytes),
+                                onClick = {},
+                            )
+                            SettingsRow(
+                                title = stringResource(R.string.data_usage_last_7_days),
+                                subtitle = stringResource(R.string.data_usage_stream_download, DataUsageTracker.formatBytes(dataUsageSummary.last7Days.streamingBytes), DataUsageTracker.formatBytes(dataUsageSummary.last7Days.downloadBytes)),
+                                value = DataUsageTracker.formatBytes(dataUsageSummary.last7Days.totalBytes),
+                                onClick = {},
+                            )
+                            SettingsRow(
+                                title = stringResource(R.string.data_usage_last_30_days),
+                                subtitle = stringResource(R.string.data_usage_wifi_mobile, DataUsageTracker.formatBytes(dataUsageSummary.last30Days.wifiBytes), DataUsageTracker.formatBytes(dataUsageSummary.last30Days.mobileBytes)),
+                                value = DataUsageTracker.formatBytes(dataUsageSummary.last30Days.totalBytes),
+                                onClick = {},
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showDataUsageDialog = false }) {
+                            Text(stringResource(R.string.close))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { DataUsageTracker.reset() }) {
+                            Text(stringResource(R.string.reset))
+                        }
+                    },
+                )
+            }
+            val autoClearScheduleTitle = stringResource(R.string.auto_clear_cache_schedule)
+            val currentInterval = AutoClearCacheInterval.fromDays(autoClearIntervalDays)
+            row(autoClearScheduleTitle, "cache", "auto", "clear", "schedule", "cleanup", "storage") {
+                SettingsRow(
+                    icon = SfIcons.Cached,
+                    title = autoClearScheduleTitle,
+                    subtitle = stringResource(R.string.auto_clear_cache_schedule_subtitle),
+                    value = when (currentInterval) {
+                        AutoClearCacheInterval.OFF -> stringResource(R.string.off)
+                        AutoClearCacheInterval.EVERY_3_DAYS -> stringResource(R.string.cache_clear_every_3_days)
+                        AutoClearCacheInterval.WEEKLY -> stringResource(R.string.cache_clear_weekly)
+                        AutoClearCacheInterval.MONTHLY -> stringResource(R.string.cache_clear_monthly)
+                    },
+                    onClick = { AppSettings.setAutoClearCacheIntervalDays(currentInterval.next().days) },
+                )
+            }
+            val autoClearSizeTitle = stringResource(R.string.auto_clear_cache_size_limit)
+            val currentSizeLimit = AutoClearCacheSizeLimit.fromMb(autoClearMaxMb)
+            row(autoClearSizeTitle, "cache", "auto", "clear", "limit", "size", "storage") {
+                SettingsRow(
+                    icon = SfIcons.Storage,
+                    title = autoClearSizeTitle,
+                    subtitle = stringResource(R.string.auto_clear_cache_size_limit_subtitle),
+                    value = if (currentSizeLimit == AutoClearCacheSizeLimit.UNLIMITED) unlimitedLabel else currentSizeLimit.label,
+                    onClick = { AppSettings.setAutoClearCacheMaxMb(currentSizeLimit.next().maxMb) },
                 )
             }
         }
