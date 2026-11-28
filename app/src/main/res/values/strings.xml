@@ -1780,4 +1780,6 @@
     <string name="pipeline_karaoke">Karaoke</string>
     <string name="replay_summary_separator">\u0020</string>
     <string name="replay_summary_suffix">in music.</string>
+    <string name="hide_system_volume_panel" translatable="false">Hide system volume panel in player</string>
+    <string name="hide_system_volume_panel_subtitle" translatable="false">Capture volume keys while the player is open so its slider updates without the system popup</string>
 </resources>
