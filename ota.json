@@ -1,45 +1,47 @@
 {
-  "version": "2.1.6",
-  "versionCode": 55,
-  "tvVersionCode": 55,
-  "releaseUrl": "https://github.com/Inventor365/Sonara/releases/tag/v2.1.6",
+  "version": "2.1.7",
+  "versionCode": 56,
+  "tvVersionCode": 56,
+  "releaseUrl": "https://github.com/Inventor365/Sonara/releases/tag/v2.1.7",
   "changelogUrl": "https://raw.githubusercontent.com/Inventor365/Bitchord-OTA/refs/heads/main/changelogs.txt",
   "changelog": [
-    "## Sonara v2.1.6",
-    "![Every theme in view, renaming the Pass, and Reset Sonara](https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.6/strip.jpg)",
-    "- **Rename your Sonara Pass**: tap the pencil on the Pass in Library. The Library title follows at once, and friends see the new name in Listen Together.",
-    "- **Reset Sonara** (Settings → Miscellaneous): show the welcome screen again, or erase everything and start fresh.",
-    "- **Every theme in view**: Appearance shows all five themes at once, Space included.",
-    "- **A quicker Google sign-in**: no \"Use this profile\" tap for single-channel accounts, and Google's Next is pressed for you on the account you picked from your phone."
+    "## Sonara v2.1.7",
+    "![Karaoke, sing-along lyrics, Hide from Home, Export as CSV and automatic cache cleanup](https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.7/strip.jpg)",
+    "- **Karaoke**: the microphone in the player turns down the vocals and opens the lyrics to sing along.",
+    "- **DLNA / UPnP speakers** on your Wi-Fi appear in the output drawer next to Cast.",
+    "- **Hide from Home**, **Export as CSV**, an **A–Z scroller**, **data usage**, and **automatic cache cleanup**.",
+    "- **Adding another Google account works** now, and accounts you've added before go straight through.",
+    "- Synced lyrics on Wear OS and a lyrics widget; Last.fm connects again; liked songs show as liked again.",
+    "- 50 improvements from the BitChord community, all translated into Sonara's 18 languages."
   ],
-  "downloadUrl": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-v2.1.6.apk",
+  "downloadUrl": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-v2.1.7.apk",
   "downloads": {
     "android": {
-      "universal": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-v2.1.6.apk",
-      "arm64-v8a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-v2.1.6_arm64-v8a.apk",
-      "armeabi-v7a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-v2.1.6_armeabi-v7a.apk",
-      "x86_64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-v2.1.6_x86_64.apk"
+      "universal": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-v2.1.7.apk",
+      "arm64-v8a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-v2.1.7_arm64-v8a.apk",
+      "armeabi-v7a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-v2.1.7_armeabi-v7a.apk",
+      "x86_64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-v2.1.7_x86_64.apk"
     },
     "tv": {
-      "universal": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/SonaraTV-v2.1.6.apk",
-      "arm64-v8a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/SonaraTV-v2.1.6_arm64-v8a.apk",
-      "armeabi-v7a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/SonaraTV-v2.1.6_armeabi-v7a.apk",
-      "x86_64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/SonaraTV-v2.1.6_x86_64.apk"
+      "universal": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/SonaraTV-v2.1.7.apk",
+      "arm64-v8a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/SonaraTV-v2.1.7_arm64-v8a.apk",
+      "armeabi-v7a": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/SonaraTV-v2.1.7_armeabi-v7a.apk",
+      "x86_64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/SonaraTV-v2.1.7_x86_64.apk"
     },
-    "wear": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/SonaraWear-v2.1.6.apk",
+    "wear": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/SonaraWear-v2.1.7.apk",
     "windows": {
-      "exe": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-windows-x64-setup.exe",
-      "msi": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-windows-x64.msi",
-      "portable": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-windows-x64-portable.zip"
+      "exe": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-2.1.7-windows-x64-setup.exe",
+      "msi": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-2.1.7-windows-x64.msi",
+      "portable": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-2.1.7-windows-x64-portable.zip"
     },
     "macos": {
-      "arm64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-macos-arm64.dmg",
-      "x64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-macos-x64.dmg"
+      "arm64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-2.1.7-macos-arm64.dmg",
+      "x64": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-2.1.7-macos-x64.dmg"
     },
     "linux": {
-      "appimage": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-linux-x86_64.AppImage",
-      "deb": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-linux-amd64.deb",
-      "rpm": "https://github.com/Inventor365/Sonara/releases/download/v2.1.6/Sonara-2.1.6-linux-x86_64.rpm"
+      "appimage": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-2.1.7-linux-x86_64.AppImage",
+      "deb": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-2.1.7-linux-amd64.deb",
+      "rpm": "https://github.com/Inventor365/Sonara/releases/download/v2.1.7/Sonara-2.1.7-linux-x86_64.rpm"
     }
   }
 }
