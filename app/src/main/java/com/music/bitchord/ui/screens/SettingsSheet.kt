@@ -2318,7 +2318,11 @@ fun SettingsScreen(
                     title = dataUsageTitle,
                     subtitle = stringResource(R.string.data_usage_subtitle),
                     value = DataUsageTracker.formatBytes(dataUsageSummary.last30Days.totalBytes),
-                    onClick = { showDataUsageDialog = true },
+                    onClick = {
+                        DataUsageTracker.sampleAppTraffic(force = true)
+                        DataUsageTracker.flush()
+                        showDataUsageDialog = true
+                    },
                 )
             }
             if (showDataUsageDialog) {

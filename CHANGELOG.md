@@ -8,6 +8,31 @@ All notable changes to **Sonara** (`https://github.com/Inventor365/Sonara`), for
 
 ---
 
+## [2.1.7] — 2026-11-28 (`versionCode = 56`) — Karaoke, DLNA, a better Google sign-in, and 50 community changes
+
+### Added
+- **From kushagrasinghx/BitChord's open pull requests** (49, merged and adapted):
+  - Playback: Karaoke with vocal reduction and sing-along lyrics (#1972); DLNA/UPnP speakers as an output (#1606); the next song preloaded into the cache (#1975); a mid-song lossless upgrade kept whole and replayed from disk (#1475); an Audio focus choice (#1934); Remember shuffle (#1933); playlist Play replaces what's queued (#1946); shuffle mixes a playlist's later pages in (#1938); volume keys move the player's own slider without Android's pop-up (#2015).
+  - Lyrics: synced lyrics on Wear OS (#1685); a synced-lyrics home-screen widget (#1762); the lyrics provider and offset remembered per song (#1746); Arabic translation fixed (#1939); 60 fps lyric videos (#1919).
+  - Library and Home: hide artists, albums, playlists and songs from Home (#2017); hide Trending (#1904); export a playlist or album as CSV (#2014); an A–Z fast scroller on alphabetical playlists (#2013); on-device listening history (#1812); animated covers can fill the player while still covers stay square (#1753).
+  - Storage: data-usage tracking for streaming and downloads (#2018); automatic cache cleanup on a schedule and a size cap (#2016).
+  - Sign-ins: Last.fm through its browser authorization, as password logins stopped working (#1935); removing an inactive account no longer signs the active one out of the in-app browser (#2007).
+  - Fixes: the player's star reads YouTube's new like-status format (#2020); music videos with square thumbnails are videos (#1993); WebDAV credentials are never sent to addons (#1944); TV sign-in server, stream URL and party WebSocket hardening (#1848); listening stats are no longer cut at 36 months (#1932); the first tap after scrolling a menu works (#1968); AutoMix artwork fixes, including stutter over Bluetooth (#1947); a playlist's count no longer doubles (#1917); animated covers don't go black behind sheets (#1779); the "Playing from" caption stays legible (#1955); higher-resolution avatars (#1940); disc order for local albums (#1308); and more.
+  - Web player: keyboard shortcuts and tab title (#1516), Your Playlists and Albums on Home (#1442), play counts (#1441), action toasts (#1428), a floating mini-player (#1464), a sleep timer (#1462).
+  - Translations: better Simplified Chinese and Turkish (#1970, #1903). Every string these PRs added is translated into all 18 of Sonara's languages.
+- **Native Google sign-in** (opt-in, Settings → Miscellaneous): Google Play services' own account sheet, one tap, no web page, through an OAuth token for YouTube (`Innertube.bearer`). Off until Sonara's OAuth client is registered; any refusal falls back to the web sign-in.
+
+### Changed
+- **Web sign-in**: the in-app browser keeps its Google logins, so an account added before goes straight through; the login names the chosen account (`login_hint`) and opens YouTube Music as it (`authuser=<email>`); a session for any other account is refused; the session is taken as soon as YouTube Music lands, and an account with several channels opens Sonara's own profile sheet. Detected brand channels keep their login's `X-Goog-AuthUser`.
+
+### Fixed
+- Signing out really clears Google's login cookies (they are expired with `Secure` too); before, `__Secure-`/`__Host-` cookies survived and the next sign-in landed on the old account, which made adding a second account impossible.
+- Karaoke's vocal level showed "0%%" (Compose resources don't unescape `%%`).
+- Data usage counted nothing (#2018 counted reads Media3 marks as network, and playback reads through the song cache); streaming is now the app's own traffic (`TrafficStats`) less what downloads recorded.
+- `BitChordApp` stays under the JVM's 64 KB method limit: the sign-in, update sheet, Last.fm, WebDAV/SMB editors and upload-conflict alert are their own composables.
+
+---
+
 ## [2.1.6] — 2026-11-22 (`versionCode = 55`) — Pass rename, Reset Sonara, quicker sign-in
 
 ### Added

@@ -41,6 +41,10 @@ data class DataUsageSummary(
 /**
  * Tracks network bytes consumed by audio streaming and offline downloads,
  * split by Wi-Fi vs mobile data and aggregated over daily, 7-day, and 30-day windows.
+ *
+ * Streaming is measured from what Android itself counts for the app ([TrafficStats]), minus
+ * what downloads recorded: playback reads through the song cache, and a cache read is never
+ * marked as a network read, so counting at the player saw nothing at all.
  */
 object DataUsageTracker {
 
@@ -58,6 +62,29 @@ object DataUsageTracker {
     private var appContext: Context? = null
 
     private val lock = Any()
+
+    /** The app's received bytes at the last sample; -1 before the first. */
+    private val lastAppRx = java.util.concurrent.atomic.AtomicLong(-1L)
+    /** Bytes downloads recorded since the last sample, so they aren't counted twice. */
+    private val downloadedSinceSample = java.util.concurrent.atomic.AtomicLong(0L)
+    private val lastSampleMs = java.util.concurrent.atomic.AtomicLong(0L)
+    private const val SAMPLE_INTERVAL_MS = 2_000L
+
+    /**
+     * Counts what the app has received since the last sample as streaming, less what downloads
+     * recorded. Cheap and throttled, so the player can call it on every read.
+     */
+    fun sampleAppTraffic(force: Boolean = false) {
+        val now = System.currentTimeMillis()
+        if (!force && now - lastSampleMs.get() < SAMPLE_INTERVAL_MS) return
+        lastSampleMs.set(now)
+        val rx = android.net.TrafficStats.getUidRxBytes(android.os.Process.myUid())
+        if (rx < 0) return
+        val previous = lastAppRx.getAndSet(rx)
+        if (previous < 0 || rx < previous) return
+        val streamed = rx - previous - downloadedSinceSample.getAndSet(0L)
+        if (streamed > 0) recordStreamBytes(streamed)
+    }
     private val dailyBuckets = LinkedHashMap<String, UsageBreakdown>()
 
     private val pendingStreamWifi = AtomicLong(0L)
@@ -80,6 +107,8 @@ object DataUsageTracker {
             loadLocked(p.getString(KEY_DAILY_JSON, null))
             publishSummaryLocked(LocalDate.now())
         }
+        // The baseline: what the app received before now isn't this session's to count.
+        sampleAppTraffic(force = true)
     }
 
     fun recordStreamBytes(bytes: Long) {
@@ -91,6 +120,7 @@ object DataUsageTracker {
 
     fun recordDownloadBytes(bytes: Long) {
         if (bytes <= 0L) return
+        downloadedSinceSample.addAndGet(bytes)
         val wifi = isUnmeteredNetwork()
         if (wifi) pendingDownloadWifi.addAndGet(bytes) else pendingDownloadMobile.addAndGet(bytes)
         flush()

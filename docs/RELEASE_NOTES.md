@@ -1,4 +1,61 @@
-# Sonara `v2.1.6` (`versionCode = 55`)
+# Sonara `v2.1.7` (`versionCode = 56`)
+
+**Karaoke, DLNA speakers, a better Google sign-in, and 50 improvements from the BitChord community.**
+
+![Sonara 2.1.7: Karaoke and sing-along lyrics, Hide from Home, Export as CSV, automatic cache cleanup](https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.7/strip.jpg)
+
+## What's new in 2.1.7
+
+### Playback
+- **Karaoke.** The microphone beside the output button turns down the vocals in the stereo mix and opens the synced lyrics for singing along, with a slider from fully reduced to the original.
+- **DLNA / UPnP speakers** on your Wi-Fi show up in the output drawer next to Cast.
+- **The next song is ready before you get to it:** it's preloaded into the cache while the current one plays, and a song that upgraded to lossless mid-play keeps that copy for next time.
+- **Audio focus:** pause for other apps' sounds, or keep playing and pause only for calls.
+- **Remember shuffle**, and **Play** on a playlist now replaces what was queued instead of playing your old queue after the first song. Shuffle mixes in a long playlist's later pages too.
+- **Volume keys** move the player's own slider, without Android's volume pop-up (a switch under Playback).
+
+### Lyrics
+- **Synced lyrics on Wear OS**, and a **synced-lyrics home-screen widget**.
+- The lyrics provider and timing you pick are **remembered per song**.
+- Lyric videos export at 60 fps; translation into Arabic works again.
+
+### Home, Library and storage
+- **Hide from Home:** long-press an artist, album, playlist or song to keep it off Home; Settings → Content preferences → Hidden from Home brings it back. **Hide Trending** removes the trending shelves altogether.
+- **Export as CSV** from any playlist or album menu, and an **A–Z fast scroller** on playlists sorted by title.
+- **Data usage:** how much streaming and downloads used today, this week and this month, on Wi-Fi and mobile data.
+- **Automatic cache cleanup** on a schedule or past a size you choose; downloads are never touched.
+- Listening history kept on the device when YouTube's history is off, and listening stats are no longer cut off after three years.
+
+### Sign-in
+- **Adding another Google account works.** Signing out never fully cleared Google's login before, so a second sign-in landed back on the first account. Accounts you've added before now go straight through, Sonara opens YouTube Music as the account you picked, and an account with brand channels lets you pick the profile in Sonara's own sheet.
+- **Native Google sign-in** (Settings → Miscellaneous): Google's own account sheet, one tap, no password. It needs Sonara's Google sign-in to be registered first; until then Sonara uses the web sign-in.
+- **Last.fm** now connects through Last.fm's own page in your browser; its password logins had stopped working.
+
+### Fixes
+- The player's star shows liked songs as liked again (YouTube changed how it reports it).
+- Music videos with square thumbnails are shown as videos.
+- WebDAV passwords are never sent to addons; the TV sign-in server, stream URLs and the party connection are hardened.
+- Smoother AutoMix artwork, including over Bluetooth; animated covers no longer go black behind sheets; a playlist's song count no longer doubles; the first tap after scrolling a menu works; the "Playing from" caption stays readable over light covers.
+
+Every new setting and message is translated into all 18 of Sonara's languages. The web player gains keyboard shortcuts, a floating mini-player, a sleep timer and more.
+
+<table>
+  <tr>
+    <td width="20%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.7/karaoke.jpg" alt="The Karaoke drawer" width="100%" /><br/><sub>Karaoke</sub></td>
+    <td width="20%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.7/sing-along.jpg" alt="Sing-along lyrics with Karaoke on" width="100%" /><br/><sub>Sing along</sub></td>
+    <td width="20%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.7/home-menu.jpg" alt="Hide from Home and Export as CSV in a playlist menu" width="100%" /><br/><sub>Hide from Home · Export as CSV</sub></td>
+    <td width="20%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.7/hidden-from-home.jpg" alt="The list of items hidden from Home" width="100%" /><br/><sub>Hidden from Home</sub></td>
+    <td width="20%" align="center"><img src="https://raw.githubusercontent.com/Inventor365/Sonara/main/docs/screenshots/2.1.7/cache-settings.jpg" alt="Automatic cache cleanup settings" width="100%" /><br/><sub>Automatic cache cleanup</sub></td>
+  </tr>
+</table>
+
+Thanks to everyone who opened these pull requests on [kushagrasinghx/BitChord](https://github.com/kushagrasinghx/BitChord/pulls); each change keeps its author in Sonara's history.
+
+Installs over 2.1.6 and every earlier Sonara or BitChord PlusPC build in place: same app, same signature, same data.
+
+---
+
+## Sonara `v2.1.6` (`versionCode = 55`)
 
 **Rename your Sonara Pass, start over from Settings, see every theme at once, and a quicker Google sign-in.**
 

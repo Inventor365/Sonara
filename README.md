@@ -145,14 +145,14 @@ What that means in practice:
 
 ## 3. Supported Platforms
 
-| Platform | Architectures | Artifacts on [GitHub Releases (latest: `v2.1.6`)](https://github.com/Inventor365/Sonara/releases/latest) |
+| Platform | Architectures | Artifacts on [GitHub Releases (latest: `v2.1.7`)](https://github.com/Inventor365/Sonara/releases/latest) |
 | :--- | :--- | :--- |
-| **Android Phone, Tablet & Auto** | Universal, `arm64-v8a`, `armeabi-v7a`, `x86_64` | `Sonara-v2.1.6.apk`, `Sonara-v2.1.6_<abi>.apk` |
-| **Android TV / Fire TV** | Universal, `arm64-v8a`, `armeabi-v7a`, `x86_64` | `SonaraTV-v2.1.6.apk`, `SonaraTV-v2.1.6_<abi>.apk` |
-| **Wear OS 3+** | Universal (`arm64-v8a`, `armeabi-v7a`) | `SonaraWear-v2.1.6.apk` *(also embedded inside the Phone APK)* |
-| **macOS 12+** | Apple Silicon (`arm64`) & Intel (`x64`) | `Sonara-2.1.6-macos-{arm64,x64}.{dmg,pkg,zip}` |
-| **Windows 10 / 11** | `x64` | `Sonara-2.1.6-windows-x64-setup.exe`, `.msi`, `-portable.zip` |
-| **Linux** | `x86_64` / `amd64` | `Sonara-2.1.6-linux-x86_64.AppImage`, `-linux-amd64.deb`, `-linux-x86_64.rpm` |
+| **Android Phone, Tablet & Auto** | Universal, `arm64-v8a`, `armeabi-v7a`, `x86_64` | `Sonara-v2.1.7.apk`, `Sonara-v2.1.7_<abi>.apk` |
+| **Android TV / Fire TV** | Universal, `arm64-v8a`, `armeabi-v7a`, `x86_64` | `SonaraTV-v2.1.7.apk`, `SonaraTV-v2.1.7_<abi>.apk` |
+| **Wear OS 3+** | Universal (`arm64-v8a`, `armeabi-v7a`) | `SonaraWear-v2.1.7.apk` *(also embedded inside the Phone APK)* |
+| **macOS 12+** | Apple Silicon (`arm64`) & Intel (`x64`) | `Sonara-2.1.7-macos-{arm64,x64}.{dmg,pkg,zip}` |
+| **Windows 10 / 11** | `x64` | `Sonara-2.1.7-windows-x64-setup.exe`, `.msi`, `-portable.zip` |
+| **Linux** | `x86_64` / `amd64` | `Sonara-2.1.7-linux-x86_64.AppImage`, `-linux-amd64.deb`, `-linux-x86_64.rpm` |
 | **Web & Extension** | Chrome / Chromium (MV3) & Firefox | `web/app/` SPA + `web/extension/` companion extension |
 | **Backend Server** | Go 1.27+ (`linux/amd64`, `linux/arm64`, Docker) | `backend/` (Listen Together + Presence + Collaborative Playlists) |
 
@@ -161,33 +161,33 @@ What that means in practice:
 ## 4. Installation Instructions
 
 ### Android (Phone, Android Auto, Android TV & Wear OS)
-1. Download `Sonara-v2.1.6.apk` (universal) or the matching ABI split (`arm64-v8a` for modern phones) from [Releases](https://github.com/Inventor365/Sonara/releases/latest).
+1. Download `Sonara-v2.1.7.apk` (universal) or the matching ABI split (`arm64-v8a` for modern phones) from [Releases](https://github.com/Inventor365/Sonara/releases/latest).
 2. Open the APK and allow installation from your browser/file manager if prompted.
-3. **Android TV**: Install `SonaraTV-v2.1.6.apk` via Downloader, LocalSend, or `adb install -r SonaraTV-v2.1.6.apk`.
-4. **Wear OS**: Open **Settings → Wear OS** in the Sonara phone app to push the bundled watch app over Wi-Fi debugging, or run `adb -s <watch-ip>:<port> install -r SonaraWear-v2.1.6.apk`.
+3. **Android TV**: Install `SonaraTV-v2.1.7.apk` via Downloader, LocalSend, or `adb install -r SonaraTV-v2.1.7.apk`.
+4. **Wear OS**: Open **Settings → Wear OS** in the Sonara phone app to push the bundled watch app over Wi-Fi debugging, or run `adb -s <watch-ip>:<port> install -r SonaraWear-v2.1.7.apk`.
 
 ### macOS (`.dmg`, `.pkg`, and `.zip`)
 1. Pick **`arm64`** for Apple Silicon (`M1`/`M2`/`M3`/`M4`) or **`x64`** for Intel Macs:
-   - **`.dmg` (Recommended)**: Open `Sonara-2.1.6-macos-<arch>.dmg` and drag **Sonara** to **Applications**.
-   - **`.pkg` (Installer)**: Open `Sonara-2.1.6-macos-<arch>.pkg` and follow the macOS Installer wizard to install `/Applications/Sonara.app`.
-   - **`.zip` (Portable)**: Extract `Sonara-2.1.6-macos-<arch>.zip` and move `Sonara.app` to `/Applications`.
+   - **`.dmg` (Recommended)**: Open `Sonara-2.1.7-macos-<arch>.dmg` and drag **Sonara** to **Applications**.
+   - **`.pkg` (Installer)**: Open `Sonara-2.1.7-macos-<arch>.pkg` and follow the macOS Installer wizard to install `/Applications/Sonara.app`.
+   - **`.zip` (Portable)**: Extract `Sonara-2.1.7-macos-<arch>.zip` and move `Sonara.app` to `/Applications`.
 2. **First Launch (Unsigned Build Note)**: Community builds are ad-hoc Mach-O signed (`LC_CODE_SIGNATURE`) and not Apple-notarized. If macOS Gatekeeper blocks the first launch, right-click `Sonara.app` → **Open**, or run:
    ```bash
    xattr -cr /Applications/Sonara.app
    ```
 
 ### Windows
-- **Installer (`.exe` / `.msi`)**: Run `Sonara-2.1.6-windows-x64-setup.exe` or `Sonara-2.1.6-windows-x64.msi`.
-- **Portable (`.zip`)**: Extract `Sonara-2.1.6-windows-x64-portable.zip` anywhere and launch `Sonara\Sonara.exe`.
+- **Installer (`.exe` / `.msi`)**: Run `Sonara-2.1.7-windows-x64-setup.exe` or `Sonara-2.1.7-windows-x64.msi`.
+- **Portable (`.zip`)**: Extract `Sonara-2.1.7-windows-x64-portable.zip` anywhere and launch `Sonara\Sonara.exe`.
 
 ### Linux
 - **AppImage (Universal)**:
   ```bash
-  chmod +x Sonara-2.1.6-linux-x86_64.AppImage
-  ./Sonara-2.1.6-linux-x86_64.AppImage
+  chmod +x Sonara-2.1.7-linux-x86_64.AppImage
+  ./Sonara-2.1.7-linux-x86_64.AppImage
   ```
-- **Debian / Ubuntu (`.deb`)**: `sudo apt install ./Sonara-2.1.6-linux-amd64.deb`
-- **Fedora / RHEL / openSUSE (`.rpm`)**: `sudo dnf install ./Sonara-2.1.6-linux-x86_64.rpm`
+- **Debian / Ubuntu (`.deb`)**: `sudo apt install ./Sonara-2.1.7-linux-amd64.deb`
+- **Fedora / RHEL / openSUSE (`.rpm`)**: `sudo dnf install ./Sonara-2.1.7-linux-x86_64.rpm`
 
 ### Web App & Companion Browser Extension
 ```bash

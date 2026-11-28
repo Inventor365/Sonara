@@ -5004,9 +5004,9 @@ class PlaybackService : MediaLibraryService() {
                 bytesTransferred: Int,
             ) {
                 bytes.addAndGet(bytesTransferred.toLong())
-                if (isNetwork && bytesTransferred > 0) {
-                    DataUsageTracker.recordStreamBytes(bytesTransferred.toLong())
-                }
+                // Reads come through the song cache, which never reports itself as
+                // network, so the tracker measures the app's own traffic instead.
+                if (bytesTransferred > 0) DataUsageTracker.sampleAppTraffic()
                 delegate.transferListener?.onBytesTransferred(source, dataSpec, isNetwork, bytesTransferred)
             }
 
