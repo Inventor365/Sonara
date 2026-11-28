@@ -1785,4 +1785,7 @@
     <string name="data_usage" translatable="false">Data usage</string>
     <string name="data_usage_subtitle" translatable="false">Streaming and download data consumed today, this week, and this month</string>
     <string name="reset" translatable="false">Reset</string>
+    <string name="export_csv" translatable="false">Export as CSV</string>
+    <string name="export_csv_success" translatable="false">Exported %1$d tracks to CSV</string>
+    <string name="export_csv_failed" translatable="false">Failed to export CSV</string>
 </resources>
